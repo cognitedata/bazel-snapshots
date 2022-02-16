@@ -1,0 +1,15 @@
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+# gazelle:prefix github.com/cognitedata/bazel-snapshots
+gazelle(name = "gazelle")
+
+gazelle(
+    name = "gazelle-update-repos",
+    args = [
+        "-from_file=go.mod",
+        "-to_macro=deps.bzl%go_dependencies",
+        "-build_file_proto_mode=disable_global",
+        "-prune",
+    ],
+    command = "update-repos",
+)
