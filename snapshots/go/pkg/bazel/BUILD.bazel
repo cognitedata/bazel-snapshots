@@ -7,7 +7,7 @@ go_library(
         "buildevents.go",
         "cache.go",
     ],
-    importpath = "github.com/cognitedata/infrastructure/build/rules/snapshots/pkg/bazel",
+    importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/bazel",
     visibility = ["//visibility:public"],
     deps = [
         "@org_golang_google_genproto//googleapis/bytestream",
@@ -25,7 +25,6 @@ go_test(
     embed = [":bazel"],
     deps = [
         "@com_github_stretchr_testify//require",
-        "@io_bazel_rules_go//go/tools/bazel:go_default_library",
         "@org_golang_google_genproto//googleapis/bytestream",
         "@org_golang_google_grpc//:grpc",
         "@org_golang_google_grpc//codes",
