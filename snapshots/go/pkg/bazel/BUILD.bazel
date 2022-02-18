@@ -1,0 +1,35 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "bazel",
+    srcs = [
+        "bazel.go",
+        "buildevents.go",
+        "cache.go",
+    ],
+    importpath = "github.com/cognitedata/infrastructure/build/rules/snapshots/pkg/bazel",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@org_golang_google_genproto//googleapis/bytestream",
+        "@org_golang_google_grpc//:grpc",
+        "@org_golang_google_grpc//codes",
+    ],
+)
+
+go_test(
+    name = "bazel_test",
+    srcs = ["cache_test.go"],
+    data = [
+        "cache_test.go",  # the test needs a file to read
+    ],
+    embed = [":bazel"],
+    deps = [
+        "@com_github_stretchr_testify//require",
+        "@io_bazel_rules_go//go/tools/bazel:go_default_library",
+        "@org_golang_google_genproto//googleapis/bytestream",
+        "@org_golang_google_grpc//:grpc",
+        "@org_golang_google_grpc//codes",
+        "@org_golang_google_grpc//status",
+        "@org_golang_google_grpc//test/bufconn",
+    ],
+)
