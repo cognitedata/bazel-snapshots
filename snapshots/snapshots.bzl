@@ -1,6 +1,6 @@
 """Snapshot rules for incremental deploys."""
 
-# load("@io_bazel_rules_docker//container:providers.bzl", "BundleInfo")
+load("@io_bazel_rules_docker//container:providers.bzl", "BundleInfo")
 load("@bazel_skylib//lib:shell.bzl", "shell")
 
 SNAPTOOL_ATTRS = {
@@ -58,13 +58,12 @@ def _change_tracker_impl(ctx):
     track_files = []
     bundle_infos = []
     for dep in ctx.attr.deps:
-        track_files.extend(dep.files.to_list())
-        # if BundleInfo in dep:
-        #     # Handle BundleInfos separately
-        #     bundle_infos.append(dep[BundleInfo])
-        # else:
-        #     # Handle other targets by just adding all the files
-        #     track_files.extend(dep.files.to_list())
+        if BundleInfo in dep:
+            # Handle BundleInfos separately
+            bundle_infos.append(dep[BundleInfo])
+        else:
+            # Handle other targets by just adding all the files
+            track_files.extend(dep.files.to_list())
 
     # unique track_files
     track_files = [x for i, x in enumerate(track_files) if i == track_files.index(x)]

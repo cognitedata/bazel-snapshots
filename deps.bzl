@@ -1,5 +1,6 @@
 """Defines the go dependencies for bazel-snapshots."""
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("@bazel_gazelle//:deps.bzl", _go_repository = "go_repository")
 
@@ -11,6 +12,14 @@ def go_repository(name, **kwargs):
     )
 
 def snapshots_deps():
+    maybe(
+        http_archive,
+        name = "io_bazel_rules_docker",
+        sha256 = "85ffff62a4c22a74dbd98d05da6cf40f497344b3dbf1e1ab0a37ab2a1a6ca014",
+        strip_prefix = "rules_docker-0.23.0",
+        urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.23.0/rules_docker-v0.23.0.tar.gz"],
+    )
+
     go_dependencies()
 
 def go_dependencies():
