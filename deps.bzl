@@ -1,21 +1,17 @@
 """Defines the go dependencies for bazel-snapshots."""
 
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("@bazel_gazelle//:deps.bzl", _go_repository = "go_repository")
 
-def dependencies():
-    """Dependencies for building from source."""
+def go_repository(name, **kwargs):
+    maybe(
+        _go_repository,
+        name = name,
+        **kwargs,
+    )
+
+def snapshots_deps():
     go_dependencies()
-
-    go_rules_dependencies()
-
-    go_register_toolchains(version = "1.17.2")
-
-    gazelle_dependencies()
-
-    protobuf_deps()
-
 
 def go_dependencies():
     """Go dependencies defined using Gazelle.
