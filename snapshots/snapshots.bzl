@@ -6,7 +6,7 @@ load("@bazel_skylib//lib:shell.bzl", "shell")
 SNAPTOOL_ATTRS = {
     "_snaptool": attr.label(
         executable = True,
-        default = Label("//snapshots/go/cmd/snaptool"),
+        default = Label("@snapshots-bin//:snapshots"),
         cfg = "host",
     ),
 }
@@ -131,9 +131,10 @@ _snaptool_runner = rule(
     implementation = _snaptool_runner_impl,
     attrs = {
         "snaptool": attr.label(
-            default = "//snapshots/go/cmd/snaptool",
+            default = "@snapshots-bin//:snapshots",
             cfg = "host",
             executable = True,
+            allow_single_file = True,
         ),
         "bucket": attr.string(
             mandatory = True,
