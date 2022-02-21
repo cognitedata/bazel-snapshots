@@ -1,0 +1,14 @@
+workspace(name = "build-from-source")
+
+local_repository(
+    name = "com_cognitedata_bazel_snapshots",
+    path = "../../",
+)
+
+load("@com_cognitedata_bazel_snapshots//:repositories.bzl", "repositories")
+
+repositories()
+
+load("@com_cognitedata_bazel_snapshots//:deps.bzl", "dependencies")
+
+dependencies()
