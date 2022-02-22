@@ -47,7 +47,6 @@ func (*collectConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.
 	fs.BoolVar(&cc.bazelCacheGRPCInsecure, "bazel_cache_grpc_insecure", true, "use insecure connection for grpc bazel cache")
 	fs.BoolVar(&cc.bazelStderr, "bazel_stderr", false, "show stderr from bazel")
 	fs.StringVar(&cc.outPath, "out", "", "output file path")
-	fs.BoolVar(&cc.push, "push", false, "also push the snapshot to bucket")
 	fs.BoolVar(&cc.noPrint, "no-print", false, "don't print if not writing to file")
 }
 
@@ -67,11 +66,10 @@ func runCollect(args []string) error {
 	cexts := []config.Configurer{
 		&bazelConfigurer{},
 		&collectConfigurer{},
-		&pushConfigurer{},
 	}
 	c, err := newConfiguration("collect", args, cexts, collectUsage)
 	if err != nil {
-		return err
+		return fmt.Errorf("config error: %w", err)
 	}
 
 	cc := getCollectConfig(c)

@@ -3,9 +3,6 @@ load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snaptool")
 # Output based change detection.
 #
 # Usage:
-#   # generate manifest
+#   # generate snapshot
 #   bazel run snaptool -- collect
-snaptool(
-    name = "snaptool",
-    bucket = "cognite-jenkins-cd-bazel-snapshots",
-)
+snaptool(name = "snaptool")

@@ -5,7 +5,4 @@ load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snaptool")
 # Usage:
 #   # generate manifest
 #   bazel run snaptool -- collect
-snaptool(
-    name = "snaptool",
-    bucket = "cognite-jenkins-cd-bazel-snapshots",
-)
+snaptool(name = "snaptool")

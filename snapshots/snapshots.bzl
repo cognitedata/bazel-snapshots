@@ -137,8 +137,7 @@ _snaptool_runner = rule(
             allow_single_file = True,
         ),
         "bucket": attr.string(
-            mandatory = True,
-            doc = "Name of the bucket to use",
+            doc = "Name of the bucket to use (optional)",
         ),
         "_template": attr.label(
             default = "//snapshots:runner.tmpl.sh",
@@ -148,12 +147,12 @@ _snaptool_runner = rule(
     executable = True,
 )
 
-def snaptool(name, bucket):
+def snaptool(name, **kwargs):
     runner_name = "{name}-runner".format(name = name)
     _snaptool_runner(
         name = runner_name,
-        bucket = bucket,
         tags = ["manual"],
+        **kwargs,
     )
     native.sh_binary(
         name = name,
