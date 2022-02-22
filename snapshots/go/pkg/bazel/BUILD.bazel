@@ -25,6 +25,7 @@ go_test(
     embed = [":bazel"],
     deps = [
         "@com_github_stretchr_testify//require",
+        "@io_bazel_rules_go//go/tools/bazel:go_default_library",
         "@org_golang_google_genproto//googleapis/bytestream",
         "@org_golang_google_grpc//:grpc",
         "@org_golang_google_grpc//codes",

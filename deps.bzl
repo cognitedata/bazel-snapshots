@@ -2,14 +2,17 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-load("@bazel_gazelle//:deps.bzl", _go_repository = "go_repository")
+load("@bazel_gazelle//:deps.bzl", "go_repository")
 
-def go_repository(name, **kwargs):
+def _go_repository(name, **kwargs):
     maybe(
-        _go_repository,
+        go_repository,
         name = name,
-        **kwargs,
+        **kwargs
     )
+
+def _gazelle_ignore(**kwargs):
+    """Dummy macro which causes gazelle to see a repository as already defined."""
 
 def snapshots_deps():
     maybe(
@@ -27,6 +30,7 @@ def go_dependencies():
 
     Update using `bazel run gazelle-update-repos`.
     """
+    go_repository = _go_repository  # keep
     go_repository(
         name = "co_honnef_go_tools",
         build_file_proto_mode = "disable_global",
@@ -62,6 +66,13 @@ def go_dependencies():
         importpath = "github.com/armon/go-socks5",
         sum = "h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=",
         version = "v0.0.0-20160902184237-e75332964ef5",
+    )
+    _gazelle_ignore(
+        name = "com_github_bazelbuild_rules_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/bazelbuild/rules_go",
+        sum = "h1:kX4jVcstqrsRqKPJSn2mq2o+TI21edRzEJSrEOMQtr0=",
+        version = "v0.30.0",
     )
 
     go_repository(

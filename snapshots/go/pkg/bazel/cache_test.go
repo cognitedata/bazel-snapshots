@@ -2,9 +2,11 @@ package bazel
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"testing"
 
+	bazeltools "github.com/bazelbuild/rules_go/go/tools/bazel"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/genproto/googleapis/bytestream"
 	"google.golang.org/grpc"
@@ -31,12 +33,12 @@ func TestFileBazelCache(t *testing.T) {
 	require.Nil(t, contents)
 
 	// read this file
-	// thisFile, err := bazeltools.Runfile("build/rules/snapshots/pkg/bazel/cache_test.go")
-	// require.Nil(t, err)
-	// contents, err = c.Read(ctx, fmt.Sprintf("file://%s", thisFile))
-	// require.Nil(t, err)
-	// require.Contains(t, string(contents), "literally anything goes here because we're reading this file")
-	// require.NotNil(t, contents)
+	thisFile, err := bazeltools.Runfile("snapshots/go/pkg/bazel/cache_test.go")
+	require.Nil(t, err)
+	contents, err = c.Read(ctx, fmt.Sprintf("file://%s", thisFile))
+	require.Nil(t, err)
+	require.Contains(t, string(contents), "literally anything goes here because we're reading this file")
+	require.NotNil(t, contents)
 }
 
 func TestDelegatingBazelCache(t *testing.T) {
@@ -66,11 +68,11 @@ func TestDelegatingBazelCache(t *testing.T) {
 	require.Nil(t, contents)
 
 	// delegate to file
-	// thisFile, err := bazeltools.Runfile("build/rules/snapshots/pkg/bazel/cache_test.go")
-	// require.Nil(t, err)
-	// contents, err = c.Read(ctx, fmt.Sprintf("file://%s", thisFile))
-	// require.Nil(t, err)
-	// require.NotNil(t, contents)
+	thisFile, err := bazeltools.Runfile("snapshots/go/pkg/bazel/cache_test.go")
+	require.Nil(t, err)
+	contents, err = c.Read(ctx, fmt.Sprintf("file://%s", thisFile))
+	require.Nil(t, err)
+	require.NotNil(t, contents)
 }
 
 type mockByteStreamServer struct {

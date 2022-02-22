@@ -1,8 +1,8 @@
 workspace(name = "com_cognitedata_bazel_snapshots")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
 # gazelle:repository go_repository name=io_bazel_rules_go importpath=github.com/bazelbuild/rules_go
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "io_bazel_rules_go",
@@ -24,7 +24,6 @@ http_archive(
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-
 load(":deps.bzl", "snapshots_deps")
 
 # gazelle:repository_macro deps.bzl%go_dependencies
@@ -35,4 +34,3 @@ go_rules_dependencies()
 go_register_toolchains(version = "1.17.2")
 
 gazelle_dependencies()
-

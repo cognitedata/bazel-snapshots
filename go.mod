@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	cloud.google.com/go/storage v1.21.0
+	github.com/bazelbuild/rules_go v0.30.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/pflag v1.0.5
