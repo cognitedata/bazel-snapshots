@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
+	"strings"
 
-	"github.com/go-git/go-git/v5"
 	flag "github.com/spf13/pflag"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
@@ -37,13 +38,13 @@ func newConfiguration(name string, args []string, cexts []config.Configurer, usa
 }
 
 func getGitHead(path string) (string, error) {
-	r, err := git.PlainOpen(path)
+	cmd := exec.Command("git", "rev-parse", "HEAD")
+	cmd.Dir = path
+
+	out, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("failed to open git repo %s: %w", path, err)
+		return "", fmt.Errorf("failed to get name from git: %w", err)
 	}
-	head, err := r.Head()
-	if err != nil {
-		return "", fmt.Errorf("failed to find git head: %w", err)
-	}
-	return head.Hash().String(), nil
+
+	return strings.TrimSpace(string(out)), nil
 }

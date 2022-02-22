@@ -19,7 +19,6 @@ go_library(
         "//snapshots/go/pkg/bazel",
         "//snapshots/go/pkg/config",
         "//snapshots/go/pkg/models",
-        "@com_github_go_git_go_git_v5//:go-git",
         "@com_github_olekukonko_tablewriter//:tablewriter",
         "@com_github_spf13_pflag//:pflag",
         "@com_google_cloud_go_storage//:storage",
