@@ -1,6 +1,6 @@
 """Snapshot rules for incremental deploys."""
 
-load("@io_bazel_rules_docker//container:providers.bzl", "BundleInfo")
+load("@io_bazel_rules_docker//container:providers.bzl", "BundleInfo", "ImageInfo")
 load("@bazel_skylib//lib:shell.bzl", "shell")
 
 SNAPTOOL_ATTRS = {
@@ -61,6 +61,10 @@ def _change_tracker_impl(ctx):
         if BundleInfo in dep:
             # Handle BundleInfos separately
             bundle_infos.append(dep[BundleInfo])
+        elif ImageInfo in dep:
+            # When passing a container_image as a dependency, use the blobsum
+            # files for tracking
+            track_files.extend(dep[ImageInfo].container_parts["blobsum"])
         else:
             # Handle other targets by just adding all the files
             track_files.extend(dep.files.to_list())
