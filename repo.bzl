@@ -2,11 +2,11 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "read_netrc", "use_netrc")
 
 URLS = {
     "darwin_amd64": {
-        "url": "https://cognite.jfrog.io/artifactory/internal-bins/cognite/bazel-snapshots/snapshots-darwin-amd64",
-        "sha256": "fe8638e2ed906a5903b893c476a04867990d2f7869f062e4cc6e4eb841364828",
+        "url": "https://github.com/cognitedata/bazel-snapshots/releases/download/v0.0.1/snapshots-darwin-amd64",
+        "sha256": "2bd4950e27f5204169cacb75c113162c9d3ffebd154ab1edae0719f62da41a99",
     },
     "linux_amd64": {
-        "url": "https://cognite.jfrog.io/artifactory/internal-bins/cognite/bazel-snapshots/snapshots-linux-amd64",
+        "url": "https://github.com/cognitedata/bazel-snapshots/releases/download/v0.0.1/snapshots-linux-amd64",
         "sha256": "1a0d9166eb9b4028de72b105d2cbf77729ac313a3355f4189353a8c4d7a422a6",
     }
 }

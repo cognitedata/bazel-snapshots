@@ -32,3 +32,22 @@ go_binary(
     embed = [":snapshots_lib"],
     visibility = ["//visibility:public"],
 )
+
+PLATFORMS = [
+    ("linux", "amd64"),
+    ("darwin", "amd64"),
+]
+
+[
+    go_binary(
+        name = "snapshots-{goos}-{goarch}".format(
+            goarch = goarch,
+            goos = goos,
+        ),
+        embed = [":snapshots_lib"],
+        goarch = goarch,
+        goos = goos,
+        visibility = ["//visibility:public"],
+    )
+    for (goos, goarch) in PLATFORMS
+]
