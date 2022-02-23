@@ -1,0 +1,8 @@
+load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snapshots")
+
+# Output based change detection.
+#
+# Usage:
+#   # generate snapshot
+#   bazel run snapshots -- collect
+snapshots(name = "snapshots")

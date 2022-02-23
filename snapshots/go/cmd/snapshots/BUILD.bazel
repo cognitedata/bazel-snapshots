@@ -1,0 +1,34 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "snapshots_lib",
+    srcs = [
+        "collect.go",
+        "config.go",
+        "diff.go",
+        "digest.go",
+        "get.go",
+        "push.go",
+        "snapshots.go",
+        "tag.go",
+        "utils.go",
+    ],
+    importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/cmd/snapshots",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//snapshots/go/pkg/bazel",
+        "//snapshots/go/pkg/config",
+        "//snapshots/go/pkg/models",
+        "@com_github_olekukonko_tablewriter//:tablewriter",
+        "@com_github_spf13_pflag//:pflag",
+        "@com_google_cloud_go_storage//:storage",
+        "@org_golang_google_api//iterator",
+        "@org_golang_google_grpc//:grpc",
+    ],
+)
+
+go_binary(
+    name = "snapshots",
+    embed = [":snapshots_lib"],
+    visibility = ["//visibility:public"],
+)
