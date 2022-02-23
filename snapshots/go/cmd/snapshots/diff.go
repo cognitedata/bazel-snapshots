@@ -268,8 +268,8 @@ current state (see collect). Snapshots can either be files, tags or snapshot
 names.
 
 Examples:
-	snaptool diff /path/to/snapshot.json
-	snaptool diff deployed
+	snapshots diff /path/to/snapshot.json
+	snapshots diff deployed
 
 FLAGS:
 `)

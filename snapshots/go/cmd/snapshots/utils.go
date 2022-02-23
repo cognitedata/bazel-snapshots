@@ -16,7 +16,7 @@ func newConfiguration(name string, args []string, cexts []config.Configurer, usa
 
 	cexts = append([]config.Configurer{&commonConfigurer{}}, cexts...)
 
-	fs := flag.NewFlagSet("snaptool", flag.ContinueOnError)
+	fs := flag.NewFlagSet("snapshots", flag.ContinueOnError)
 	fs.Usage = func() {}
 	for _, cext := range cexts {
 		cext.RegisterFlags(fs, name, c)

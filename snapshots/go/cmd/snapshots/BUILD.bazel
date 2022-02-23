@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
 go_library(
-    name = "snaptool_lib",
+    name = "snapshots_lib",
     srcs = [
         "collect.go",
         "config.go",
@@ -9,11 +9,11 @@ go_library(
         "digest.go",
         "get.go",
         "push.go",
-        "snaptool.go",
+        "snapshots.go",
         "tag.go",
         "utils.go",
     ],
-    importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/cmd/snaptool",
+    importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/cmd/snapshots",
     visibility = ["//visibility:public"],
     deps = [
         "//snapshots/go/pkg/bazel",
@@ -28,7 +28,7 @@ go_library(
 )
 
 go_binary(
-    name = "snaptool",
-    embed = [":snaptool_lib"],
+    name = "snapshots",
+    embed = [":snapshots_lib"],
     visibility = ["//visibility:public"],
 )

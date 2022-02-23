@@ -1,4 +1,4 @@
-// package config provides lightweight configuration utilities for Snaptool.
+// package config provides lightweight configuration utilities for Snapshots.
 package config
 
 import (

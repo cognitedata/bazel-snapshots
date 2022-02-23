@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ARGS=@@ARGS@@
-SNAPTOOL=@@SNAPTOOL@@
+SNAPSHOTS=@@SNAPSHOTS@@
 
 # args should go after the command to run
 COMMAND="${1-}"
@@ -13,4 +13,4 @@ if [ $# -ne 0 ]; then
     ARGS+=("$@")
 fi
 
-"$SNAPTOOL" "$COMMAND" "${ARGS[@]}"
+"$SNAPSHOTS" "$COMMAND" "${ARGS[@]}"

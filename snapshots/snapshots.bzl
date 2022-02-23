@@ -3,8 +3,8 @@
 load("@io_bazel_rules_docker//container:providers.bzl", "BundleInfo", "ImageInfo")
 load("@bazel_skylib//lib:shell.bzl", "shell")
 
-SNAPTOOL_ATTRS = {
-    "_snaptool": attr.label(
+SNAPSHOTS_ATTRS = {
+    "_snapshots": attr.label(
         executable = True,
         default = Label("@snapshots-bin//:snapshots"),
         cfg = "host",
@@ -46,7 +46,7 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
     ctx.actions.run(
         outputs = [tracker_file],
         inputs = inputs,
-        executable = ctx.executable._snaptool,
+        executable = ctx.executable._snapshots,
         arguments = [args],
         progress_message = "Creating tracker",
         mnemonic = "ChangeTracker",
@@ -85,7 +85,7 @@ def _change_tracker_impl(ctx):
 
 _change_tracker = rule(
     implementation = _change_tracker_impl,
-    attrs = dict(SNAPTOOL_ATTRS, **{
+    attrs = dict(SNAPSHOTS_ATTRS, **{
         "run": attr.label_list(
             doc = "List of executable targets to run when there are changes to deps",
         ),
@@ -102,7 +102,7 @@ def change_tracker(name, **kwargs):
         **kwargs
     )
 
-def _snaptool_runner_impl(ctx):
+def _snapshots_runner_impl(ctx):
     args = []
     args.extend(["--gcs-bucket", ctx.attr.bucket])
     args.extend(["--workspace-name", ctx.workspace_name])
@@ -110,7 +110,7 @@ def _snaptool_runner_impl(ctx):
     out_file = ctx.actions.declare_file(ctx.label.name + ".bash")
     substitutions = {
         "@@ARGS@@": shell.array_literal(args),
-        "@@SNAPTOOL@@": ctx.executable.snaptool.short_path,
+        "@@SNAPSHOTS@@": ctx.executable.snapshots.short_path,
     }
     ctx.actions.expand_template(
         template = ctx.file._template,
@@ -119,9 +119,9 @@ def _snaptool_runner_impl(ctx):
         is_executable = True,
     )
     runfiles = ctx.runfiles(files = [
-        ctx.executable.snaptool,
+        ctx.executable.snapshots,
     ]).merge(
-        ctx.attr.snaptool[DefaultInfo].default_runfiles,
+        ctx.attr.snapshots[DefaultInfo].default_runfiles,
     )
     return [
         DefaultInfo(
@@ -131,10 +131,10 @@ def _snaptool_runner_impl(ctx):
         ),
     ]
 
-_snaptool_runner = rule(
-    implementation = _snaptool_runner_impl,
+_snapshots_runner = rule(
+    implementation = _snapshots_runner_impl,
     attrs = {
-        "snaptool": attr.label(
+        "snapshots": attr.label(
             default = "@snapshots-bin//:snapshots",
             cfg = "host",
             executable = True,
@@ -151,9 +151,9 @@ _snaptool_runner = rule(
     executable = True,
 )
 
-def snaptool(name, **kwargs):
+def snapshots(name, **kwargs):
     runner_name = "{name}-runner".format(name = name)
-    _snaptool_runner(
+    _snapshots_runner(
         name = runner_name,
         tags = ["manual"],
         **kwargs,

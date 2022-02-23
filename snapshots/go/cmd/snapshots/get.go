@@ -151,7 +151,7 @@ Resolves and fetches a snapshot, either by tag or snapshot name. Tag has
 priority.
 
 Examples:
-	snaptool get deployed
+	snapshots get deployed
 
 FLAGS:
 `)

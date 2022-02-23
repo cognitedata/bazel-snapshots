@@ -1,5 +1,5 @@
-// Command snaptool interacts with snapshots for Bazel projects.
-// See "snaptool --help" for more information.
+// Command snapshots interacts with snapshots for Bazel projects.
+// See "snapshots --help" for more information.
 package main
 
 import (
@@ -33,7 +33,7 @@ var commandFromName = map[string]command{
 }
 
 func main() {
-	log.SetPrefix("snaptool: ")
+	log.SetPrefix("snapshots: ")
 	log.SetFlags(0) // don't print timestamps
 
 	if err := run(os.Args[1:]); err != nil && err != flag.ErrHelp {
@@ -74,11 +74,11 @@ func run(args []string) error {
 }
 
 func runHelp() error {
-	fmt.Fprint(os.Stderr, `usage: snaptool <command> [args...]
-Snaptool is a tool for creating and interacting with Snapshots for Bazel.
+	fmt.Fprint(os.Stderr, `usage: snapshots <command> [args...]
+Snapshots is a tool for creating and interacting with Snapshots for Bazel.
 These snapshots are summaries of the outputs of a set of Bazel targets, and
 can be used to check whether a target has changed.
-Snaptool may be run with one of the commands below.
+Snapshots may be run with one of the commands below.
 	digest - Create a digest of a set of files.
 	collect - Create a snapshot from all tracker files.
 	diff - Compute difference between two snapshots.
@@ -88,8 +88,8 @@ Snaptool may be run with one of the commands below.
 	help - Show this message
 For usage information for a specific command, run the command with the -h flag.
 For example:
-	snaptool digest -h
-Snaptool is under active development, and its interface may change without
+	snapshots digest -h
+Snapshots is under active development, and its interface may change without
 notice.
 `)
 	return flag.ErrHelp

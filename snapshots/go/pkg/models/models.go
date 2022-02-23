@@ -1,4 +1,4 @@
-// package models defines models used internally in snaptool
+// package models defines models used internally in snapshots
 package models
 
 import "encoding/json"

@@ -39,7 +39,7 @@ def _get_url(ctx):
 
 def _snapshots_repos(ctx):
     if ctx.attr.from_source:
-        ctx.file("BUILD", 'alias(name="snapshots", actual="@com_cognitedata_bazel_snapshots//snapshots/go/cmd/snaptool", visibility=["//visibility:public"])')
+        ctx.file("BUILD", 'alias(name="snapshots", actual="@com_cognitedata_bazel_snapshots//snapshots/go/cmd/snapshots", visibility=["//visibility:public"])')
         return
 
     (url, sha256) = _get_url(ctx)

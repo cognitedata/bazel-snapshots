@@ -1,5 +1,5 @@
 // package bazel provides a simple Bazel API for the specific functionality
-// needed in snaptool.
+// needed in snapshots.
 package bazel
 
 import (
@@ -45,7 +45,7 @@ func (c *Client) Command(ctx context.Context, args ...string) ([]byte, error) {
 
 func (c *Client) BuildEventOutput(ctx context.Context, args ...string) ([]BuildEventOutput, error) {
 	// create a temporary file
-	f, err := os.CreateTemp("", "snaptool-collect")
+	f, err := os.CreateTemp("", "snapshots-collect")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temporary file: %w", err)
 	}
