@@ -1,3 +1,5 @@
+/* Copyright 2022 Cognite AS */
+
 // Command snapshots interacts with snapshots for Bazel projects.
 // See "snapshots --help" for more information.
 package main

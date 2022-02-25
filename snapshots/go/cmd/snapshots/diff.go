@@ -1,3 +1,5 @@
+/* Copyright 2022 Cognite AS */
+
 package main
 
 import (

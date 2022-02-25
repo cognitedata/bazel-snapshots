@@ -1,3 +1,5 @@
+/* Copyright 2022 Cognite AS */
+
 // package config provides lightweight configuration utilities for Snapshots.
 package config
 
