@@ -1,3 +1,5 @@
+/* Copyright 2022 Cognite AS */
+
 // package bazel provides a simple Bazel API for the specific functionality
 // needed in snapshots.
 package bazel

@@ -1,3 +1,5 @@
+/* Copyright 2022 Cognite AS */
+
 // package models defines models used internally in snapshots
 package models
 
