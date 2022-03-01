@@ -8,7 +8,7 @@ The rule will generate a JSON file containing and output like this:
 The digest is a hash of the ```deps``` attribute and run is an array containing the targets
 specified in the ```run``` atribute. 
 
-The tags comes from the ```tracker_tags``` attribute of the rule and can contain an arbitrary list of tags. These tags can be used for querying with jq or some 
+The tags come from the ```tracker_tags``` attribute of the rule and can contain an arbitrary list of tags. These tags can be used for querying with jq or some 
 other JSON tool after running the diff command ```bazel run snapshots -- diff --format=json --stderr-pretty $(pwd)/old_tracker.json```. 
 This command will output a list of changes in the format below.
 ```
