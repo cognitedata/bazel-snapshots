@@ -1,6 +1,6 @@
 # Integrating with custom rules
 
-It may be desirable to integrate snapshots with your custom rules, instead of using the the ```change_tracker``` rule. 
+It may be desirable to integrate snapshots with your custom rules, instead of using the ```change_tracker``` rule. 
 This directory contains an example of that. In the [deployable-filegroup](./rules/deployable-filegroup/) directory we define
 a rule called ```deployable_filegroup``` which takes a single attribute, ```srcs```, which is a list of files. 
 The rule creates an executable target which can be used to "deploy"(in this case just print the name) the list files provided in the 
