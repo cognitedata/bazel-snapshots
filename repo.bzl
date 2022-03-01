@@ -43,11 +43,11 @@ snapshots_binaries = repository_rule(
     }
 )
 
-def snapshots_repos(name, from_source = False):
+def snapshots_repos(name = "snapshots", from_source = False):
     """Fetches the necessary repositories for bazel-snapshots.
 
     Args:
-      name: unique name
+      name: unique name (defaults to "snapshots")
       from_source: if True, will not fetch binaries and instead build the
         snapshots tool from source.
     """

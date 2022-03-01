@@ -37,7 +37,7 @@ local_repository(
 
 load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
 
-snapshots_repos(name = "snapshots", from_source = True)
+snapshots_repos(name = "snapshots")
 
 load("@com_cognitedata_bazel_snapshots//:deps.bzl", "snapshots_deps")
 
