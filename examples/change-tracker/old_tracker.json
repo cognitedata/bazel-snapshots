@@ -1,0 +1,13 @@
+{
+  "labels": {
+    "//:artifact_change_tracker": {
+      "digest": "6244db3ebf208f21526de3e458d396e3802eb6903ff8d591ba0a90bb21837a2c",
+      "run": [
+        "//:deploy"
+      ],
+      "tags": [
+        "deployable"
+      ]
+    }
+  }
+}
