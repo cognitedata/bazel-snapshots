@@ -23,7 +23,7 @@ echo "deploying {paths}"
         ctx,
         files,
         run = [ctx.label],
-        tracker_tags = ["deployable_filegroup"],
+        tags = ["deployable_filegroup"],
     )
 
     return [

@@ -43,7 +43,6 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
 
     args.add_all(inputs)
 
-    print(args)
     ctx.actions.run(
         outputs = [tracker_file],
         inputs = inputs,
