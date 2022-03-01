@@ -29,7 +29,7 @@ This command will output a list of changes in the format below.
 
 When runnig ```bazel run snapshots -- collect``` the snapshots tool run a query against the output group with 
 name ```change_track_files``` which is the output group created by ```change_tracker```. It will then aggregate all 
-the files into a single JSON file containg a list of digests and run targets. The ouput will look like the JSON object below.
+the files into a single JSON file containing a list of digests and run targets. The ouput will look like the JSON object below.
 
 ```
 {
