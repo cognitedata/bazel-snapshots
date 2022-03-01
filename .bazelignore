@@ -1,3 +1,4 @@
 examples/build-from-source
 examples/use-binaries
 examples/integrate-with-other-rules
+examples/change-tracker
