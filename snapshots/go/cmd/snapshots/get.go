@@ -11,12 +11,12 @@ import (
 	"io/ioutil"
 	"os"
 
-	"cloud.google.com/go/storage"
+	"github.com/graymeta/stow"
 	flag "github.com/spf13/pflag"
-	"google.golang.org/api/iterator"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
 )
 
 type getConfig struct {
@@ -83,26 +83,33 @@ func runGet(args []string) error {
 }
 
 func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
-	sclient, err := storage.NewClient(ctx)
+	// We let google to find out credentials and projectID
+	cfg := storage.Config("", "")
+	loc, err := storage.Dial("google", cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
-	bucket := sclient.Bucket(gc.gcsBucket)
 
-	var snapshotAttrs *storage.ObjectAttrs
+	bucket, err := loc.Container(gc.gcsBucket)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get bucket: %w", err)
+	}
+
+	var snapshotAttrs storage.Item
 
 	if !gc.skipTags {
-		tagReader, err := bucket.Object(fmt.Sprintf("%s/tags/%s", gc.workspaceName, gc.name)).NewReader(ctx)
-		if err != nil && err != storage.ErrObjectNotExist {
-			return nil, fmt.Errorf("failed to look for tag %s: %w", gc.name, err)
-		}
+		tagReader, err := bucket.Item(fmt.Sprintf("%s/tags/%s", gc.workspaceName, gc.name))
+		// NOTE(taylan): Old code had err != storage.ErrObjectNotExist check. We might want to
+		// Implement that later on.
 		if err == nil {
-			snapshotName, err := ioutil.ReadAll(tagReader)
+			// Finds the snapshot inside `deployed` file.
+			snapshotName, err := storage.ToString(tagReader)
 			if err != nil {
 				return nil, fmt.Errorf("failed to read tag: %w", err)
 			}
 
-			snapshotAttrs, err = bucket.Object(fmt.Sprintf("%s/snapshots/%s.json", gc.workspaceName, snapshotName)).Attrs(ctx)
+			// Fetches the snapshot that we deployed last.
+			snapshotAttrs, err = bucket.Item(fmt.Sprintf("%s/snapshots/%s.json", gc.workspaceName, snapshotName))
 			if err != nil {
 				return nil, fmt.Errorf("failed to find resolved snapshot %s: %w", snapshotName, err)
 			}
@@ -110,16 +117,16 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 	}
 
 	if !gc.skipNames && snapshotAttrs == nil {
-		it := bucket.Objects(ctx, &storage.Query{
-			Prefix: fmt.Sprintf("%s/snapshots/%s", gc.workspaceName, gc.name),
-		})
-		if attrs, err := it.Next(); err != nil && err != iterator.Done {
-			return nil, fmt.Errorf("failed to look for snapshot: %w", err)
-		} else if err == nil {
-			if _, err := it.Next(); err == nil {
-				return nil, fmt.Errorf("ambiguous snapshot name: %s", gc.name)
+		prefix := fmt.Sprintf("%s/snapshots/%s", gc.workspaceName, gc.name)
+		err := storage.Walk(bucket, prefix, 50, func(item stow.Item, err error) error {
+			if err != nil {
+				return err
 			}
-			snapshotAttrs = attrs
+			snapshotAttrs = item
+			return nil
+		})
+		if err != nil {
+			return nil, fmt.Errorf("Failed to look for snapshot: %w", err)
 		}
 	}
 
@@ -127,10 +134,17 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 		return nil, fmt.Errorf("could not find tag or snapshot: %s", gc.name)
 	}
 
-	r, err := bucket.Object(snapshotAttrs.Name).NewReader(ctx)
+	// r, err := bucket.Object(snapshotAttrs.Name).NewReader(ctx)
+	i, err := bucket.Item(snapshotAttrs.Name())
 	if err != nil {
-		return nil, fmt.Errorf("failed to get resolved snapshot %s: %w", snapshotAttrs.Name, err)
+		return nil, fmt.Errorf("failed to get resolved snapshot %s: %w", snapshotAttrs.Name(), err)
 	}
+
+	r, err := i.Open()
+	if err != nil {
+		return nil, fmt.Errorf("failed to open snapshot: %w", err)
+	}
+
 	defer r.Close()
 
 	snapshotBytes, err := ioutil.ReadAll(r)

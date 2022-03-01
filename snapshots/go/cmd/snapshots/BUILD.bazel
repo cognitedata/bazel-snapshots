@@ -19,10 +19,11 @@ go_library(
         "//snapshots/go/pkg/bazel",
         "//snapshots/go/pkg/config",
         "//snapshots/go/pkg/models",
+        "//snapshots/go/pkg/storage",
+        "@com_github_graymeta_stow//:go_default_library",
         "@com_github_olekukonko_tablewriter//:tablewriter",
         "@com_github_spf13_pflag//:pflag",
         "@com_google_cloud_go_storage//:storage",
-        "@org_golang_google_api//iterator",
         "@org_golang_google_grpc//:grpc",
     ],
 )
