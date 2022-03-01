@@ -1,0 +1,31 @@
+{
+	"labels": {
+		"//:artifact_1": {
+			"digest": "0b56833a59b022841e651f8eb8528f3e43fd97ef4fda7h2e93e96740176b547d",
+			"run": [
+				"//:artifact_1"
+			],
+			"tags": [
+				"deployable_filegroup"
+			]
+		},
+		"//:artifact_2": {
+			"digest": "7e59e31c55f6e3bfcbdfcd26365a731d1730991ac5249a91c1d9dc8bb4eh983f",
+			"run": [
+				"//:artifact_2"
+			],
+			"tags": [
+				"deployable_filegroup"
+			]
+		},
+		"//:artifact_3": {
+			"digest": "6244db3ebf208f21526dh3e458d396e3802eb6903ff8d5911a0a90bb21837a2c",
+			"run": [
+				"//:artifact_3"
+			],
+			"tags": [
+				"deployable_filegroup"
+			]
+		}
+	}
+}

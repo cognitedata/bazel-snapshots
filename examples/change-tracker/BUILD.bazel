@@ -28,5 +28,5 @@ change_tracker(
     name = "artifact_change_tracker",
     deps = [":artifact"],
     run = [":deploy"],
-    tags = ["deployable"],
+    tracker_tags = ["deployable"],
 )
