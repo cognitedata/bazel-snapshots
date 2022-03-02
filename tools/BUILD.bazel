@@ -3,6 +3,8 @@ sh_binary(
     srcs = ["release.sh"],
     data = [
         "//snapshots/go/cmd/snapshots:snapshots-darwin-amd64",
+        "//snapshots/go/cmd/snapshots:snapshots-darwin-arm64",
         "//snapshots/go/cmd/snapshots:snapshots-linux-amd64",
+        "//snapshots/go/cmd/snapshots:snapshots-linux-arm64",
     ],
 )

@@ -16,9 +16,17 @@ DARWIN_AMD64_FILENAME="snapshots-darwin-amd64"
 DARWIN_AMD64_URL="$REPOSITORY/releases/download/$VERSION/$DARWIN_AMD64_FILENAME"
 ESCAPED_DARWIN_AMD64_URL=$(printf '%s\n' "$DARWIN_AMD64_URL" | sed -e 's/[\/&]/\\&/g')
 
+DARWIN_ARM64_FILENAME="snapshots-darwin-arm64"
+DARWIN_ARM64_URL="$REPOSITORY/releases/download/$VERSION/$DARWIN_ARM64_FILENAME"
+ESCAPED_DARWIN_ARM64_URL=$(printf '%s\n' "$DARWIN_ARM64_URL" | sed -e 's/[\/&]/\\&/g')
+
 LINUX_AMD64_FILENAME="snapshots-linux-amd64"
 LINUX_AMD64_URL="$REPOSITORY/releases/download/$VERSION/$LINUX_AMD64_FILENAME"
 ESCAPED_LINUX_AMD64_URL=$(printf '%s\n' "$LINUX_AMD64_URL" | sed -e 's/[\/&]/\\&/g')
+
+LINUX_ARM64_FILENAME="snapshots-linux-arm64"
+LINUX_ARM64_URL="$REPOSITORY/releases/download/$VERSION/$LINUX_ARM64_FILENAME"
+ESCAPED_LINUX_ARM64_URL=$(printf '%s\n' "$LINUX_ARM64_URL" | sed -e 's/[\/&]/\\&/g')
 
 mkdir -p "$OUT_DIR"
 
@@ -27,11 +35,15 @@ tar -cvf "$OUT_DIR/snapshots-$VERSION.tar" -C "$BUILD_WORKSPACE_DIRECTORY" snaps
 
 # copy binaries to output folder
 cp "snapshots/go/cmd/snapshots/snapshots-darwin-amd64_/$DARWIN_AMD64_FILENAME" "$OUT_DIR/$DARWIN_AMD64_FILENAME"
+cp "snapshots/go/cmd/snapshots/snapshots-darwin-arm64_/$DARWIN_ARM64_FILENAME" "$OUT_DIR/$DARWIN_ARM64_FILENAME"
 cp "snapshots/go/cmd/snapshots/snapshots-linux-amd64_/$LINUX_AMD64_FILENAME" "$OUT_DIR/$LINUX_LINUX_AMD64_FILENAME"
+cp "snapshots/go/cmd/snapshots/snapshots-linux-arm64_/$LINUX_ARM64_FILENAME" "$OUT_DIR/$LINUX_LINUX_ARM64_FILENAME"
 
 # generate sha files
 (cd $OUT_DIR ; shasum -a 256 "$DARWIN_AMD64_FILENAME" > "$DARWIN_AMD64_FILENAME.sha256")
+(cd $OUT_DIR ; shasum -a 256 "$DARWIN_ARM64_FILENAME" > "$DARWIN_ARM64_FILENAME.sha256")
 (cd $OUT_DIR ; shasum -a 256 "$LINUX_AMD64_FILENAME" > "$LINUX_AMD64_FILENAME.sha256")
+(cd $OUT_DIR ; shasum -a 256 "$LINUX_ARM64_FILENAME" > "$LINUX_ARM64_FILENAME.sha256")
 
 # find shasums
 DARWIN_AMD64_SHA256=$(shasum -a 256 "$OUT_DIR/$DARWIN_AMD64_FILENAME" | cut -d " " -f 1)
