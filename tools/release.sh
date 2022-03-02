@@ -1,66 +1,59 @@
 #!/usr/bin/env bash
 
+display_usage() {
+	echo -e "\nUsage: ./release.sh [repository_url] [version] [output_path] \n"
+}
+
+# if less than three arguments supplied, display usage
+if [  $# -le 2 ]
+then
+    display_usage
+    exit 1
+fi
+
 set -e
-
-[[ -z "$1" ]] && { echo "Repository URL is empty"; exit 1; }
-
-[[ -z "$2" ]] && { echo "Version is empty"; exit 1; }
-
-[[ -z "$3" ]] && { echo "Output path is empty"; exit 1; }
 
 REPOSITORY="$1"
 VERSION="$2"
 OUT_DIR="$3"
 
-DARWIN_AMD64_FILENAME="snapshots-darwin-amd64"
-DARWIN_AMD64_URL="$REPOSITORY/releases/download/$VERSION/$DARWIN_AMD64_FILENAME"
-ESCAPED_DARWIN_AMD64_URL=$(printf '%s\n' "$DARWIN_AMD64_URL" | sed -e 's/[\/&]/\\&/g')
-
-DARWIN_ARM64_FILENAME="snapshots-darwin-arm64"
-DARWIN_ARM64_URL="$REPOSITORY/releases/download/$VERSION/$DARWIN_ARM64_FILENAME"
-ESCAPED_DARWIN_ARM64_URL=$(printf '%s\n' "$DARWIN_ARM64_URL" | sed -e 's/[\/&]/\\&/g')
-
-LINUX_AMD64_FILENAME="snapshots-linux-amd64"
-LINUX_AMD64_URL="$REPOSITORY/releases/download/$VERSION/$LINUX_AMD64_FILENAME"
-ESCAPED_LINUX_AMD64_URL=$(printf '%s\n' "$LINUX_AMD64_URL" | sed -e 's/[\/&]/\\&/g')
-
-LINUX_ARM64_FILENAME="snapshots-linux-arm64"
-LINUX_ARM64_URL="$REPOSITORY/releases/download/$VERSION/$LINUX_ARM64_FILENAME"
-ESCAPED_LINUX_ARM64_URL=$(printf '%s\n' "$LINUX_ARM64_URL" | sed -e 's/[\/&]/\\&/g')
+TARGETS=("darwin-amd64" "darwin-arm64" "linux-amd64" "linux-arm64")
 
 mkdir -p "$OUT_DIR"
 
+cp "$BUILD_WORKSPACE_DIRECTORY/repo.bzl" "$OUT_DIR/repo.bzl"
+
 # create an archive with the relevant files
-tar -cvf "$OUT_DIR/snapshots-$VERSION.tar" -C "$BUILD_WORKSPACE_DIRECTORY" snapshots deps.bzl BUILD.bazel WORKSPACE README.md LICENSE
+tar -cf "$OUT_DIR/snapshots-$VERSION.tar" -C "$BUILD_WORKSPACE_DIRECTORY" snapshots deps.bzl BUILD.bazel WORKSPACE README.md LICENSE
 
-# copy binaries to output folder
-cp "snapshots/go/cmd/snapshots/snapshots-darwin-amd64_/$DARWIN_AMD64_FILENAME" "$OUT_DIR/$DARWIN_AMD64_FILENAME"
-cp "snapshots/go/cmd/snapshots/snapshots-darwin-arm64_/$DARWIN_ARM64_FILENAME" "$OUT_DIR/$DARWIN_ARM64_FILENAME"
-cp "snapshots/go/cmd/snapshots/snapshots-linux-amd64_/$LINUX_AMD64_FILENAME" "$OUT_DIR/$LINUX_LINUX_AMD64_FILENAME"
-cp "snapshots/go/cmd/snapshots/snapshots-linux-arm64_/$LINUX_ARM64_FILENAME" "$OUT_DIR/$LINUX_LINUX_ARM64_FILENAME"
+for t in "${TARGETS[@]}";
+do
+    FILENAME="snapshots-$t"
 
-# generate sha files
-(cd $OUT_DIR ; shasum -a 256 "$DARWIN_AMD64_FILENAME" > "$DARWIN_AMD64_FILENAME.sha256")
-(cd $OUT_DIR ; shasum -a 256 "$DARWIN_ARM64_FILENAME" > "$DARWIN_ARM64_FILENAME.sha256")
-(cd $OUT_DIR ; shasum -a 256 "$LINUX_AMD64_FILENAME" > "$LINUX_AMD64_FILENAME.sha256")
-(cd $OUT_DIR ; shasum -a 256 "$LINUX_ARM64_FILENAME" > "$LINUX_ARM64_FILENAME.sha256")
+    # turn e.g. linux-amd64 into LINUX_AMD64
+    PLACEHOLDER=$(printf "%s\n" "${t^^}" | sed -e "s/-/_/g")
 
-# find shasums
-DARWIN_AMD64_SHA256=$(shasum -a 256 "$OUT_DIR/$DARWIN_AMD64_FILENAME" | cut -d " " -f 1)
-DARWIN_ARM64_SHA256=$(shasum -a 256 "$OUT_DIR/$DARWIN_ARM64_FILENAME" | cut -d " " -f 1)
-LINUX_AMD64_SHA256=$(shasum -a 256 "$OUT_DIR/$LINUX_AMD64_FILENAME" | cut -d " " -f 1)
-LINUX_ARM64_SHA256=$(shasum -a 256 "$OUT_DIR/$LINUX_ARM64_FILENAME" | cut -d " " -f 1)
+    # copy binaries to output folder
+    cp "snapshots/go/cmd/snapshots/${FILENAME}_/$FILENAME" "$OUT_DIR/$FILENAME"
 
-# replace urls in repo.bzl
-sed \
-    "s/DARWIN_AMD64_URL/$ESCAPED_DARWIN_AMD64_URL/g; s/DARWIN_ARM64_URL/$ESCAPED_DARWIN_ARM64_URL/g; s/LINUX_AMD64_URL/$ESCAPED_LINUX_AMD64_URL/g; s/LINUX_ARM64_URL/$ESCAPED_LINUX_ARM64_URL/g" \
-    "$BUILD_WORKSPACE_DIRECTORY/repo.bzl" \
-    > "$OUT_DIR/repo.bzl"
+    # generate sha files
+    (cd $OUT_DIR ; shasum -a 256 "$FILENAME" > "$FILENAME.sha256")
 
-# replace shasums in repo.bzl
-sed -i \
-    "s/DARWIN_AMD64_SHA256/$DARWIN_AMD64_SHA256/g; s/DARWIN_ARM64_SHA256/$DARWIN_ARM64_SHA256/g; s/LINUX_AMD64_SHA256/$LINUX_AMD64_SHA256/g; s/LINUX_ARM64_SHA256/$LINUX_ARM64_SHA256/g" \
-    "$OUT_DIR/repo.bzl"
+    # find shasums
+    FILE_SHA256=$(cut -d " " -f 1 "$OUT_DIR/$FILENAME.sha256")
+
+    # build download url
+    FILE_URL="$REPOSITORY/releases/download/$VERSION/$FILENAME"
+    ESCAPED_FILE_URL=$(printf "%s\n" "$FILE_URL" | sed -e "s/[\/&]/\\&/g")
+
+    # replace urls in repo.bzl
+    sed -i_bak "s/${PLACEHOLDER}_URL/$ESCAPED_FILE_URL/g" "$OUT_DIR/repo.bzl"
+
+    # replace shasums in repo.bzl
+    sed -i_bak "s/${PLACEHOLDER}_SHA256/$FILE_SHA256/g" "$OUT_DIR/repo.bzl"
+
+    echo -e "Created $FILENAME"
+done
 
 # add to the archive
 tar --append -C "$OUT_DIR" --file="$OUT_DIR/snapshots-$VERSION.tar" "repo.bzl"
