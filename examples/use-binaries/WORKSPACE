@@ -8,4 +8,14 @@ local_repository(
 load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
 
 # TODO: add URLs and sha256s for first release
-snapshots_repos()
+snapshots_repos(
+    ## Optionally specify URLs and sha256s for downloading binaries
+    # urls = {
+    #     "darwin_amd64": ["https://example.com/snapshots-darwin-amd64"],
+    #     "linux_amd64": ["https://example.com/snapshots-linux-amd64"]
+    # },
+    # sha256s = {
+    #     "darwin_amd64": "... sha256 goes here ...",
+    #     "linux_amd64": "... sha256 goes here ...",
+    # },
+)
