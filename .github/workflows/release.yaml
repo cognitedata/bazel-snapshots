@@ -9,6 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      repoUrl: ${{ github.server_url }}/${{ github.repository }}
+      outputDir: ${{ github.workspace }}/bazel-snapshots-${{ github.ref_name }}
+      sourceTarName: snapshots-${{ github.ref_name }}.tar
 
     steps:
       - name: Checkout
@@ -27,11 +31,11 @@ jobs:
       - name: Build binaries
         run: |
           bazel build //snapshots/go/cmd/snapshots:snapshots
-          bazel run //tools:release -- ${{ github.ref_name }} ${{ github.workspace }}
+          bazel run //tools:release -- ${{ env.repoUrl }} ${{ github.ref_name }} ${{ env.outputDir }}
 
       - name: Prepare workspace snippet
         run: |
-          bash .github/scripts/workplace-snippet.sh ${{ github.ref_name }} > release-notes.txt
+          bash .github/scripts/workplace-snippet.sh ${{ env.outputDir }}/${{ env.sourceTarName }} > release-notes.txt
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -40,4 +44,4 @@ jobs:
           generate_release_notes: true
           body_path: release-notes.txt
           files: |
-            ${{ github.workspace }}/bazel-snapshots-${{ github.ref_name }}/*
+            ${{ env.outputDir }}/snapshots-*

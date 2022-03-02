@@ -4,11 +4,14 @@
 
 set -o errexit -o nounset -o pipefail
 
+[[ -z "$1" ]] && { echo "Repository URL is empty"; exit 1; }
+
+TARFILE="$1"
+
 # Set by GH actions, see
 # https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
 TAG=${GITHUB_REF_NAME}
-PREFIX="bazel-snapshots-${TAG}"
-SHA=$(git archive --format=tar --prefix=${PREFIX}/ ${TAG} | gzip | shasum -a 256 | awk '{print $1}')
+SHA=$(shasum -a 256 $TARFILE | awk '{print $1}')
 
 cat << EOF
 WORKSPACE setup:
@@ -17,8 +20,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "com_cognitedata_bazel_snapshots",
     sha256 = "${SHA}",
-    strip_prefix = "${PREFIX}",
-    url = "https://github.com/cognitedata/bazel-snapshots/archive/refs/tags/${TAG}.tar.gz",
+    url = "https://github.com/cognitedata/bazel-snapshots/releases/download/${TAG}/snapshots-${TAG}.tar",
 )
 
 load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
