@@ -7,4 +7,5 @@ local_repository(
 
 load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
 
+# TODO: add URLs and sha256s for first release
 snapshots_repos()

@@ -5,22 +5,18 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 # Pointing to the latest released binaries.
 URLS = {
-    "darwin_amd64": {
-        "url": "DARWIN_AMD64_URL",
-        "sha256": "DARWIN_AMD64_SHA256",
-    },
-    "darwin_arm64": {
-        "url": "DARWIN_ARM64_URL",
-        "sha256": "DARWIN_ARM64_SHA256",
-    },
-    "linux_amd64": {
-        "url": "LINUX_AMD64_URL",
-        "sha256": "LINUX_AMD64_SHA256",
-    },
-    "linux_arm64": {
-        "url": "LINUX_ARM64_URL",
-        "sha256": "LINUX_ARM64_SHA256",
-    },
+    "darwin_amd64": ["DARWIN_AMD64_URL"],
+    "darwin_arm64": ["DARWIN_ARM64_URL"],
+    "linux_amd64": ["LINUX_AMD64_URL"],
+    "linux_arm64": ["LINUX_ARM64_URL"],
+}
+
+# sha256 sums of the binaries above
+SHA256S = {
+    "darwin_amd64": "DARWIN_AMD64_SHA256",
+    "darwin_arm64": "DARWIN_ARM64_SHA256",
+    "linux_amd64": "LINUX_AMD64_SHA256",
+    "linux_arm64": "LINUX_ARM64_SHA256",
 }
 
 def _detect_host_platform(ctx):
@@ -46,10 +42,9 @@ def _detect_host_platform(ctx):
 
     return goos, goarch
 
-
-def _get_url(goos, goarch):
-    info = URLS["{goos}_{goarch}".format(goos = goos, goarch = goarch)]
-    return (info["url"], info["sha256"])
+def _get_url(ctx, goos, goarch):
+    key = "{goos}_{goarch}".format(goos = goos, goarch = goarch)
+    return ctx.attr.urls[key], ctx.attr.sha256s[key]
 
 def _snapshots_binaries(ctx):
     if ctx.attr.from_source:
@@ -57,7 +52,7 @@ def _snapshots_binaries(ctx):
         return
 
     goos, goarch = _detect_host_platform(ctx)
-    url, sha256 = _get_url(goos, goarch)
+    url, sha256 = _get_url(ctx, goos, goarch)
 
     ctx.download(
         url,
@@ -71,20 +66,26 @@ snapshots_binaries = repository_rule(
     implementation = _snapshots_binaries,
     attrs = {
         "from_source": attr.bool(),
+        "urls": attr.string_list_dict(),
+        "sha256s": attr.string_dict(),
     }
 )
 
-def snapshots_repos(name = "snapshots", from_source = False):
+def snapshots_repos(name = "snapshots", from_source = False, urls = URLS, sha256s = SHA256S):
     """Fetches the necessary repositories for bazel-snapshots.
 
     Args:
       name: unique name (defaults to "snapshots")
       from_source: if True, will not fetch binaries and instead build the
         snapshots tool from source.
+      urls: dict with platforms as keys, list of URLs as values
+      sha256s: dict with platforms as keys, sha256 sum of files from urls as values
     """
     snapshots_binaries(
         name = "{name}-bin".format(name = name),
         from_source = from_source,
+        urls = urls,
+        sha256s = sha256s
     )
 
     maybe(
