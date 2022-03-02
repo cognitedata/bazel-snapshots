@@ -24,25 +24,20 @@ jobs:
         run: |
           bazel test //...
 
-      - name: Build linux-amd64
+      - name: Build binaries
         run: |
-          bazel build //snapshots/go/cmd/snapshots:snapshots-linux-amd64
-          mv bazel-bin/snapshots/go/cmd/snapshots/snapshots_/snapshots bazel-bin/snapshots-linux-amd64
-
-# Fails. Have to find out why.
-#      - name: Build darwin-amd64
-#        run: |
-#          bazel build //snapshots/go/cmd/snapshots:snapshots-darwin-amd64
-#          mv bazel-bin/snapshots/go/cmd/snapshots/snapshots_/snapshots bazel-bin/snapshots-darwin-amd64
+          bazel build //snapshots/go/cmd/snapshots:snapshots
+          bazel run //tools:release -- ${{ github.ref_name }} ${{ github.workspace }}
 
       - name: Prepare workspace snippet
         run: |
-          bash .github/scripts/workplace-snippet.sh ${{ env.GITHUB_REF_NAME }} > release-notes.txt
+          bash .github/scripts/workplace-snippet.sh ${{ github.ref_name }} > release-notes.txt
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          draft: true
           generate_release_notes: true
           body_path: release-notes.txt
           files: |
-            bazel-bin/snapshots-*
+            ${{ github.workspace }}/bazel-snapshots-${{ github.ref_name }}/*

@@ -2,6 +2,10 @@
 
 set -e
 
+[[ -z "$1" ]] && { echo "Version is empty"; exit 1; }
+
+[[ -z "$2" ]] && { echo "Output path is empty"; exit 1; }
+
 VERSION="$1"
 OUT_DIR="$2/bazel-snapshots-$VERSION"
 
