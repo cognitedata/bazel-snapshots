@@ -6,11 +6,11 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 # Pointing to the latest released binaries.
 URLS = {
     "darwin_amd64": {
-        "url": "https://github.com/cognitedata/bazel-snapshots/releases/download/v0.0.1/snapshots-darwin-amd64",
+        "url": "DARWIN_AMD64_URL",
         "sha256": "DARWIN_AMD64_SHA256",
     },
     "linux_amd64": {
-        "url": "https://github.com/cognitedata/bazel-snapshots/releases/download/v0.0.1/snapshots-linux-amd64",
+        "url": "LINUX_AMD64_URL",
         "sha256": "LINUX_AMD64_SHA256",
     }
 }
