@@ -34,7 +34,7 @@ snapshots_deps()
 
 load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
 
-snapshots_repos(name = "snapshots-bin", from_source = True)
+snapshots_repos(from_source = True)
 
 go_rules_dependencies()
 
