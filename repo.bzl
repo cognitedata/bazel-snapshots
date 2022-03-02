@@ -7,19 +7,19 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 URLS = {
     "darwin_amd64": {
         "url": "DARWIN_AMD64_URL",
-        "sha256": "DARWIN_AMD64_SHA",
+        "sha256": "DARWIN_AMD64_SHA256",
     },
     "darwin_arm64": {
         "url": "DARWIN_ARM64_URL",
-        "sha256": "DARWIN_ARM64_SHA",
+        "sha256": "DARWIN_ARM64_SHA256",
     },
     "linux_amd64": {
         "url": "LINUX_AMD64_URL",
-        "sha256": "LINUX_AMD64_SHA",
+        "sha256": "LINUX_AMD64_SHA256",
     },
     "linux_arm64": {
         "url": "LINUX_ARM64_URL",
-        "sha256": "LINUX_ARM64_SHA",
+        "sha256": "LINUX_ARM64_SHA256",
     },
 }
 
