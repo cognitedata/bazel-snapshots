@@ -9,16 +9,46 @@ URLS = {
         "url": "DARWIN_AMD64_URL",
         "sha256": "DARWIN_AMD64_SHA256",
     },
+    "darwin_arm64": {
+        "url": "DARWIN_ARM64_URL",
+        "sha256": "DARWIN_ARM64_SHA256",
+    },
     "linux_amd64": {
         "url": "LINUX_AMD64_URL",
         "sha256": "LINUX_AMD64_SHA256",
-    }
+    },
+    "linux_arm64": {
+        "url": "LINUX_ARM64_URL",
+        "sha256": "LINUX_ARM64_SHA256",
+    },
 }
 
-def _get_url(ctx):
-    info = URLS["linux_amd64"]
-    if ctx.os.name.startswith("mac"):
-        info = URLS["darwin_amd64"]
+def _detect_host_platform(ctx):
+    if ctx.os.name == "linux":
+        goos, goarch = "linux", "amd64"
+        res = ctx.execute(["uname", "-m"])
+        if res.return_code == 0:
+            uname = res.stdout.strip()
+            if uname == "aarch64":
+                goarch = "arm64"
+
+    elif ctx.os.name == "mac os x":
+        goos, goarch = "darwin", "amd64"
+
+        res = ctx.execute(["uname", "-m"])
+        if res.return_code == 0:
+            uname = res.stdout.strip()
+            if uname == "arm64":
+                goarch = "arm64"
+
+    else:
+        fail("Unsupported operating system: " + ctx.os.name)
+
+    return goos, goarch
+
+
+def _get_url(goos, goarch):
+    info = URLS["{goos}_{goarch}".format(goos = goos, goarch = goarch)]
     return (info["url"], info["sha256"])
 
 def _snapshots_binaries(ctx):
@@ -26,7 +56,8 @@ def _snapshots_binaries(ctx):
         ctx.file("BUILD", 'alias(name="snapshots", actual="@com_cognitedata_bazel_snapshots//snapshots/go/cmd/snapshots", visibility=["//visibility:public"])')
         return
 
-    (url, sha256) = _get_url(ctx)
+    goos, goarch = _detect_host_platform(ctx)
+    url, sha256 = _get_url(goos, goarch)
 
     ctx.download(
         url,
