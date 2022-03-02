@@ -8,6 +8,8 @@ import (
 	"go.beyondstorage.io/v5/types"
 )
 
+var IteratorDone = types.IterateDone
+
 func NewStorage(storageUrl string) (types.Storager, error) {
 	return services.NewStoragerFromString(storageUrl)
 }

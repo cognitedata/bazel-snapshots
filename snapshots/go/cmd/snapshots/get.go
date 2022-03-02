@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -120,7 +121,7 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 		if err != nil {
 			return nil, fmt.Errorf("cannot create object iterator: %w", err)
 		}
-		if attrs, err := it.Next(); err != nil && it.ContinuationToken() != "" {
+		if attrs, err := it.Next(); err != nil && errors.Is(err, storage.IteratorDone) {
 			return nil, fmt.Errorf("failed to look for snapshot: %w", err)
 		} else if err == nil {
 			if _, err := it.Next(); err == nil {
