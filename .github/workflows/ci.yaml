@@ -23,3 +23,13 @@ jobs:
       - name: Test
         run: |
           bazel test //...
+
+      - name: Run examples
+        run: |
+          # Don't run the example based on binaries for now, because the binaries are not
+          # available to download.
+          EXAMPLES="$(find examples -type d -maxdepth 1 -mindepth 1 | grep -v use-binaries)"
+          for f in $EXAMPLES; do
+            echo "Running example $f"
+            (cd "$f" && bazel run snapshots -- collect)
+          done

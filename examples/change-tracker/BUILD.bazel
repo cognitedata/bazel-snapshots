@@ -1,0 +1,32 @@
+load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snapshots", "change_tracker")
+
+# Output based change detection.
+#
+# Usage:
+#   # generate manifest
+#   bazel run snapshots -- collect
+snapshots(name = "snapshots")
+
+# Deployment script
+sh_binary(
+    name = "deploy",
+    srcs = ["deploy.sh"],
+)
+
+# Artifact that needs to be deployed every time it changes
+filegroup(
+    name = "artifact",
+    srcs = [
+        "source_file_1.txt",
+        "source_file_2.txt",
+    ],
+)
+
+# Change tracker tracks the artifact and lists the commands which need to be run when
+# the artifact changes
+change_tracker(
+    name = "artifact_change_tracker",
+    deps = [":artifact"],
+    run = [":deploy"],
+    tracker_tags = ["deployable"],
+)
