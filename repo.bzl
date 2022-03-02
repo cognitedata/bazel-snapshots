@@ -7,11 +7,11 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 URLS = {
     "darwin_amd64": {
         "url": "https://github.com/cognitedata/bazel-snapshots/releases/download/v0.0.1/snapshots-darwin-amd64",
-        "sha256": "2bd4950e27f5204169cacb75c113162c9d3ffebd154ab1edae0719f62da41a99",
+        "sha256": "DARWIN_AMD64_SHA256",
     },
     "linux_amd64": {
         "url": "https://github.com/cognitedata/bazel-snapshots/releases/download/v0.0.1/snapshots-linux-amd64",
-        "sha256": "1a0d9166eb9b4028de72b105d2cbf77729ac313a3355f4189353a8c4d7a422a6",
+        "sha256": "LINUX_AMD64_SHA256",
     }
 }
 
