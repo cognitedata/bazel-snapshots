@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "storage",
+    srcs = ["storage.go"],
+    importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@io_beyondstorage_go_services_gcs_v3//:gcs",
+        "@io_beyondstorage_go_v5//services",
+        "@io_beyondstorage_go_v5//types",
+    ],
+)
