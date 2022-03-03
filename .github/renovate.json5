@@ -1,0 +1,25 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true
+    }
+  ],
+  "postUpgradeTasks": {
+    "commands": [
+      "bazel run gazelle-update-repos",
+    ],
+    "fileFilters": [
+      "**/*.bzl",
+    ],
+    "executionMode": "branch"
+  }
+}
