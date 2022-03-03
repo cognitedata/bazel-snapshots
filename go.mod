@@ -9,7 +9,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/api v0.70.0
-	google.golang.org/genproto v0.0.0-20220218161850-94dd64e39d7c
+	google.golang.org/genproto v0.0.0-20220302033224-9aa15565e42a
 	google.golang.org/grpc v1.44.0
 )
 
