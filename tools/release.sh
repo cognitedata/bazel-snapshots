@@ -29,31 +29,36 @@ tar -cf "$OUT_DIR/snapshots-$VERSION.tar" -C "$BUILD_WORKSPACE_DIRECTORY" snapsh
 for t in "${TARGETS[@]}";
 do
     FILENAME="snapshots-$t"
+    FOLDER="snapshots/go/cmd/snapshots/${FILENAME}_"
 
     # turn e.g. linux-amd64 into LINUX_AMD64
-    PLACEHOLDER=$(printf "%s\n" "${t^^}" | sed -e "s/-/_/g")
+    PLACEHOLDER=$(echo "$t" | tr a-z- A-Z_)
 
     # copy binaries to output folder
-    cp "snapshots/go/cmd/snapshots/${FILENAME}_/$FILENAME" "$OUT_DIR/$FILENAME"
+    cp "${FOLDER}/$FILENAME" "$OUT_DIR/$FILENAME"
 
     # generate sha files
-    (cd $OUT_DIR ; shasum -a 256 "$FILENAME" > "$FILENAME.sha256")
+    (cd "$OUT_DIR" ; shasum -a 256 "$FILENAME" > "$FILENAME.sha256")
 
-    # find shasums
+    # find sha sums
     FILE_SHA256=$(cut -d " " -f 1 "$OUT_DIR/$FILENAME.sha256")
+    PLACEHOLDER_SHA="${PLACEHOLDER}_SHA256"
+
+    # replace sha sums in repo.bzl
+    sed -i_bak "s,$PLACEHOLDER_SHA,$FILE_SHA256,g" "$OUT_DIR/repo.bzl"
 
     # build download url
     FILE_URL="$REPOSITORY/releases/download/$VERSION/$FILENAME"
-    ESCAPED_FILE_URL=$(printf "%s\n" "$FILE_URL" | sed -e "s/[\/&]/\\&/g")
+    PLACEHOLDER_URL="${PLACEHOLDER}_URL"
 
     # replace urls in repo.bzl
-    sed -i_bak "s/${PLACEHOLDER}_URL/$ESCAPED_FILE_URL/g" "$OUT_DIR/repo.bzl"
-
-    # replace shasums in repo.bzl
-    sed -i_bak "s/${PLACEHOLDER}_SHA256/$FILE_SHA256/g" "$OUT_DIR/repo.bzl"
+    sed -i_bak "s,$PLACEHOLDER_URL,$FILE_URL,g" "$OUT_DIR/repo.bzl"
 
     echo -e "Created $FILENAME"
 done
 
 # add to the archive
 tar --append -C "$OUT_DIR" --file="$OUT_DIR/snapshots-$VERSION.tar" "repo.bzl"
+
+# create sha file for archive
+(cd "$OUT_DIR" ; shasum -a 256 "snapshots-$VERSION.tar" > "snapshots-$VERSION.tar.sha256")
