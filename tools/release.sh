@@ -31,7 +31,7 @@ do
     FILENAME="snapshots-$t"
 
     # turn e.g. linux-amd64 into LINUX_AMD64
-    PLACEHOLDER=$(printf "%s\n" "${t^^}" | sed -e "s/-/_/g")
+    PLACEHOLDER=$(printf '%s\n' "$t" | awk '{ print toupper($0) }' | sed -e "s/-/_/g")
 
     # copy binaries to output folder
     cp "snapshots/go/cmd/snapshots/${FILENAME}_/$FILENAME" "$OUT_DIR/$FILENAME"
@@ -44,13 +44,12 @@ do
 
     # build download url
     FILE_URL="$REPOSITORY/releases/download/$VERSION/$FILENAME"
-    ESCAPED_FILE_URL=$(printf "%s\n" "$FILE_URL" | sed -e "s/[\/&]/\\&/g")
 
     # replace urls in repo.bzl
-    sed -i_bak "s/${PLACEHOLDER}_URL/$ESCAPED_FILE_URL/g" "$OUT_DIR/repo.bzl"
+    sed -i_bak "s|${PLACEHOLDER}_URL|$FILE_URL|g" "$OUT_DIR/repo.bzl"
 
     # replace shasums in repo.bzl
-    sed -i_bak "s/${PLACEHOLDER}_SHA256/$FILE_SHA256/g" "$OUT_DIR/repo.bzl"
+    sed -i_bak "s|${PLACEHOLDER}_SHA256|$FILE_SHA256|g" "$OUT_DIR/repo.bzl"
 
     echo -e "Created $FILENAME"
 done
