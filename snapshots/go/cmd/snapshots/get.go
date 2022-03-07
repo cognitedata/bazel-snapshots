@@ -122,7 +122,7 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 			return nil, fmt.Errorf("cannot create object iterator: %w", err)
 		}
 		if attrs, err := it.Next(); err != nil && errors.Is(err, storage.IteratorDone) {
-			return nil, fmt.Errorf("failed to look for snapshot: %w", err)
+			return nil, fmt.Errorf("failed to look for snapshot")
 		} else if err == nil {
 			if _, err := it.Next(); err == nil {
 				return nil, fmt.Errorf("ambiguous snapshot name: %s", gc.name)
