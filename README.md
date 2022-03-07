@@ -1,17 +1,126 @@
-# Snapshots
+# Bazel Snapshots
 
-Snapshots is a mechanism for doing _incremental deploys_ with Bazel. It can be used to find out which targets have changed between two versions of a Bazel workspace.
-For instance, a continuous deployment (CD) mechanism can make snapshots of what has been deployed, thus only deploy what's necessary.
+Bazel Snapshots is a tool for finding the changed targets between two versions in a Bazel project.
+It can be used to implement _incremental deployment_ – only re-deploying things that have changed – or to implement any other side effect of making a change which affects an output, such as sending notifications or interacting with pull requests.
 
-More generally, it can be used to implement side effects for changes to targets in Bazel workspaces.
+Bazel Snapshots works by creating digests of outputs and recording them to files, which can be compared later.
+By comparing two snapshots, we get a JSON structure containing the changed outputs, together with the metadata.
+Implementing specific side-effects, such as deploying, is left for other tools.
 
-## Overview
+Bazel Snapshots also has built-in support for storing snapshots and references to them remotely, so that they can be easily accessed and interacted with.
 
-Snapshots consists of the following parts:
+The way Bazel Snapshots works is in contrast to other approaches with similar goals, such as [https://github.com/Tinder/bazel-diff](bazel-diff), which analyses Bazel's graphs.
+In short, Bazel Snapshots discovers which outputs have actually changed, whereas Bazel graph analysis methods discover which outputs could be affected by some change.
+The main advantage with our approach is less over-reporting and more explicit control.
 
- * A rule `change_tracker`: Used to create an arbitrary _change tracker_ for some Bazel target.
- * A skylark function `create_tracker_file`: Used to integrate with existing rules, so that they output change trackers in addition to their existing output.
- * A tool `snapshots`: A CLI which is used to create, push, tag and create diffs between different snapshots.
+## Demo
+
+TBW.
+
+## Installation
+
+### Use Pre-Built Binaries (recommended)
+
+Add Bazel Snapshots to your `WORKSPACE` file.
+See [Releases](https://github.com/cognitedata/bazel-snapshots/releases) for the specific snippet for the latest release.
+
+```skylark
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "com_cognitedata_bazel_snapshots",
+    sha256 = "...",
+    url = "https://github.com/cognitedata/bazel-snapshots/releases/download/<VERSION>/snapshots-<VERSION>.tar",
+)
+
+load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
+snapshots_repos()
+```
+
+_NOTE:_ If you're using [rules_docker](https://github.com/bazelbuild/rules_docker), put `snapshots_repos()` later in the `WORKSPACE` file to avoid overriding.
+
+Add the following to your _root_ `BUILD` file:
+
+```
+load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snapshots")
+
+snapshots(name = "snapshots")
+```
+
+You should now be able to run the Snapshots tool via Bazel:
+
+```sh
+$ bazel run snapshots
+usage: snapshots <command> [args...]
+# ...
+```
+
+### Build binaries from source
+
+Requires rules_go and gazelle.
+See [example](/examples/build-from-source).
+
+## Getting Started
+
+In order to use Bazel Snapshots, we first have to define trackers for the things we are interested in detecting changes on.
+
+### Using The change_tracker Rule
+
+Example: [change-tracker](/examples/change-tracker).
+
+The `change_tracker` rule is a stand-alone rule defining a tracker.
+You can use it to create trackers for existing targets.
+
+```skylark
+load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snapshots", "change_tracker")
+
+# A change_tracker
+change_tracker(
+    name = "my-change-tracker",
+    deps = [
+        # list of outputs and source files to track (required)
+        "my-file.txt",
+    ],
+    run = [
+        # list of executable targets to run when the tracked files have
+        # changed (optional).
+        # bazel-snapshots will not run these automatically; this only provides
+        # hints to other tooling.
+        "//:notify-slack",
+    ],
+    tracker_tags = [
+        # list of "tags" for the tracker, useful for other tooling.
+        "textfiles",
+    ],
+)
+
+```
+
+TBW: create a snapshot, make a change, diff against previous snapshot
+
+### Integrating With Other Rules
+
+TBW
+### Remote Storage
+
+TBW
+### Using in Continous Deployment Jobs
+
+TBW
+
+
+
+## How It Works
+
+Bazel Snapshots works by tracking Bazel targets (build artifacts, outputs), by creating a _digest_ of the output files.
+This digest, together with some metadata such as a _label_ and _tags_ represents a _tracker_.
+The data for all trackers in the Bazel project is collected together in a file called a _snapshot_, typically named after a code revision (e.g. a git revision).
+Two snapshots can be _diff_-ed to find out which trackers have changed between the two snapshots.
+
+Bazel Snapshots consists of the following parts:
+
+ * A rule `change_tracker`: Used to create an arbitrary _change tracker_ for some Bazel target. This is a thin wrapper around the `create_tracker_file` function.
+ * A skylark function `create_tracker_file`: Used to integrate with other rules, so that they output change trackers in addition to their primary output.
+ * A tool `snapshots`: A CLI which is used to create, store, tag and create diffs between different snapshots.
 
 ### Change Trackers
 
