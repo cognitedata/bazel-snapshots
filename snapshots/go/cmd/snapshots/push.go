@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,11 +12,12 @@ import (
 	"os"
 	"path"
 
-	"cloud.google.com/go/storage"
 	flag "github.com/spf13/pflag"
+	"go.beyondstorage.io/v5/types"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
 )
 
 type pushConfig struct {
@@ -102,17 +104,12 @@ func runPush(args []string) error {
 		return err
 	}
 
-	objAttrs, err := obj.Attrs(ctx)
-	if err != nil {
-		log.Println("push successful but failed to get object attrs")
-	} else {
-		log.Printf("pushed snapshot of %d bytes: %s", objAttrs.Size, objAttrs.Name)
-	}
+	log.Printf("pushed snapshot of %d bytes: %s", obj.MustGetContentLength(), obj.Path)
 
 	return nil
 }
 
-func push(ctx context.Context, pc *pushConfig) (*storage.ObjectHandle, error) {
+func push(ctx context.Context, pc *pushConfig) (*types.Object, error) {
 	if pc.snapshot == nil {
 		return nil, fmt.Errorf("no snapshot specified")
 	}
@@ -122,22 +119,21 @@ func push(ctx context.Context, pc *pushConfig) (*storage.ObjectHandle, error) {
 		return nil, fmt.Errorf("failed to marshal snapshot: %w", err)
 	}
 
-	sclient, err := storage.NewClient(ctx)
+	store, err := storage.NewStorage(pc.storageURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create storage client: %w", err)
 	}
-	bucket := sclient.Bucket(pc.gcsBucket)
 
 	location := fmt.Sprintf("%s/snapshots/%s.json", pc.workspaceName, pc.name)
-	obj := bucket.Object(location)
-	w := obj.NewWriter(ctx)
-	if _, err := w.Write(snapshotBytes); err != nil {
+	reader := bytes.NewReader(snapshotBytes)
+	if _, err := store.WriteWithContext(ctx, location, reader, int64(reader.Len())); err != nil {
 		return nil, fmt.Errorf("failed to write to bucket file: %w", err)
 	}
-	if err := w.Close(); err != nil {
-		return nil, fmt.Errorf("failed to close bucket file: %w", err)
-	}
 
+	obj, err := store.StatWithContext(ctx, location)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get object details: %w", err)
+	}
 	return obj, nil
 }
 
