@@ -56,11 +56,18 @@ def _snapshots_binaries(ctx):
 
     ctx.download(
         url,
-        output="snapshots",
+        output="snapshots-bin",
         sha256 = sha256,
         executable = True,
     )
-    ctx.file("BUILD", 'exports_files(["snapshots"])')
+    ctx.file("BUILD", """
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "snapshots",
+    srcs = ["snapshots-bin"],
+)
+""")
 
 snapshots_binaries = repository_rule(
     implementation = _snapshots_binaries,
