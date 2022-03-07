@@ -23,6 +23,7 @@ go_library(
         "@com_github_olekukonko_tablewriter//:tablewriter",
         "@com_github_spf13_pflag//:pflag",
         "@com_google_cloud_go_storage//:storage",
+        "@io_beyondstorage_go_v5//types",
         "@org_golang_google_grpc//:grpc",
     ],
 )
