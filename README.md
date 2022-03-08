@@ -102,7 +102,60 @@ TBW: create a snapshot, make a change, diff against previous snapshot
 TBW
 ### Remote Storage
 
-TBW
+So far, only Google Cloud Storage is supported for remote storage.
+To start using a remote storage backend, add a `storage` attribute to `snapshots` in your root BUILD file:
+
+```skylark
+snapshots(
+    name = "snapshots",
+    bucket = "name-of-cloud-storage-bucket",
+)
+```
+
+Bazel Snapshots will create the following structure in the remote storage:
+
+```
+/
+└── <workspace name>
+    ├── snapshots
+    │   ├── b1d4a4f.json  # snapshot files go here
+    │   ├── abcd123.json  # (typically named by git commit)
+    │   └── ...
+    └── tags
+        └── deployed      # a tag called "deployed"
+```
+
+_Snapshot files_ are JSON files containing the digests for all trackers in the Bazel project.
+_Tag files_ emulate git tags, and can be referred to by name.
+A tag file only contains the name of some snapshot file.
+
+With remote storage, you can use these commands of the Snapshot tool:
+
+ * `get`: get a snapshot from remote storage
+ * `push`: push a snapshot to remote storage
+ * `tag`: tag a remote snapshot
+
+Usage example:
+
+```sh
+$ SNAPSHOT_NAME="$(git rev-parse --short HEAD)"
+
+# Create a snapshot
+$ bazel run snapshots -- collect --out "$SNAPSHOT_NAME.json"
+snapshots: wrote file to /some-path/bcb0283.json
+
+# Push the snapshot
+$ bazel run snapshots -- push --name="$SNAPSHOT_NAME" --snapshot-path="$SNAPSHOT_NAME.json"
+
+# Tag the snapshot
+$ bazel run snapshots -- tag --name "$SNAPSHOT_NAME" latest
+snapshots: tagged snapshot bcb0283 as latest: infrastructure/tags/latest
+
+# Get or diff against the snapshot by name
+$ bazel run snapshots -- get latest
+$ bazel run snaptool -- diff latest
+```
+
 ### Using in Continous Deployment Jobs
 
 TBW
