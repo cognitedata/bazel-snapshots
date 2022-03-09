@@ -50,7 +50,7 @@ usage: snapshots <command> [args...]
 # ...
 ```
 
-### Build binaries from source
+### Build Binaries From Source
 
 Requires rules_go and gazelle.
 See [example](/examples/build-from-source).
