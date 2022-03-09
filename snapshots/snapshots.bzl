@@ -89,7 +89,7 @@ _change_tracker = rule(
         "run": attr.label_list(
             doc = "List of executable targets to run when there are changes to deps",
         ),
-        "deps": attr.label_list(),
+        "deps": attr.label_list(allow_files = True),
         "tracker_tags": attr.string_list(
             doc = "Tags for the tracker",
         ),
