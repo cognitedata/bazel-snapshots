@@ -103,7 +103,7 @@ The tracker files can still be built separately using `bazel build //some:label 
 ### Remote Storage
 
 So far, only Google Cloud Storage is supported for remote storage.
-To start using a remote storage backend, add a `storage` attribute to `snapshots` in your root BUILD file:
+To start using a remote storage backend, add a `bucket` attribute to `snapshots` in your root BUILD file:
 
 ```skylark
 snapshots(
