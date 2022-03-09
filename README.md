@@ -13,10 +13,6 @@ The way Bazel Snapshots works is in contrast to other approaches with similar go
 In short, Bazel Snapshots discovers which outputs have actually changed, whereas Bazel graph analysis methods discover which outputs could be affected by some change.
 The main advantage with our approach is less over-reporting and more explicit control.
 
-## Demo
-
-TBW.
-
 ## Installation
 
 ### Use Pre-Built Binaries (recommended)
@@ -95,11 +91,15 @@ change_tracker(
 
 ```
 
-TBW: create a snapshot, make a change, diff against previous snapshot
-
 ### Integrating With Other Rules
 
-TBW
+Example: [integrate-with-other-rules](/examples/integrate-with-other-rules/)
+
+The `create_tracker_file()` Skylark function can be used to create a `OutputGroupInfo` which can be returned from any Bazel rule.
+This technique can be used to create "transparent" support for Bazel Snapshots without using macros.
+The tracker files can still be built separately using `bazel build //some:label --output_groups=change_track_files`.
+
+
 ### Remote Storage
 
 So far, only Google Cloud Storage is supported for remote storage.
@@ -158,9 +158,30 @@ $ bazel run snaptool -- diff latest
 
 ### Using in Continous Deployment Jobs
 
-TBW
+A minimal setup would have a deployment process (CD) which collects a snapshot and compares it with some already-known snapshot in order to find out which targets need to be re-deployed.
+Re-deploying is often done by `bazel run`-ing some target, but the CD process could also determine this by itself.
 
+Assuming there already exists some _tag_ called `deployed`, referring to some _snapshot_ representing the last set of deployed targets, we can use the `diff` command to both collect a snapshot and diff against the tag:
 
+```sh
+# Collect all trackers and diff against the snapshot tagged 'deployed'.
+# Also output the collected snapshot to a file 'snapshot.json' and
+# pretty-print a table of the detected changes to stderr.
+$ bazel run snapshots -- diff --out snapshot.json --format=json --stderr-pretty deployed
+```
+
+The above command prints a JSON structure showing which targets have changed, along with their "run" labels and tags.
+It's up to the CD process to interpret there results and run the necessary commands.
+
+At the end of the CD process, we can push the snapshot we collected earlier and tag it as `deployed`, so that it will be used to diff against in the next CD process.
+
+```sh
+# Push the snapshot to remote storage
+$ bazel run snapshots -- push --snapshot-path=snapshot.json
+
+# Tag it as 'deployed'
+baszel run snapshots -- tag deployed
+```
 
 ## How It Works
 
