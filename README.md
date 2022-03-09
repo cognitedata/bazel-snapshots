@@ -185,7 +185,7 @@ baszel run snapshots -- tag deployed
 
 ## How It Works
 
-Bazel Snapshots works by tracking Bazel targets (build artifacts, outputs), by creating a _digest_ of the output files.
+Bazel Snapshots tracks Bazel targets (build artifacts, outputs) by creating a _digest_ of the output files.
 This digest, together with some metadata such as a _label_ and _tags_ represents a _tracker_.
 The data for all trackers in the Bazel project is collected together in a file called a _snapshot_, typically named after a code revision (e.g. a git revision).
 Two snapshots can be _diff_-ed to find out which trackers have changed between the two snapshots.
