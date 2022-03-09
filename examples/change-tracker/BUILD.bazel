@@ -28,5 +28,13 @@ change_tracker(
     name = "artifact_change_tracker",
     deps = [":artifact"],
     run = [":deploy"],
-    tracker_tags = ["deployable"],
+    tracker_tags = ["deployable_artifact"],
+)
+
+# You can also track source file that aren't targets coming from other rules
+change_tracker(
+    name = "source_file_change_tracker",
+    deps = ["source_file_1.txt"],
+    run = [":deploy"],
+    tracker_tags = ["deployable_source_file"],
 )
