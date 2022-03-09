@@ -6,10 +6,10 @@ The rule will generate a JSON file containing and output like this:
 ```
 
 The digest is a hash of the `deps` attribute and run is an array containing the targets
-specified in the `run` atribute. 
+specified in the `run` atribute.
 
-The tags come from the `tracker_tags` attribute of the rule and can contain an arbitrary list of tags. These tags can be used for querying with jq or some 
-other JSON tool after running the diff command `bazel run snapshots -- diff --format=json --stderr-pretty $(pwd)/old_tracker.json`. 
+The tags come from the `tracker_tags` attribute of the rule and can contain an arbitrary list of tags. These tags can be used for querying with jq or some
+other JSON tool after running the diff command `bazel run snapshots -- diff --format=json --stderr-pretty $(pwd)/old_tracker.json`.
 This command will output a list of changes in the format below.
 ```json
 [
@@ -27,8 +27,8 @@ This command will output a list of changes in the format below.
 ]
 ```
 
-When runnig `bazel run snapshots -- collect` the snapshots tool run a query against the output group with 
-name `change_track_files` which is the output group created by `change_tracker`. It will then aggregate all 
+When running `bazel run snapshots -- collect` the snapshots tool run a query against the output group with
+name `change_track_files` which is the output group created by `change_tracker`. It will then aggregate all
 the files into a single JSON file containing a list of digests and run targets. The ouput will look like the JSON object below.
 
 ```json
