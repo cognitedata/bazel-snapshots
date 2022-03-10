@@ -106,6 +106,7 @@ def _snapshots_runner_impl(ctx):
     args = []
     args.extend(["--gcs-bucket", ctx.attr.bucket])
     args.extend(["--workspace-name", ctx.workspace_name])
+    args.extend(["--storage-url", ctx.attr.storage])
 
     out_file = ctx.actions.declare_file(ctx.label.name + ".bash")
     substitutions = {
@@ -142,6 +143,9 @@ _snapshots_runner = rule(
         ),
         "bucket": attr.string(
             doc = "Name of the bucket to use (optional)",
+        ),
+        "storage": attr.string(
+            doc = "Full URL of the bucket",
         ),
         "_template": attr.label(
             default = "//snapshots:runner.tmpl.sh",
