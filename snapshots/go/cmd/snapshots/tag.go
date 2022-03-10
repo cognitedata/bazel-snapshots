@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -10,10 +11,11 @@ import (
 	"path"
 	"strings"
 
-	"cloud.google.com/go/storage"
 	flag "github.com/spf13/pflag"
+	"go.beyondstorage.io/v5/types"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
 )
 
 type tagConfig struct {
@@ -84,46 +86,38 @@ func runTag(args []string) error {
 		return err
 	}
 
-	objAttrs, err := obj.Attrs(ctx)
-	if err != nil {
-		log.Println("tag successful but failed to get the object attrs")
-	} else {
-		log.Printf("tagged snapshot %s as %s: %s", tc.snapshotName, tc.tagName, objAttrs.Name)
-	}
+	log.Printf("tagged snapshot %s as %s: %s", tc.snapshotName, tc.tagName, obj.Path)
 
 	return nil
 }
 
-func tag(ctx context.Context, tc *tagConfig) (*storage.ObjectHandle, error) {
-	sclient, err := storage.NewClient(ctx)
+func tag(ctx context.Context, tc *tagConfig) (*types.Object, error) {
+	store, err := storage.NewStorage(tc.storageURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create storage client: %w", err)
 	}
-	bucket := sclient.Bucket(tc.gcsBucket)
 
 	snapshotLocation := fmt.Sprintf("%s/snapshots/%s.json", tc.workspaceName, tc.snapshotName)
 
-	snapObjAttrs, err := bucket.Object(snapshotLocation).Attrs(ctx)
+	attrs, err := store.StatWithContext(ctx, snapshotLocation)
 	if err != nil {
-		if err == storage.ErrObjectNotExist {
-			return nil, fmt.Errorf("no such snapshot in bucket: %s", tc.snapshotName)
-		}
 		return nil, fmt.Errorf("failed to get snapshot: %w", err)
 	}
 
-	tagContent := strings.TrimSuffix(path.Base(snapObjAttrs.Name), ".json")
-
+	tagContent := []byte(strings.TrimSuffix(path.Base(attrs.Path), ".json"))
 	tagLocation := fmt.Sprintf("%s/tags/%s", tc.workspaceName, tc.tagName)
-	tagObj := bucket.Object(tagLocation)
-	tagWriter := tagObj.NewWriter(ctx)
-	if _, err := fmt.Fprintf(tagWriter, tagContent); err != nil {
+	reader := bytes.NewReader(tagContent)
+
+	if _, err := store.WriteWithContext(ctx, tagLocation, reader, int64(reader.Len())); err != nil {
 		return nil, fmt.Errorf("failed to write tag: %w", err)
 	}
-	if err := tagWriter.Close(); err != nil {
-		return nil, fmt.Errorf("failed to close tag file: %w", err)
+
+	obj, err := store.StatWithContext(ctx, tagLocation)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get object details: %w", err)
 	}
 
-	return tagObj, nil
+	return obj, nil
 }
 
 func tagUsage(fs *flag.FlagSet) {
