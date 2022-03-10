@@ -11,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 	"strings"
 
 	flag "github.com/spf13/pflag"
@@ -127,11 +128,7 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 			if _, err := it.Next(); err == nil {
 				return nil, fmt.Errorf("ambiguous snapshot name: %s", gc.name)
 			}
-			pathSlice := strings.Split(attrs.Path, "/")
-			snapshotName = pathSlice[len(pathSlice)-1]
-			// attrs.Path has the full path of the object with the file extension.
-			// We strip file extension from the name.
-			snapshotName = snapshotName[:len(snapshotName)-5]
+			snapshotName = strings.TrimSuffix(path.Base(attrs.Path), ".json")
 		}
 
 		_, err = store.ReadWithContext(ctx, fmt.Sprintf("%s/snapshots/%s.json", gc.workspaceName, snapshotName), snapshotBuffer)
