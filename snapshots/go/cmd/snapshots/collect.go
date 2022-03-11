@@ -97,7 +97,11 @@ func runCollect(args []string) error {
 			return fmt.Errorf("failed to push snapshot: %w", err)
 		}
 
-		log.Printf("pushed snapshot of %d bytes: %s", obj.MustGetContentLength(), obj.Path)
+		contentLenght, isOk := obj.GetContentLength()
+		if !isOk {
+			log.Printf("failed to get contentLenght of pushed snapshot: %s", obj.Path)
+		}
+		log.Printf("pushed snapshot of %d bytes: %s", contentLenght, obj.Path)
 	}
 
 	return nil

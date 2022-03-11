@@ -104,7 +104,12 @@ func runPush(args []string) error {
 		return err
 	}
 
-	log.Printf("pushed snapshot of %d bytes: %s", obj.MustGetContentLength(), obj.Path)
+	contentLenght, isOk := obj.GetContentLength()
+		if !isOk {
+			log.Printf("failed to get contentLenght of pushed snapshot: %s", obj.Path)
+		}
+
+	log.Printf("pushed snapshot of %d bytes: %s", contentLenght, obj.Path)
 
 	return nil
 }
