@@ -104,7 +104,6 @@ def change_tracker(name, **kwargs):
 
 def _snapshots_runner_impl(ctx):
     args = []
-    args.extend(["--gcs-bucket", ctx.attr.bucket])
     args.extend(["--workspace-name", ctx.workspace_name])
     args.extend(["--storage-url", ctx.attr.storage])
 
@@ -140,9 +139,6 @@ _snapshots_runner = rule(
             cfg = "host",
             executable = True,
             allow_single_file = True,
-        ),
-        "bucket": attr.string(
-            doc = "Name of the bucket to use (optional)",
         ),
         "storage": attr.string(
             doc = "Full URL of the bucket",

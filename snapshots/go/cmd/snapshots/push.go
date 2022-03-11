@@ -97,7 +97,7 @@ func runPush(args []string) error {
 	// log for debugging
 	log.Printf("name:      %s", pc.name)
 	log.Printf("workspace: %s", pc.workspacePath)
-	log.Printf("bucket:    %s", pc.gcsBucket)
+	log.Printf("storage:    %s", pc.storageURL)
 
 	obj, err := push(ctx, pc)
 	if err != nil {

@@ -77,7 +77,7 @@ func runTag(args []string) error {
 	tc := getTagConfig(c)
 
 	log.Printf("workspace: %s", tc.workspacePath)
-	log.Printf("bucket:    %s", tc.gcsBucket)
+	log.Printf("storage:    %s", tc.storageURL)
 	log.Printf("snapshot:  %s", tc.snapshotName)
 	log.Printf("tag:       %s", tc.tagName)
 
