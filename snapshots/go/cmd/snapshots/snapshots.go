@@ -84,8 +84,8 @@ Snapshots may be run with one of the commands below.
 	digest - Create a digest of a set of files.
 	collect - Create a snapshot from all tracker files.
 	diff - Compute difference between two snapshots.
-	get - Get a snapshot from the remote bucket.
-	push - Push a snapshot to the remote bucket.
+	get - Get a snapshot from the remote storage.
+	push - Push a snapshot to the remote storage.
 	tag - Tag a remote snapshot.
 	help - Show this message
 For usage information for a specific command, run the command with the -h flag.
