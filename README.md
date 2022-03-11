@@ -103,14 +103,26 @@ The tracker files can still be built separately using `bazel build //some:label 
 ### Remote Storage
 
 So far, only Google Cloud Storage is supported for remote storage.
-To start using a remote storage backend, add a `bucket` attribute to `snapshots` in your root BUILD file:
+To start using a remote storage backend, add a `storage` attribute to `snapshots`
+in your root BUILD file:
 
 ```skylark
 snapshots(
     name = "snapshots",
-    bucket = "name-of-cloud-storage-bucket",
+    storage = "gcs://name/of/the/storage?credential=env&project_id=env",
 )
 ```
+
+Google Cloud Storage requires `credential` and `project_id` fields to be exists in the storage url.
+You can set both values to env in order to use the default credentials and automatically infer the project ID.
+
+> :warning: **Make sure to provide full path of the storage.** Each supported backend has their own
+set of variables that you can find in the below table.
+
+Backend | Variables | Values
+---|---|---
+Google Cloud Storage | `credential`<br> `project_id` | `env` _or_ `"~/path/to/credential.json"`<br> `env` _or_ `"project_id"`
+
 
 Bazel Snapshots will create the following structure in the remote storage:
 
@@ -155,6 +167,7 @@ snapshots: tagged snapshot bcb0283 as latest: infrastructure/tags/latest
 $ bazel run snapshots -- get latest
 $ bazel run snaptool -- diff latest
 ```
+
 
 ### Using in Continous Deployment Jobs
 
