@@ -102,17 +102,15 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to look for tag %s: %w", gc.name, err)
 			}
-			if err == nil {
-				snapshotBytes, err := ioutil.ReadAll(tagBuffer)
-				if err != nil {
-					return nil, fmt.Errorf("failed to read tag: %w", err)
-				}
-				snapshotName = string(snapshotBytes)
+			snapshotBytes, err := ioutil.ReadAll(tagBuffer)
+			if err != nil {
+				return nil, fmt.Errorf("failed to read tag: %w", err)
+			}
+			snapshotName = string(snapshotBytes)
 
-				_, err = store.ReadWithContext(ctx, fmt.Sprintf("%s/snapshots/%s.json", gc.workspaceName, snapshotName), snapshotBuffer)
-				if err != nil {
-					return nil, fmt.Errorf("failed to find resolved snapshot %s: %w", snapshotName, err)
-				}
+			_, err = store.ReadWithContext(ctx, fmt.Sprintf("%s/snapshots/%s.json", gc.workspaceName, snapshotName), snapshotBuffer)
+			if err != nil {
+				return nil, fmt.Errorf("failed to find resolved snapshot %s: %w", snapshotName, err)
 			}
 		}
 	}
