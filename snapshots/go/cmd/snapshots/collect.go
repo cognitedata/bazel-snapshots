@@ -27,7 +27,6 @@ type collectConfig struct {
 	bazelCacheGRPCInsecure bool
 	bazelStderr            bool
 	outPath                string
-	push                   bool
 	noPrint                bool
 }
 
@@ -82,26 +81,8 @@ func runCollect(args []string) error {
 	log.Println("out path:        ", cc.outPath)
 
 	// run the command
-	ctx := context.Background()
-	manifest, err := collect(cc)
-	if err != nil {
+	if _, err := collect(cc); err != nil {
 		return fmt.Errorf("failed to collect: %w", err)
-	}
-
-	if cc.push {
-		pc := getPushConfig(c)
-		pc.snapshot = manifest
-
-		obj, err := push(ctx, pc)
-		if err != nil {
-			return fmt.Errorf("failed to push snapshot: %w", err)
-		}
-
-		contentLenght, isOk := obj.GetContentLength()
-		if !isOk {
-			log.Printf("failed to get contentLenght of pushed snapshot: %s", obj.Path)
-		}
-		log.Printf("pushed snapshot of %d bytes: %s", contentLenght, obj.Path)
 	}
 
 	return nil
