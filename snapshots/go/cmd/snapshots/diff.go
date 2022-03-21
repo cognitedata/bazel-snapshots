@@ -49,7 +49,7 @@ func (*diffConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.Con
 	dc := &diffConfig{}
 	c.Exts[diffName] = dc
 	fs.BoolVar(&dc.stderrPretty, "stderr-pretty", false, "pretty-print in stderr in addition")
-	fs.StringVar(&dc.outputFormat, "format", outputLabel, "output format (label, json, pretty)")
+	fs.StringVar(&dc.outputFormat, "format", outputJSON, "output format (label, json, pretty)")
 }
 
 func (*diffConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
