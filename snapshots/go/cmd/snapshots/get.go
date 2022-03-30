@@ -94,7 +94,7 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 	var snapshotName string
 
 	if !gc.skipTags {
-		tagPath := fmt.Sprintf("%s/tags/%s", gc.workspaceName, gc.name)
+		tagPath := fmt.Sprintf("tags/%s", gc.name)
 		tagBuffer := new(bytes.Buffer)
 		_, err := store.StatWithContext(ctx, tagPath)
 		if err == nil {
@@ -108,7 +108,7 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 			}
 			snapshotName = string(snapshotBytes)
 
-			_, err = store.ReadWithContext(ctx, fmt.Sprintf("%s/snapshots/%s.json", gc.workspaceName, snapshotName), snapshotBuffer)
+			_, err = store.ReadWithContext(ctx, fmt.Sprintf("snapshots/%s.json", snapshotName), snapshotBuffer)
 			if err != nil {
 				return nil, fmt.Errorf("failed to find resolved snapshot %s: %w", snapshotName, err)
 			}
@@ -116,12 +116,12 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 	}
 
 	if !gc.skipNames && snapshotBuffer.Len() == 0 {
-		it, err := store.List(fmt.Sprintf("%s/snapshots/%s", gc.workspaceName, gc.name))
+		it, err := store.List(fmt.Sprintf("snapshots/%s", gc.name))
 		if err != nil {
 			return nil, fmt.Errorf("cannot create object iterator: %w", err)
 		}
 		if attrs, err := it.Next(); err != nil && errors.Is(err, storage.IteratorDone) {
-			return nil, fmt.Errorf("failed to look for snapshot")
+			return nil, fmt.Errorf("failed to look for snapshot %s in %s", gc.name, store.String())
 		} else if err == nil {
 			if _, err := it.Next(); err == nil {
 				return nil, fmt.Errorf("ambiguous snapshot name: %s", gc.name)
@@ -129,7 +129,7 @@ func get(ctx context.Context, gc *getConfig) (*models.Snapshot, error) {
 			snapshotName = strings.TrimSuffix(path.Base(attrs.Path), ".json")
 		}
 
-		_, err = store.ReadWithContext(ctx, fmt.Sprintf("%s/snapshots/%s.json", gc.workspaceName, snapshotName), snapshotBuffer)
+		_, err = store.ReadWithContext(ctx, fmt.Sprintf("snapshots/%s.json", snapshotName), snapshotBuffer)
 		if err != nil {
 			return nil, fmt.Errorf("cannot read the snapshot: %w", err)
 		}

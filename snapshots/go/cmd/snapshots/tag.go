@@ -97,7 +97,7 @@ func tag(ctx context.Context, tc *tagConfig) (*types.Object, error) {
 		return nil, fmt.Errorf("failed to create storage client: %w", err)
 	}
 
-	snapshotLocation := fmt.Sprintf("%s/snapshots/%s.json", tc.workspaceName, tc.snapshotName)
+	snapshotLocation := fmt.Sprintf("snapshots/%s.json", tc.snapshotName)
 
 	attrs, err := store.StatWithContext(ctx, snapshotLocation)
 	if err != nil {
@@ -105,7 +105,7 @@ func tag(ctx context.Context, tc *tagConfig) (*types.Object, error) {
 	}
 
 	tagContent := []byte(strings.TrimSuffix(path.Base(attrs.Path), ".json"))
-	tagLocation := fmt.Sprintf("%s/tags/%s", tc.workspaceName, tc.tagName)
+	tagLocation := fmt.Sprintf("tags/%s", tc.tagName)
 	reader := bytes.NewReader(tagContent)
 
 	if _, err := store.WriteWithContext(ctx, tagLocation, reader, int64(reader.Len())); err != nil {
