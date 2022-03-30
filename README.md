@@ -109,20 +109,16 @@ in your root BUILD file:
 ```skylark
 snapshots(
     name = "snapshots",
-    storage = "gcs://my-bucket/some-path/?credential=env&project_id=env",
+    storage = "gcs://some-bucket/workspace-name",
 )
 ```
 
-Google Cloud Storage requires `credential` and `project_id` fields to be defined as query parameters in the storage url.
-You can set both values to `env` in order to use the default credentials and automatically infer the project ID.
+Google Cloud Storage optionally takes `credential` and `project_id` query parameters in the storage URL.
+If not set, the default credentials will be used and the project ID will be inferred.
 
-> :warning: **Make sure to provide full path of the storage.** Each supported backend has their own
-set of variables that you can find in the below table.
-
-Backend | Variables | Values
+Backend | Docs | Notes
 ---|---|---
-Google Cloud Storage | `credential`<br> `project_id` | `env` _or_ `"~/path/to/credential.json"`<br> `env` _or_ `"project_id"`
-
+Google Cloud Storage | [gcs](https://beyondstorage.io/docs/go-storage/services/gcs#storager) | `credential` and `project_id` defaults to `env`
 
 Bazel Snapshots will create the following structure in the remote storage:
 
