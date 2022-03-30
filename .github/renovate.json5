@@ -12,14 +12,5 @@
       ],
       "automerge": true
     }
-  ],
-  "postUpgradeTasks": {
-    "commands": [
-      "bazel run gazelle-update-repos",
-    ],
-    "fileFilters": [
-      "**/*.bzl",
-    ],
-    "executionMode": "branch"
-  }
+  ]
 }
