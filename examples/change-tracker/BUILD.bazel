@@ -1,4 +1,4 @@
-load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snapshots", "change_tracker")
+load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "change_tracker", "snapshots")
 
 # Output based change detection.
 #
@@ -26,15 +26,15 @@ filegroup(
 # the artifact changes
 change_tracker(
     name = "artifact_change_tracker",
-    deps = [":artifact"],
     run = [":deploy"],
     tracker_tags = ["deployable_artifact"],
+    deps = [":artifact"],
 )
 
 # You can also track source file that aren't targets coming from other rules
 change_tracker(
     name = "source_file_change_tracker",
-    deps = ["source_file_1.txt"],
     run = [":deploy"],
     tracker_tags = ["deployable_source_file"],
+    deps = ["source_file_1.txt"],
 )
