@@ -105,9 +105,9 @@ func runPush(args []string) error {
 	}
 
 	contentLenght, isOk := obj.GetContentLength()
-		if !isOk {
-			log.Printf("failed to get contentLenght of pushed snapshot: %s", obj.Path)
-		}
+	if !isOk {
+		log.Printf("failed to get contentLenght of pushed snapshot: %s", obj.Path)
+	}
 
 	log.Printf("pushed snapshot of %d bytes: %s", contentLenght, obj.Path)
 
@@ -129,7 +129,7 @@ func push(ctx context.Context, pc *pushConfig) (*types.Object, error) {
 		return nil, fmt.Errorf("failed to create storage client: %w", err)
 	}
 
-	location := fmt.Sprintf("%s/snapshots/%s.json", pc.workspaceName, pc.name)
+	location := fmt.Sprintf("snapshots/%s.json", pc.name)
 	reader := bytes.NewReader(snapshotBytes)
 	if _, err := store.WriteWithContext(ctx, location, reader, int64(reader.Len())); err != nil {
 		return nil, fmt.Errorf("failed to write to bucket file: %w", err)

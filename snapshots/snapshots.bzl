@@ -104,7 +104,6 @@ def change_tracker(name, **kwargs):
 
 def _snapshots_runner_impl(ctx):
     args = []
-    args.extend(["--workspace-name", ctx.workspace_name])
     args.extend(["--storage-url", ctx.attr.storage])
 
     out_file = ctx.actions.declare_file(ctx.label.name + ".bash")

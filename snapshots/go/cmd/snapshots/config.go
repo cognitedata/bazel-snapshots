@@ -15,9 +15,8 @@ import (
 // commonConfig holds common configuration for all commands; args which can
 // always be passed.
 type commonConfig struct {
-	storageURL    string
-	workspaceName string
-	verbose       bool
+	storageURL string
+	verbose    bool
 }
 
 const commonName = "_common"
@@ -32,7 +31,6 @@ func (*commonConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.C
 	cc := &commonConfig{}
 	c.Exts[commonName] = cc
 	fs.StringVar(&cc.storageURL, "storage-url", "", "full orl of the storage")
-	fs.StringVar(&cc.workspaceName, "workspace-name", "", "name of bazel workspace")
 	fs.BoolVar(&cc.verbose, "verbose", false, "verbose output")
 }
 

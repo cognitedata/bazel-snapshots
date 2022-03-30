@@ -109,12 +109,12 @@ in your root BUILD file:
 ```skylark
 snapshots(
     name = "snapshots",
-    storage = "gcs://name/of/the/storage?credential=env&project_id=env",
+    storage = "gcs://my-bucket/some-path/?credential=env&project_id=env",
 )
 ```
 
-Google Cloud Storage requires `credential` and `project_id` fields to be exists in the storage url.
-You can set both values to env in order to use the default credentials and automatically infer the project ID.
+Google Cloud Storage requires `credential` and `project_id` fields to be defined as query parameters in the storage url.
+You can set both values to `env` in order to use the default credentials and automatically infer the project ID.
 
 > :warning: **Make sure to provide full path of the storage.** Each supported backend has their own
 set of variables that you can find in the below table.
