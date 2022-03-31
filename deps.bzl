@@ -243,6 +243,7 @@ def go_dependencies():
     )
     go_repository(
         name = "com_github_golang_protobuf",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/golang/protobuf",
         sum = "h1:ROPKBNFfQgOUMifHyP+KYbvpjbdoFNs+aK7DXlji0Tw=",
@@ -306,6 +307,7 @@ def go_dependencies():
     )
     go_repository(
         name = "com_github_googleapis_gax_go_v2",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/googleapis/gax-go/v2",
         sum = "h1:dp3bWCh+PPO1zjRRiCSczJav13sBvG4UhNyVTa1KqdU=",
@@ -403,6 +405,7 @@ def go_dependencies():
 
     go_repository(
         name = "com_github_olekukonko_tablewriter",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/olekukonko/tablewriter",
         sum = "h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=",
@@ -564,6 +567,7 @@ def go_dependencies():
         build_directives = [
             "gazelle:go_visibility @com_google_cloud_go_storage//:__subpackages__",
         ],
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "cloud.google.com/go",
         sum = "h1:t9Iw5QH5v4XtlEQaCtUY7x6sCABps8sW0acw7e2WQ6Y=",
@@ -592,6 +596,7 @@ def go_dependencies():
     )
     go_repository(
         name = "com_google_cloud_go_iam",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "cloud.google.com/go/iam",
         sum = "h1:4CapQyNFjiksks1/x7jsvsygFPhihslYk5GptIrlX68=",
@@ -606,6 +611,7 @@ def go_dependencies():
     )
     go_repository(
         name = "com_google_cloud_go_storage",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "cloud.google.com/go/storage",
         sum = "h1:HwnT2u2D309SFDHQII6m18HlrCi3jAXhUMTLOWXYH14=",
@@ -663,6 +669,7 @@ def go_dependencies():
     )
     go_repository(
         name = "io_beyondstorage_go_services_gcs_v3",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "go.beyondstorage.io/services/gcs/v3",
         sum = "h1:SPMTdsz6As4GSOuX/V8jPxz36qRXv12X7uSkyT7OOfM=",
@@ -678,6 +685,7 @@ def go_dependencies():
 
     go_repository(
         name = "io_opencensus_go",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "go.opencensus.io",
         sum = "h1:gqCw0LfLxScz8irSi8exQc7fyQ0fKQU/qnC/X8+V/1M=",
@@ -713,6 +721,7 @@ def go_dependencies():
     )
     go_repository(
         name = "org_golang_google_api",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "google.golang.org/api",
         sum = "h1:yHW5s2SFyDapr/43kYtIQmoaaFVW4baLMLwqV4auj2A=",
@@ -727,6 +736,7 @@ def go_dependencies():
     )
     go_repository(
         name = "org_golang_google_genproto",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "google.golang.org/genproto",
         sum = "h1:divpuJZKgX3Qt7MFDE5v62yu0yQcQbTCD9VJp9leX58=",
@@ -734,6 +744,7 @@ def go_dependencies():
     )
     go_repository(
         name = "org_golang_google_grpc",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "google.golang.org/grpc",
         sum = "h1:weqSxi/TMs1SqFRMHCtBgXRs8k3X39QIDEZ0pRcttUg=",
@@ -805,6 +816,7 @@ def go_dependencies():
     )
     go_repository(
         name = "org_golang_x_net",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "golang.org/x/net",
         sum = "h1:O7DYs+zxREGLKzKoMQrtrEacpb0ZVXA5rIwylE2Xchk=",
@@ -812,6 +824,7 @@ def go_dependencies():
     )
     go_repository(
         name = "org_golang_x_oauth2",
+        build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "golang.org/x/oauth2",
         sum = "h1:RerP+noqYHUQ8CMRcPlC2nvTa4dcBIjegkuWdcUDuqg=",
