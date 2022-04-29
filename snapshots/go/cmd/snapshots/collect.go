@@ -56,6 +56,10 @@ func (*collectConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
 
 	// if it's a relative path, assume workspace-relative. The command is
 	// probably run with `bazel run`, and we don't know from where.
+	if !path.IsAbs(cc.bazelrcPath) {
+		cc.bazelrcPath = path.Join(cc.workspacePath, cc.bazelrcPath)
+	}
+
 	if cc.outPath != "" && !path.IsAbs(cc.outPath) {
 		cc.outPath = path.Join(cc.workspacePath, cc.outPath)
 	}
@@ -77,6 +81,7 @@ func runCollect(args []string) error {
 
 	log.Println("bazel path:      ", cc.bazelPath)
 	log.Println("workspace path:  ", cc.workspacePath)
+	log.Println("bazelrc path:    ", cc.bazelrcPath)
 	log.Println("query expression:", cc.queryExpression)
 	log.Println("out path:        ", cc.outPath)
 
@@ -105,7 +110,7 @@ func collect(cc *collectConfig) (*models.Snapshot, error) {
 	}
 
 	ctx := context.Background()
-	bazelc := bazel.NewClient(cc.bazelPath, cc.workspacePath, bstderr)
+	bazelc := bazel.NewClient(cc.bazelPath, cc.bazelrcPath, cc.workspacePath, bstderr)
 	bcache := bazel.NewDefaultDelegatingCache(dialOptions)
 
 	// build digests, get the build events

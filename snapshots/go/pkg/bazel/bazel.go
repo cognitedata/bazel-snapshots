@@ -17,21 +17,25 @@ import (
 
 // Client exposes the Bazel CLI.
 type Client struct {
-	path   string
-	ws     string
-	stderr io.Writer
+	path    string
+	ws      string
+	bazelrc string
+	stderr  io.Writer
 }
 
-func NewClient(path, ws string, stderr io.Writer) *Client {
+func NewClient(path, ws, bazelrc string, stderr io.Writer) *Client {
 	return &Client{
-		path:   path,
-		ws:     ws,
-		stderr: stderr,
+		path:    path,
+		ws:      ws,
+		bazelrc: bazelrc,
+		stderr:  stderr,
 	}
 }
 
 func (c *Client) Command(ctx context.Context, args ...string) ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
+
+	args = append([]string{fmt.Sprintf("--bazelrc=%s", c.bazelrc)}, args...)
 
 	cmd := exec.CommandContext(ctx, c.path, args...)
 	cmd.Stderr = c.stderr
