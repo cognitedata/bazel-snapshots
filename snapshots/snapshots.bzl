@@ -109,7 +109,7 @@ def _snapshots_runner_impl(ctx):
     out_file = ctx.actions.declare_file(ctx.label.name + ".bash")
     substitutions = {
         "@@ARGS@@": shell.array_literal(args),
-        "@@SNAPSHOTS@@": ctx.executable.snapshots.short_path,
+        "@@SNAPSHOTS@@": ctx.executable.snapshots.path,
     }
     ctx.actions.expand_template(
         template = ctx.file._template,
