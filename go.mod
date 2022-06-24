@@ -6,7 +6,7 @@ require (
 	github.com/bazelbuild/rules_go v0.33.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.7.4
+	github.com/stretchr/testify v1.7.5
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
 	google.golang.org/genproto v0.0.0-20220622171453-ea41d75dfa0f
