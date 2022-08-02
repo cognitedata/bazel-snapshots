@@ -9,8 +9,8 @@ require (
 	github.com/stretchr/testify v1.7.5
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
-	google.golang.org/genproto v0.0.0-20220622171453-ea41d75dfa0f
-	google.golang.org/grpc v1.47.0
+	google.golang.org/genproto v0.0.0-20220802133213-ce4fa296bf78
+	google.golang.org/grpc v1.48.0
 )
 
 require (
