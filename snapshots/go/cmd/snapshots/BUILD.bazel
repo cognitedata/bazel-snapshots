@@ -27,6 +27,7 @@ go_library(
         "//snapshots/go/pkg/storage",
         "//snapshots/go/pkg/tagger",
         "@com_github_olekukonko_tablewriter//:tablewriter",
+        "@com_github_spf13_cobra//:cobra",
         "@com_github_spf13_pflag//:pflag",
         "@io_beyondstorage_go_v5//types",
         "@org_golang_google_grpc//:grpc",

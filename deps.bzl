@@ -342,6 +342,13 @@ def go_dependencies():
         sum = "h1:mV02weKRL81bEnm8A0HT1/CAelMQDBuQIfLw8n+d6xI=",
         version = "v0.0.0-20200824232613-28f6c0f3b639",
     )
+    go_repository(
+        name = "com_github_inconshreveable_mousetrap",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/inconshreveable/mousetrap",
+        sum = "h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=",
+        version = "v1.0.0",
+    )
 
     go_repository(
         name = "com_github_jstemmer_go_junit_report",
@@ -505,6 +512,14 @@ def go_dependencies():
         sum = "h1:qLC7fQah7D6K1B0ujays3HV9gkFtllcxhzImRR7ArPQ=",
         version = "v0.0.0-20180118202830-f09979ecbc72",
     )
+    go_repository(
+        name = "com_github_spf13_cobra",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/spf13/cobra",
+        sum = "h1:X+jTBEBqF0bHN+9cSMgmfuvv2VHJ9ezmFNf9Y/XstYU=",
+        version = "v1.5.0",
+    )
+
     go_repository(
         name = "com_github_spf13_pflag",
         build_file_proto_mode = "disable_global",

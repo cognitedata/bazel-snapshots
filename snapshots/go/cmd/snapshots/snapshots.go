@@ -10,6 +10,7 @@ import (
 	"os"
 
 	flag "github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 )
 
 type command int
@@ -35,6 +36,9 @@ var commandFromName = map[string]command{
 }
 
 func main() {
+	foo := cobra.Command{}
+	log.Printf("%s", foo.Example)
+
 	log.SetPrefix("snapshots: ")
 	log.SetFlags(0) // don't print timestamps
 
