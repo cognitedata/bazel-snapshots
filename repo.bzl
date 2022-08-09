@@ -98,7 +98,6 @@ def snapshots_repos(name = "snapshots", from_source = False, urls = URLS, sha256
     maybe(
         http_archive,
         name = "bazel_skylib",
-        # 1.2.1, latest as of 2022-01-24
         urls = [
             "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
             "https://github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
