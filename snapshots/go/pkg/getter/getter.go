@@ -20,8 +20,15 @@ func NewGetter() *getter {
 	return &getter{}
 }
 
-func (g *getter) Get(ctx context.Context, name, storageUrl string, skipNames, skipTags bool) (*models.Snapshot, error) {
-	store, err := storage.NewStorage(storageUrl)
+type GetArgs struct {
+	Name       string
+	StorageUrl string
+	SkipNames  bool
+	SkipTags   bool
+}
+
+func (g *getter) Get(ctx context.Context, args *GetArgs) (*models.Snapshot, error) {
+	store, err := storage.NewStorage(args.StorageUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
@@ -29,14 +36,14 @@ func (g *getter) Get(ctx context.Context, name, storageUrl string, skipNames, sk
 	snapshotBuffer := new(bytes.Buffer)
 	var snapshotName string
 
-	if !skipTags {
-		tagPath := fmt.Sprintf("tags/%s", name)
+	if !args.SkipTags {
+		tagPath := fmt.Sprintf("tags/%s", args.Name)
 		tagBuffer := new(bytes.Buffer)
 		_, err := store.StatWithContext(ctx, tagPath)
 		if err == nil {
 			_, err = store.ReadWithContext(ctx, tagPath, tagBuffer)
 			if err != nil {
-				return nil, fmt.Errorf("failed to look for tag %s: %w", name, err)
+				return nil, fmt.Errorf("failed to look for tag %s: %w", args.Name, err)
 			}
 			snapshotBytes, err := ioutil.ReadAll(tagBuffer)
 			if err != nil {
@@ -51,16 +58,16 @@ func (g *getter) Get(ctx context.Context, name, storageUrl string, skipNames, sk
 		}
 	}
 
-	if !skipNames && snapshotBuffer.Len() == 0 {
-		it, err := store.List(fmt.Sprintf("snapshots/%s", name))
+	if !args.SkipNames && snapshotBuffer.Len() == 0 {
+		it, err := store.List(fmt.Sprintf("snapshots/%s", args.Name))
 		if err != nil {
 			return nil, fmt.Errorf("cannot create object iterator: %w", err)
 		}
 		if attrs, err := it.Next(); err != nil && errors.Is(err, storage.IteratorDone) {
-			return nil, fmt.Errorf("failed to look for snapshot %s in %s", name, store.String())
+			return nil, fmt.Errorf("failed to look for snapshot %s in %s", args.Name, store.String())
 		} else if err == nil {
 			if _, err := it.Next(); err == nil {
-				return nil, fmt.Errorf("ambiguous snapshot name: %s", name)
+				return nil, fmt.Errorf("ambiguous snapshot name: %s", args.Name)
 			}
 			snapshotName = strings.TrimSuffix(path.Base(attrs.Path), ".json")
 		}
@@ -72,7 +79,7 @@ func (g *getter) Get(ctx context.Context, name, storageUrl string, skipNames, sk
 	}
 
 	if snapshotBuffer.Len() == 0 {
-		return nil, fmt.Errorf("could not find tag or snapshot: %s", name)
+		return nil, fmt.Errorf("could not find tag or snapshot: %s", args.Name)
 	}
 
 	snapshot := &models.Snapshot{}

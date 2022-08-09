@@ -19,17 +19,24 @@ func NewDigester() *digester {
 	return &digester{}
 }
 
-func (d *digester) Digest(inPaths, run, tags []string, outPath string) error {
+type DigestArgs struct {
+	InPaths []string
+	Run     []string
+	Tags    []string
+	OutPath string
+}
+
+func (d *digester) Digest(args *DigestArgs) error {
 	// sort the input files for more stability
-	sort.Strings(inPaths)
+	sort.Strings(args.InPaths)
 
 	ct := &models.Tracker{
-		Run:  run,
-		Tags: tags,
+		Run:  args.Run,
+		Tags: args.Tags,
 	}
 
 	h := sha256.New()
-	for _, input := range inPaths {
+	for _, input := range args.InPaths {
 		// add the filename
 		h.Write([]byte(path.Base(input)))
 
@@ -51,5 +58,5 @@ func (d *digester) Digest(inPaths, run, tags []string, outPath string) error {
 		return fmt.Errorf("failed to render json file: %w", err)
 	}
 
-	return ioutil.WriteFile(outPath, content, 0644)
+	return ioutil.WriteFile(args.OutPath, content, 0644)
 }

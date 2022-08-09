@@ -58,7 +58,13 @@ func runDigest(args []string) (err error) {
 
 	dc := getDigestConfig(c)
 
-	return digester.NewDigester().Digest(dc.inPaths, dc.run, dc.tags, dc.outPath)
+	digestArgs := digester.DigestArgs{
+		InPaths: dc.inPaths,
+		Run:     dc.run,
+		Tags:    dc.tags,
+		OutPath: dc.outPath,
+	}
+	return digester.NewDigester().Digest(&digestArgs)
 }
 
 func digestUsage(fs *flag.FlagSet) {

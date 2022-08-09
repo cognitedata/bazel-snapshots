@@ -64,7 +64,13 @@ func runGet(args []string) error {
 
 	gc := getGetConfig(c)
 
-	snapshot, err := getter.NewGetter().Get(ctx, gc.name, gc.storageURL, gc.skipNames, gc.skipTags)
+	getArgs := getter.GetArgs{
+		Name: gc.name,
+		StorageUrl: gc.storageURL,
+		SkipNames: gc.skipNames,
+		SkipTags: gc.skipTags,
+	}
+	snapshot, err := getter.NewGetter().Get(ctx, &getArgs)
 	if err != nil {
 		return err
 	}

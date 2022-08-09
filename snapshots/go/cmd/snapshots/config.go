@@ -41,6 +41,7 @@ func (*commonConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
 // bazelConfig holds values useful for interacting with Bazel
 type bazelConfig struct {
 	bazelPath     string
+	bazelRcPath   string
 	workspacePath string
 }
 
