@@ -3,7 +3,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -13,11 +12,10 @@ import (
 	"path"
 
 	flag "github.com/spf13/pflag"
-	"go.beyondstorage.io/v5/types"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
-	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/pusher"
 )
 
 type pushConfig struct {
@@ -99,7 +97,7 @@ func runPush(args []string) error {
 	log.Printf("workspace: %s", pc.workspacePath)
 	log.Printf("storage:    %s", pc.storageURL)
 
-	obj, err := push(ctx, pc)
+	obj, err := pusher.NewPusher().Push(ctx, pc.name, pc.storageURL, pc.snapshot)
 	if err != nil {
 		return err
 	}
@@ -112,34 +110,6 @@ func runPush(args []string) error {
 	log.Printf("pushed snapshot of %d bytes: %s", contentLenght, obj.Path)
 
 	return nil
-}
-
-func push(ctx context.Context, pc *pushConfig) (*types.Object, error) {
-	if pc.snapshot == nil {
-		return nil, fmt.Errorf("no snapshot specified")
-	}
-
-	snapshotBytes, err := json.MarshalIndent(pc.snapshot, "", "  ")
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal snapshot: %w", err)
-	}
-
-	store, err := storage.NewStorage(pc.storageURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create storage client: %w", err)
-	}
-
-	location := fmt.Sprintf("snapshots/%s.json", pc.name)
-	reader := bytes.NewReader(snapshotBytes)
-	if _, err := store.WriteWithContext(ctx, location, reader, int64(reader.Len())); err != nil {
-		return nil, fmt.Errorf("failed to write to bucket file: %w", err)
-	}
-
-	obj, err := store.StatWithContext(ctx, location)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get object details: %w", err)
-	}
-	return obj, nil
 }
 
 func pushUsage(fs *flag.FlagSet) {
