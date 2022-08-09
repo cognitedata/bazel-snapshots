@@ -70,6 +70,7 @@ func runCollect(args []string) error {
 	cc := getCollectConfig(c)
 
 	log.Println("bazel path:      ", cc.bazelPath)
+	log.Println("bazelRc path:    ", cc.bazelRcPath)
 	log.Println("workspace path:  ", cc.workspacePath)
 	log.Println("query expression:", cc.queryExpression)
 	log.Println("out path:        ", cc.outPath)

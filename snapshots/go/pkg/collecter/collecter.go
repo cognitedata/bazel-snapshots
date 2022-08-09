@@ -75,11 +75,7 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 	log.Printf("collecting digests from %s", args.BazelExpression)
 	bazelArgs := []string{args.BazelExpression, "--output_groups=change_track_files"}
 
-	if args.BazelRcPath != "" {
-		bazelArgs = append(bazelArgs, fmt.Sprintf("--bazelrc=%s", args.BazelRcPath))
-	}
-
-	buildEvents, err := bazelc.BuildEventOutput(ctx, bazelArgs...)
+	buildEvents, err := bazelc.BuildEventOutput(ctx, args.BazelRcPath, bazelArgs...)
 	if err != nil {
 		return nil, err
 	}
