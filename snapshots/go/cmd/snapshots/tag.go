@@ -3,19 +3,15 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"log"
 	"os"
-	"path"
-	"strings"
 
 	flag "github.com/spf13/pflag"
-	"go.beyondstorage.io/v5/types"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
-	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/tagger"
 )
 
 type tagConfig struct {
@@ -81,7 +77,7 @@ func runTag(args []string) error {
 	log.Printf("snapshot:  %s", tc.snapshotName)
 	log.Printf("tag:       %s", tc.tagName)
 
-	obj, err := tag(ctx, tc)
+	obj, err := tagger.NewTagger().Tag(ctx, tc.storageURL, tc.snapshotName, tc.tagName)
 	if err != nil {
 		return err
 	}
@@ -89,35 +85,6 @@ func runTag(args []string) error {
 	log.Printf("tagged snapshot %s as %s: %s", tc.snapshotName, tc.tagName, obj.Path)
 
 	return nil
-}
-
-func tag(ctx context.Context, tc *tagConfig) (*types.Object, error) {
-	store, err := storage.NewStorage(tc.storageURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create storage client: %w", err)
-	}
-
-	snapshotLocation := fmt.Sprintf("snapshots/%s.json", tc.snapshotName)
-
-	attrs, err := store.StatWithContext(ctx, snapshotLocation)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get snapshot: %w", err)
-	}
-
-	tagContent := []byte(strings.TrimSuffix(path.Base(attrs.Path), ".json"))
-	tagLocation := fmt.Sprintf("tags/%s", tc.tagName)
-	reader := bytes.NewReader(tagContent)
-
-	if _, err := store.WriteWithContext(ctx, tagLocation, reader, int64(reader.Len())); err != nil {
-		return nil, fmt.Errorf("failed to write tag: %w", err)
-	}
-
-	obj, err := store.StatWithContext(ctx, tagLocation)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get object details: %w", err)
-	}
-
-	return obj, nil
 }
 
 func tagUsage(fs *flag.FlagSet) {

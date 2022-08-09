@@ -1,0 +1,84 @@
+package getter
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"path"
+	"strings"
+
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
+)
+
+type getter struct{}
+
+func NewGetter() *getter {
+	return &getter{}
+}
+
+func (g *getter) Get(ctx context.Context, name, storageUrl string, skipNames, skipTags bool) (*models.Snapshot, error) {
+	store, err := storage.NewStorage(storageUrl)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create client: %w", err)
+	}
+
+	snapshotBuffer := new(bytes.Buffer)
+	var snapshotName string
+
+	if !skipTags {
+		tagPath := fmt.Sprintf("tags/%s", name)
+		tagBuffer := new(bytes.Buffer)
+		_, err := store.StatWithContext(ctx, tagPath)
+		if err == nil {
+			_, err = store.ReadWithContext(ctx, tagPath, tagBuffer)
+			if err != nil {
+				return nil, fmt.Errorf("failed to look for tag %s: %w", name, err)
+			}
+			snapshotBytes, err := ioutil.ReadAll(tagBuffer)
+			if err != nil {
+				return nil, fmt.Errorf("failed to read tag: %w", err)
+			}
+			snapshotName = string(snapshotBytes)
+
+			_, err = store.ReadWithContext(ctx, fmt.Sprintf("snapshots/%s.json", snapshotName), snapshotBuffer)
+			if err != nil {
+				return nil, fmt.Errorf("failed to find resolved snapshot %s: %w", snapshotName, err)
+			}
+		}
+	}
+
+	if !skipNames && snapshotBuffer.Len() == 0 {
+		it, err := store.List(fmt.Sprintf("snapshots/%s", name))
+		if err != nil {
+			return nil, fmt.Errorf("cannot create object iterator: %w", err)
+		}
+		if attrs, err := it.Next(); err != nil && errors.Is(err, storage.IteratorDone) {
+			return nil, fmt.Errorf("failed to look for snapshot %s in %s", name, store.String())
+		} else if err == nil {
+			if _, err := it.Next(); err == nil {
+				return nil, fmt.Errorf("ambiguous snapshot name: %s", name)
+			}
+			snapshotName = strings.TrimSuffix(path.Base(attrs.Path), ".json")
+		}
+
+		_, err = store.ReadWithContext(ctx, fmt.Sprintf("snapshots/%s.json", snapshotName), snapshotBuffer)
+		if err != nil {
+			return nil, fmt.Errorf("cannot read the snapshot: %w", err)
+		}
+	}
+
+	if snapshotBuffer.Len() == 0 {
+		return nil, fmt.Errorf("could not find tag or snapshot: %s", name)
+	}
+
+	snapshot := &models.Snapshot{}
+	if err := json.Unmarshal(snapshotBuffer.Bytes(), snapshot); err != nil {
+		return nil, fmt.Errorf("snapshot format is invalid: %w", err)
+	}
+
+	return snapshot, nil
+}

@@ -1,0 +1,11 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "digester",
+    srcs = ["digester.go"],
+    importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/digester",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//snapshots/go/pkg/models",
+    ],
+)
