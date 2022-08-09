@@ -4,71 +4,58 @@ package main
 
 import (
 	"fmt"
-	"os"
 
-	flag "github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 
-	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/digester"
 )
 
-type digestConfig struct {
+type digestCmd struct {
 	inPaths []string
 	run     []string
 	tags    []string
 	outPath string
+
+	cmd *cobra.Command
 }
 
-const digestName = "_digest"
+func newDigestCmd() *digestCmd {
+	cmd := &cobra.Command{
+		Use:   "digest",
+		Short: "Digest snapshots",
+		Long: `Writes a digest of the infiles to an outfile. Stable on infile order. Includes
+the filenames in the digest. Outputs a JSON file containing a digest of the
+files, plus metadata determined by other flags.`,
+	}
 
-func getDigestConfig(c *config.Config) *digestConfig {
-	return c.Exts[digestName].(*digestConfig)
+	dc := &digestCmd{
+		cmd: cmd,
+	}
+
+	cmd.PersistentFlags().StringArrayVar(&dc.inPaths, "in-paths", nil, "Input files to read")
+	cmd.PersistentFlags().StringArrayVar(&dc.run, "run", nil, "Run")
+	cmd.PersistentFlags().StringArrayVar(&dc.tags, "tags", nil, "Tags")
+	cmd.PersistentFlags().StringVar(&dc.outPath, "out-path", "", "Output path")
+
+	cmd.RunE = dc.runDigest
+
+	return dc
 }
 
-type digestConfigurer struct{}
-
-func (dcc *digestConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.Config) {
-	dc := &digestConfig{}
-	c.Exts[digestName] = dc
-
-	fs.StringVar(&dc.outPath, "out", "", "output file path")
-	fs.StringSliceVar(&dc.run, "run", []string{}, "run labels (repeated)")
-	fs.StringSliceVar(&dc.tags, "tag", []string{}, "tags (repeated)")
-}
-
-func (dcc *digestConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
-	dc := getDigestConfig(c)
-
-	dc.inPaths = fs.Args()
+func (dc *digestCmd) checkArgs(args []string) error {
+	dc.inPaths = args
 	if len(dc.inPaths) == 0 {
-		return fmt.Errorf("need at least one path to digest")
+		return fmt.Errorf("Need at least one path to digest")
 	}
 
 	return nil
 }
 
-func runDigest(args []string) (err error) {
-	cexts := []config.Configurer{
-		&digestConfigurer{},
-	}
-	c, err := newConfiguration("digest", args, cexts, digestUsage)
+func (dc *digestCmd) runDigest(cmd *cobra.Command, args []string) error {
+	err := dc.checkArgs(args)
 	if err != nil {
 		return err
 	}
 
-	dc := getDigestConfig(c)
-
 	return digester.NewDigester().Digest(dc.inPaths, dc.run, dc.tags, dc.outPath)
-}
-
-func digestUsage(fs *flag.FlagSet) {
-	fmt.Fprint(os.Stderr, `usage: digest -outfile <path> <inpath> [<inpath> ...]
-
-Writes a digest of the infiles to an outfile. Stable on infile order. Includes
-the filenames in the digest. Outputs a JSON file containing a digest of the
-files, plus metadata determined by other flags.
-
-FLAGS:
-`)
-	fs.PrintDefaults()
 }

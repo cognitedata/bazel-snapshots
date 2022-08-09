@@ -10,61 +10,62 @@ import (
 	"io"
 	"os"
 
-	flag "github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 
-	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/getter"
 )
 
-type getConfig struct {
-	commonConfig
-	skipTags  bool // don't try to resolve by tag
-	skipNames bool // don't try to resolve by name
+type getCmd struct {
+	skipTags  bool
+	skipNames bool
 	name      string
+
+	storageUrl string
+
+	cmd *cobra.Command
 }
 
-const getName = "_get"
+func newGetCmd() *getCmd {
+	cmd := &cobra.Command{
+		Use:   "get",
+		Short: "Get snapshot",
+		Long: `Resolves and fetches a snapshot, either by tag or snapshot name. Tag has
+priority.`,
+		Args: cobra.ExactArgs(1),
+	}
 
-func getGetConfig(c *config.Config) *getConfig {
-	gc := c.Exts[getName].(*getConfig)
-	gc.commonConfig = *getCommonConfig(c)
+	gc := &getCmd{
+		cmd: cmd,
+	}
+
+	cmd.PersistentFlags().BoolVar(&gc.skipTags, "skip-tags", false, "Don't look up by tag")
+	cmd.PersistentFlags().BoolVar(&gc.skipNames, "skip-names", false, "Don't look up by name")
+
+	cmd.RunE = gc.runGet
+
 	return gc
 }
 
-type getConfigurer struct{}
+func (gc *getCmd) checkArgs(args []string) error {
+	gc.name = args[0]
 
-func (*getConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.Config) {
-	gc := &getConfig{}
-	c.Exts[getName] = gc
-	fs.BoolVar(&gc.skipTags, "skip-tags", false, "don't look up by tag")
-	fs.BoolVar(&gc.skipNames, "skip-names", false, "don't look up by name")
-}
-
-func (*getConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
-	if fs.NArg() != 1 {
-		return fmt.Errorf("need exactly one argument")
+	storageUrl, err := gc.cmd.Flags().GetString("storage-url")
+	if err != nil {
+		return err
 	}
-
-	gc := getGetConfig(c)
-	gc.name = fs.Arg(0)
+	gc.storageUrl = storageUrl
 
 	return nil
 }
 
-func runGet(args []string) error {
-	cexts := []config.Configurer{
-		&getConfigurer{},
-	}
-	c, err := newConfiguration("get", args, cexts, getUsage)
+func (gc *getCmd) runGet(cmd *cobra.Command, args []string) error {
+	err := gc.checkArgs(args)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
-
-	gc := getGetConfig(c)
-
-	snapshot, err := getter.NewGetter().Get(ctx, gc.name, gc.storageURL, gc.skipNames, gc.skipTags)
+	snapshot, err := getter.NewGetter().Get(ctx, gc.name, gc.storageUrl, gc.skipNames, gc.skipTags)
 	if err != nil {
 		return err
 	}
@@ -77,18 +78,4 @@ func runGet(args []string) error {
 	io.Copy(os.Stdout, bytes.NewReader(snapshotBytes))
 
 	return nil
-}
-
-func getUsage(fs *flag.FlagSet) {
-	fmt.Fprint(os.Stderr, `usage: get <snapshot/tag>
-
-Resolves and fetches a snapshot, either by tag or snapshot name. Tag has
-priority.
-
-Examples:
-	snapshots get deployed
-
-FLAGS:
-`)
-	fs.PrintDefaults()
 }

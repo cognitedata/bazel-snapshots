@@ -8,46 +8,49 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"path"
 
-	flag "github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 
-	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/pusher"
 )
 
-type pushConfig struct {
-	commonConfig
-	bazelConfig  // needed for workspace path
-	snapshotPath string
-	snapshot     *models.Snapshot
-	name         string
+type pushCmd struct {
+	name          string
+	snapshotPath  string
+	workspacePath string
+
+	snapshot *models.Snapshot
+
+	storageUrl string
+
+	cmd *cobra.Command
 }
 
-const pushName = "_push"
+func newPushCmd() *pushCmd {
+	cmd := &cobra.Command{
+		Use:   "push",
+		Short: "Push snapshot",
+		Long: `Pushes a snapshot specified by path. Name defaults to the current git HEAD,
+or can optionally be specified.`,
+	}
 
-func getPushConfig(c *config.Config) *pushConfig {
-	pc := c.Exts[pushName].(*pushConfig)
-	pc.bazelConfig = *getBazelConfig(c)
-	pc.commonConfig = *getCommonConfig(c)
+	pc := &pushCmd{
+		cmd: cmd,
+	}
+
+	cmd.PersistentFlags().StringVar(&pc.name, "name", "", "Snapshot name (defaults to HEAD git sha)")
+	cmd.PersistentFlags().StringVar(&pc.snapshotPath, "snapshot-path", "", "Path to snapshot to be pushed")
+	cmd.PersistentFlags().StringVar(&pc.workspacePath, "workspace-path", "", "Workspace path")
+
+	cmd.RunE = pc.runPush
+
 	return pc
 }
 
-type pushConfigurer struct{}
-
-func (*pushConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.Config) {
-	pc := &pushConfig{}
-	c.Exts[pushName] = pc
-	fs.StringVar(&pc.snapshotPath, "snapshot-path", "", "path to snapshot to be pushed")
-	fs.StringVar(&pc.name, "name", "", "snapshot name (defaults to HEAD git sha)")
-}
-
-func (*pushConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
-	pc := getPushConfig(c)
-
-	// if name is not set, find name from git head
+func (pc *pushCmd) checkArgs(args []string) error {
+	// If name is not set, find name from git head
 	if pc.name == "" {
 		head, err := getGitHead(pc.workspacePath)
 		if err != nil {
@@ -56,9 +59,15 @@ func (*pushConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
 		pc.name = head
 	}
 
-	// read the manifest
+	storageUrl, err := pc.cmd.Flags().GetString("storage-url")
+	if err != nil {
+		return err
+	}
+	pc.storageUrl = storageUrl
+
+	// Read the manifest
 	if pc.snapshot == nil && pc.snapshotPath != "" {
-		// if it's a relative path, assume workspace-relative. The command is
+		// If it's a relative path, assume workspace-relative. The command is
 		// probably run with `bazel run`, and we don't know from where.
 		if !path.IsAbs(pc.snapshotPath) {
 			pc.snapshotPath = path.Join(pc.workspacePath, pc.snapshotPath)
@@ -78,26 +87,14 @@ func (*pushConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
 	return nil
 }
 
-func runPush(args []string) error {
-	cexts := []config.Configurer{
-		&bazelConfigurer{},
-		&pushConfigurer{},
-	}
-	c, err := newConfiguration("push", args, cexts, pushUsage)
+func (pc *pushCmd) runPush(cmd *cobra.Command, args []string) error {
+	err := pc.checkArgs(args)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
-
-	pc := getPushConfig(c)
-
-	// log for debugging
-	log.Printf("name:      %s", pc.name)
-	log.Printf("workspace: %s", pc.workspacePath)
-	log.Printf("storage:    %s", pc.storageURL)
-
-	obj, err := pusher.NewPusher().Push(ctx, pc.name, pc.storageURL, pc.snapshot)
+	obj, err := pusher.NewPusher().Push(ctx, pc.name, pc.storageUrl, pc.snapshot)
 	if err != nil {
 		return err
 	}
@@ -110,15 +107,4 @@ func runPush(args []string) error {
 	log.Printf("pushed snapshot of %d bytes: %s", contentLenght, obj.Path)
 
 	return nil
-}
-
-func pushUsage(fs *flag.FlagSet) {
-	fmt.Fprint(os.Stderr, `usage: push --name=<name> --snapshot-path=<path>
-
-Pushes a snapshot specified by path. Name defaults to the current git HEAD,
-or can optionally be specified.
-
-FLAGS:
-`)
-	fs.PrintDefaults()
 }
