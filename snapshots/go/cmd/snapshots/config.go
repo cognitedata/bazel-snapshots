@@ -57,7 +57,7 @@ func (*bazelConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.Co
 	bc := &bazelConfig{}
 	c.Exts[bazelName] = bc
 	fs.StringVar(&bc.bazelPath, "bazel_path", "", "bazel path (defaults to lookup)")
-	fs.StringVar(&bc.bazelRcPath, "bazelrc", "", "bazelrc (defaults to workspace_path/.bazelrc)")
+	fs.StringVar(&bc.bazelRcPath, "bazelrc", "", "bazelrc (defaults to none")
 	fs.StringVar(&bc.workspacePath, "workspace_path", "", "workspace path (defaults to BUILD_WORKSPACE_DIRECTORY)")
 }
 
@@ -77,10 +77,6 @@ func (*bazelConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) (err erro
 		} else {
 			return fmt.Errorf("-workspace_path not specified and BUILD_WORKSPACE_DIRECTORY not set")
 		}
-	}
-
-	if bc.bazelRcPath == "" {
-		bc.bazelRcPath = fmt.Sprintf("%s/.bazelrc", bc.workspacePath)
 	}
 
 	return
