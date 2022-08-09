@@ -70,19 +70,22 @@ func runCollect(args []string) error {
 	cc := getCollectConfig(c)
 
 	log.Println("bazel path:      ", cc.bazelPath)
+	log.Println("bazelRc path:    ", cc.bazelRcPath)
 	log.Println("workspace path:  ", cc.workspacePath)
 	log.Println("query expression:", cc.queryExpression)
 	log.Println("out path:        ", cc.outPath)
 
-	// run the command
-	if _, err := collecter.NewCollecter().Collect(
-		cc.bazelPath,
-		cc.outPath,
-		cc.queryExpression,
-		cc.workspacePath,
-		cc.bazelCacheGRPCInsecure,
-		cc.bazelStderr,
-		cc.noPrint); err != nil {
+	collectArgs := collecter.CollectArgs{
+		BazelCacheGrpcInsecure: cc.bazelCacheGRPCInsecure,
+		BazelExpression:        cc.queryExpression,
+		BazelPath:              cc.bazelPath,
+		BazelRcPath:            cc.bazelRcPath,
+		BazelWorkspacePath:     cc.workspacePath,
+		BazelWriteStderr:       cc.bazelStderr,
+		OutPath:                cc.outPath,
+		NoPrint:                cc.noPrint,
+	}
+	if _, err := collecter.NewCollecter().Collect(&collectArgs); err != nil {
 		return fmt.Errorf("failed to collect: %w", err)
 	}
 

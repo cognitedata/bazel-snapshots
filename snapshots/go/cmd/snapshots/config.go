@@ -41,6 +41,7 @@ func (*commonConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
 // bazelConfig holds values useful for interacting with Bazel
 type bazelConfig struct {
 	bazelPath     string
+	bazelRcPath   string
 	workspacePath string
 }
 
@@ -56,6 +57,7 @@ func (*bazelConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.Co
 	bc := &bazelConfig{}
 	c.Exts[bazelName] = bc
 	fs.StringVar(&bc.bazelPath, "bazel_path", "", "bazel path (defaults to lookup)")
+	fs.StringVar(&bc.bazelRcPath, "bazelrc", "", "bazelrc (defaults to none")
 	fs.StringVar(&bc.workspacePath, "workspace_path", "", "workspace path (defaults to BUILD_WORKSPACE_DIRECTORY)")
 }
 

@@ -45,7 +45,7 @@ func (c *Client) Command(ctx context.Context, args ...string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (c *Client) BuildEventOutput(ctx context.Context, args ...string) ([]BuildEventOutput, error) {
+func (c *Client) BuildEventOutput(ctx context.Context, bazelrc string, args ...string) ([]BuildEventOutput, error) {
 	// create a temporary file
 	f, err := os.CreateTemp("", "snapshots-collect")
 	if err != nil {
@@ -54,6 +54,10 @@ func (c *Client) BuildEventOutput(ctx context.Context, args ...string) ([]BuildE
 	defer os.Remove(f.Name())
 
 	args = append([]string{"build", fmt.Sprintf("--build_event_json_file=%s", f.Name())}, args...)
+
+	if bazelrc != "" {
+		args = append([]string{fmt.Sprintf("--bazelrc=%s", bazelrc)}, args...)
+	}
 
 	if _, err := c.Command(ctx, args...); err != nil {
 		return nil, fmt.Errorf("failed to build: %w", err)

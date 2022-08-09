@@ -77,7 +77,12 @@ func runTag(args []string) error {
 	log.Printf("snapshot:  %s", tc.snapshotName)
 	log.Printf("tag:       %s", tc.tagName)
 
-	obj, err := tagger.NewTagger().Tag(ctx, tc.storageURL, tc.snapshotName, tc.tagName)
+	tagArgs := tagger.TagArgs{
+		SnapshotName: tc.snapshotName,
+		StorageUrl: tc.storageURL,
+		TagName: tc.tagName,
+	}
+	obj, err := tagger.NewTagger().Tag(ctx, &tagArgs)
 	if err != nil {
 		return err
 	}

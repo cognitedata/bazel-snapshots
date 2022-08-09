@@ -67,7 +67,13 @@ func (*diffConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
 			return snapshot, json.Unmarshal(fileBytes, snapshot)
 		}
 
-		return getter.NewGetter().Get(ctx, name, dc.storageURL, false, false)
+		getArgs := getter.GetArgs{
+			Name: name,
+			StorageUrl: dc.storageURL,
+			SkipNames: false,
+			SkipTags: false,
+		}
+		return getter.NewGetter().Get(ctx, &getArgs)
 	}
 
 	if fs.NArg() < 1 || fs.NArg() > 2 {
@@ -105,29 +111,42 @@ func runDiff(args []string) error {
 	dc := getDiffConfig(c)
 	dc.collectConfig = *getCollectConfig(c)
 
-	differ := differ.NewDiffer()
-	changes, err := differ.Diff(dc.bazelPath, dc.outPath, dc.queryExpression, dc.workspacePath, dc.bazelCacheGRPCInsecure, dc.bazelStderr, dc.noPrint, dc.fromSnapshot, dc.toSnapshot)
+	diff := differ.NewDiffer()
+	diffArgs := differ.DiffArgs{
+		BazelCacheGrpcInsecure: dc.bazelCacheGRPCInsecure,
+		BazelExpression:        dc.queryExpression,
+		BazelPath:              dc.bazelPath,
+		BazelRcPath:            dc.bazelRcPath,
+		BazelWorkspacePath:     dc.workspacePath,
+		BazelWriteStderr:       dc.bazelStderr,
+		OutPath:                dc.outPath,
+		NoPrint:                dc.noPrint,
+		FromSnapshot:           dc.fromSnapshot,
+		ToSnapshot:             dc.toSnapshot,
+	}
+
+	changes, err := diff.Diff(&diffArgs)
 	if err != nil {
 		return err
 	}
 
 	if dc.stderrPretty {
-		if err := differ.DiffOutputPretty(os.Stderr, changes); err != nil {
+		if err := diff.DiffOutputPretty(os.Stderr, changes); err != nil {
 			return err
 		}
 	}
 
 	switch dc.outputFormat {
 	case outputLabel:
-		if err := differ.DiffOutputLabel(os.Stdout, changes); err != nil {
+		if err := diff.DiffOutputLabel(os.Stdout, changes); err != nil {
 			return err
 		}
 	case outputJSON:
-		if err := differ.DiffOutputJSON(os.Stdout, changes); err != nil {
+		if err := diff.DiffOutputJSON(os.Stdout, changes); err != nil {
 			return err
 		}
 	case outputPretty:
-		if err := differ.DiffOutputPretty(os.Stdout, changes); err != nil {
+		if err := diff.DiffOutputPretty(os.Stdout, changes); err != nil {
 			return err
 		}
 	default:

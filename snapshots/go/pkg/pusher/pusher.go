@@ -19,22 +19,28 @@ func NewPusher() *pusher {
 	return &pusher{}
 }
 
-func (p *pusher) Push(ctx context.Context, name, storageUrl string, snapshot *models.Snapshot) (*types.Object, error) {
-	if snapshot == nil {
+type PushArgs struct {
+	Name       string
+	StorageUrl string
+	Snapshot   *models.Snapshot
+}
+
+func (p *pusher) Push(ctx context.Context, args *PushArgs) (*types.Object, error) {
+	if args.Snapshot == nil {
 		return nil, fmt.Errorf("no snapshot specified")
 	}
 
-	snapshotBytes, err := json.MarshalIndent(snapshot, "", "  ")
+	snapshotBytes, err := json.MarshalIndent(args.Snapshot, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal snapshot: %w", err)
 	}
 
-	store, err := storage.NewStorage(storageUrl)
+	store, err := storage.NewStorage(args.StorageUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create storage client: %w", err)
 	}
 
-	location := fmt.Sprintf("snapshots/%s.json", name)
+	location := fmt.Sprintf("snapshots/%s.json", args.Name)
 	reader := bytes.NewReader(snapshotBytes)
 	if _, err := store.WriteWithContext(ctx, location, reader, int64(reader.Len())); err != nil {
 		return nil, fmt.Errorf("failed to write to bucket file: %w", err)

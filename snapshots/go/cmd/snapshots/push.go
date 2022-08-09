@@ -97,7 +97,12 @@ func runPush(args []string) error {
 	log.Printf("workspace: %s", pc.workspacePath)
 	log.Printf("storage:    %s", pc.storageURL)
 
-	obj, err := pusher.NewPusher().Push(ctx, pc.name, pc.storageURL, pc.snapshot)
+	pushArgs := pusher.PushArgs{
+		Name: pc.name,
+		StorageUrl: pc.storageURL,
+		Snapshot: pc.snapshot,
+	}
+	obj, err := pusher.NewPusher().Push(ctx, &pushArgs)
 	if err != nil {
 		return err
 	}
