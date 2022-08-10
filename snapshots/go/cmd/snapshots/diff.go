@@ -35,7 +35,7 @@ type diffCmd struct {
 	fromSnapshot *models.Snapshot
 	toSnapshot   *models.Snapshot
 
-	outputFormat string
+	outputFormat OutputFormat
 	stderrPretty bool
 
 	storageUrl string
@@ -68,8 +68,10 @@ names.`,
 	cmd.PersistentFlags().StringVar(&dc.queryExpression, "bazel_query", "//...", "the bazel query expression to consider")
 	cmd.PersistentFlags().BoolVar(&dc.bazelCacheGrpcInsecure, "bazel_cache_grpc_insecure", true, "use insecure connection for grpc bazel cache")
 	cmd.PersistentFlags().BoolVar(&dc.bazelStderr, "bazel_stderr", false, "show stderr from bazel")
+	cmd.PersistentFlags().Var(&dc.outputFormat, "format", "output format")
 	cmd.PersistentFlags().StringVar(&dc.outPath, "out", "", "output file path")
 	cmd.PersistentFlags().BoolVar(&dc.noPrint, "no-print", false, "don't print if not writing to file")
+	cmd.PersistentFlags().BoolVar(&dc.stderrPretty, "stderr-pretty", false, "pretty-print in stderr in addition")
 
 	cmd.RunE = dc.runDiff
 

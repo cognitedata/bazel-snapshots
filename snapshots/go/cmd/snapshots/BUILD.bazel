@@ -6,6 +6,7 @@ go_library(
         "collect.go",
         "diff.go",
         "digest.go",
+        "format.go",
         "get.go",
         "main.go",
         "push.go",
