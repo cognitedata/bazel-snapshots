@@ -62,7 +62,7 @@ names.`,
 	}
 
 	// bazel flags
-	cmd.PersistentFlags().StringVar(&dc.bazelPath, "bazel-path", "", "full URL of the storage")
+	cmd.PersistentFlags().StringVar(&dc.bazelPath, "bazel-path", "", "path to the bazel executable")
 	cmd.PersistentFlags().StringVar(&dc.bazelRcPath, "bazelrc", "", ".bazelrc path")
 	cmd.PersistentFlags().StringVar(&dc.workspacePath, "workspace-path", "", "workspace path")
 

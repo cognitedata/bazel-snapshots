@@ -45,7 +45,7 @@ func newCollectCmd() *collectCmd {
 	}
 
 	// bazel flags
-	cmd.PersistentFlags().StringVar(&cc.bazelPath, "bazel-path", "", "full URL of the storage")
+	cmd.PersistentFlags().StringVar(&cc.bazelPath, "bazel-path", "", "path to the bazel executable")
 	cmd.PersistentFlags().StringVar(&cc.bazelRcPath, "bazelrc", "", ".bazelrc path")
 	cmd.PersistentFlags().StringVar(&cc.workspacePath, "workspace-path", "", "workspace path")
 
