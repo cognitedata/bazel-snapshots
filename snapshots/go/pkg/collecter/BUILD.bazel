@@ -8,6 +8,6 @@ go_library(
     deps = [
         "//snapshots/go/pkg/bazel",
         "//snapshots/go/pkg/models",
-        "@org_golang_google_grpc//:grpc",
+        "@org_golang_google_grpc//metadata",
     ],
 )

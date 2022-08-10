@@ -20,6 +20,7 @@ import (
 
 type diffCmd struct {
 	bazelCacheGrpcInsecure bool
+	bazelCacheGrpcMetadata []string
 	bazelPath              string
 	bazelQueryExpression   string
 	bazelRcPath            string
@@ -62,6 +63,7 @@ names.`,
 
 	// collect flags
 	cmd.PersistentFlags().BoolVar(&dc.bazelCacheGrpcInsecure, "bazel_cache_grpc_insecure", false, "use insecure connection for grpc bazel cache")
+	cmd.PersistentFlags().StringArrayVar(&dc.bazelCacheGrpcMetadata, "bazel_cache_grpc_metadata", []string{}, "add metadata to connection for grpc bazel cache")
 	cmd.PersistentFlags().StringVar(&dc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
 	cmd.PersistentFlags().BoolVar(&dc.bazelStderr, "bazel_stderr", false, "show stderr from bazel")
 	cmd.PersistentFlags().Var(&dc.outputFormat, "format", "output format")
@@ -156,7 +158,8 @@ func (dc *diffCmd) runDiff(cmd *cobra.Command, args []string) error {
 
 	diff := differ.NewDiffer()
 	diffArgs := differ.DiffArgs{
-		BazelCacheGrpcInsecure: dc.bazelCacheGrpcInsecure,
+		BazelCacheGrpcs:        !dc.bazelCacheGrpcInsecure,
+		BazelCacheGrpcMetadata: dc.bazelCacheGrpcMetadata,
 		BazelExpression:        dc.bazelQueryExpression,
 		BazelPath:              dc.bazelPath,
 		BazelRcPath:            dc.bazelRcPath,

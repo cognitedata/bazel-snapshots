@@ -25,7 +25,7 @@ var (
 // necessary when one needs access to output files, because Bazel might not
 // materialize the file on disk if the result is cached.
 type BazelCache interface {
-	Read(ctx context.Context, uri string) ([]byte, error)
+	Read(ctx context.Context, secure bool, uri string) ([]byte, error)
 }
 
 // DelegatingBazelCache consists of multiple BazelCaches, and uses the one
@@ -34,7 +34,7 @@ type DelegatingBazelCache struct {
 	caches map[string]BazelCache
 }
 
-func NewDefaultDelegatingCache(dialOptions []grpc.DialOption) BazelCache {
+func NewDefaultDelegatingCache(dialOptions ...grpc.DialOption) BazelCache {
 	return &DelegatingBazelCache{
 		caches: map[string]BazelCache{
 			"file": &FileBazelCache{},
@@ -46,7 +46,7 @@ func NewDefaultDelegatingCache(dialOptions []grpc.DialOption) BazelCache {
 	}
 }
 
-func (c *DelegatingBazelCache) Read(ctx context.Context, uri string) ([]byte, error) {
+func (c *DelegatingBazelCache) Read(ctx context.Context, secure bool, uri string) ([]byte, error) {
 	u, err := url.ParseRequestURI(uri)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse scheme for %s: %w", uri, ErrScheme)
@@ -57,13 +57,13 @@ func (c *DelegatingBazelCache) Read(ctx context.Context, uri string) ([]byte, er
 		return nil, fmt.Errorf("unknown scheme %s: %w", u.Scheme, ErrScheme)
 	}
 
-	return cache.Read(ctx, uri)
+	return cache.Read(ctx, secure, uri)
 }
 
 // FileBazelCache provides access to cached items with 'file://' uris.
 type FileBazelCache struct{}
 
-func (c *FileBazelCache) Read(ctx context.Context, uri string) ([]byte, error) {
+func (c *FileBazelCache) Read(ctx context.Context, secure bool, uri string) ([]byte, error) {
 	u, err := url.ParseRequestURI(uri)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse scheme for %s: %w", uri, ErrScheme)
@@ -89,19 +89,16 @@ type RemoteBazelCache struct {
 	DialOptions []grpc.DialOption
 }
 
-func (c *RemoteBazelCache) Read(ctx context.Context, uri string) ([]byte, error) {
+func (c *RemoteBazelCache) Read(ctx context.Context, secure bool, uri string) ([]byte, error) {
 	u, err := url.ParseRequestURI(uri)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse scheme for %s: %w", uri, ErrScheme)
-	}
-	if u.Scheme != "bytestream" {
-		return nil, fmt.Errorf("expected scheme to be bytestream, not %s: %w", u.Scheme, ErrScheme)
 	}
 
 	// obtain a client
 	client, ok := c.clients[u.Host]
 	if !ok {
-		conn, err := grpc.Dial(u.Host, c.DialOptions...)
+		conn, err := DialTargetWithOptions(uri, secure, c.DialOptions...)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dial host %s: %w", u.Host, err)
 		}

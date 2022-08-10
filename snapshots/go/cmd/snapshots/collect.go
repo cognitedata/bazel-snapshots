@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -16,6 +17,7 @@ import (
 
 type collectCmd struct {
 	bazelCacheGrpcInsecure bool
+	bazelCacheGrpcMetadata []string
 	bazelPath              string
 	bazelQueryExpression   string
 	bazelRcPath            string
@@ -51,6 +53,7 @@ func newCollectCmd() *collectCmd {
 
 	// collect flags
 	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel-cache-grpc-insecure", false, "use insecure connection for grpc bazel cache")
+	cmd.PersistentFlags().StringArrayVar(&cc.bazelCacheGrpcMetadata, "bazel_cache_grpc_metadata", []string{}, "add metadata to connection for grpc bazel cache")
 	cmd.PersistentFlags().StringVar(&cc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
 	cmd.PersistentFlags().BoolVar(&cc.bazelStderr, "bazel-stderr", false, "show stderr from bazel")
 	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")
@@ -86,6 +89,13 @@ func (cc *collectCmd) checkArgs(args []string) error {
 		cc.bazelRcPath = path.Join(cc.workspacePath, cc.bazelRcPath)
 	}
 
+	for _, md := range cc.bazelCacheGrpcMetadata {
+		s := strings.SplitN(md, "=", 2)
+		if len(s) != 2 {
+			return fmt.Errorf("--bazel_cache_grpc_metadata must be in format key=value: %s", md)
+		}
+	}
+
 	return nil
 }
 
@@ -102,7 +112,8 @@ func (cc *collectCmd) runCollect(cmd *cobra.Command, args []string) error {
 	log.Println("out path:        ", cc.outPath)
 
 	collectArgs := collecter.CollectArgs{
-		BazelCacheGrpcInsecure: cc.bazelCacheGrpcInsecure,
+		BazelCacheGrpcs:        !cc.bazelCacheGrpcInsecure,
+		BazelCacheGrpcMetadata: cc.bazelCacheGrpcMetadata,
 		BazelExpression:        cc.bazelQueryExpression,
 		BazelPath:              cc.bazelPath,
 		BazelRcPath:            cc.bazelRcPath,

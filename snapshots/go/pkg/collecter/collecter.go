@@ -8,8 +8,9 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
-	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/bazel"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
@@ -23,7 +24,8 @@ func NewCollecter() *collecter {
 }
 
 type CollectArgs struct {
-	BazelCacheGrpcInsecure bool
+	BazelCacheGrpcs        bool
+	BazelCacheGrpcMetadata []string
 	BazelExpression        string
 	BazelPath              string
 	BazelRcPath            string
@@ -39,11 +41,6 @@ type CollectArgs struct {
 // build events (see Bazel's --build_event_json_file). It then retrieves all
 // these tracker files, parses them and builds the snapshot.
 func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
-	dialOptions := []grpc.DialOption{}
-	if args.BazelCacheGrpcInsecure {
-		dialOptions = append(dialOptions, grpc.WithInsecure())
-	}
-
 	bstderr := io.Discard
 	if args.BazelWriteStderr {
 		bstderr = os.Stderr
@@ -51,7 +48,7 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 
 	ctx := context.Background()
 	bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
-	bcache := bazel.NewDefaultDelegatingCache(dialOptions)
+	bcache := bazel.NewDefaultDelegatingCache()
 
 	// build digests, get the build events
 	log.Printf("collecting digests from %s", args.BazelExpression)
@@ -88,10 +85,13 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 
 	// populate manifest labels
 	for label, uri := range labelFiles {
+		// add cache metadata (headers) to request
+		ctx = metadata.NewOutgoingContext(ctx, createMetadata(args.BazelCacheGrpcMetadata))
+
 		// retrieve the content from cache
-		trackerContent, err := bcache.Read(ctx, uri)
+		trackerContent, err := bcache.Read(ctx, args.BazelCacheGrpcs, uri)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get item %s from cache: %w", uri, err)
+			return nil, fmt.Errorf("failed to get item %s for label %s from cache: %w", uri, label, err)
 		}
 
 		tracker := &models.Tracker{}
@@ -129,4 +129,15 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 	}
 
 	return manifest, nil
+}
+
+func createMetadata(input []string) metadata.MD {
+	md := metadata.MD{}
+
+	for _, data := range input {
+		s := strings.SplitN(data, "=", 2)
+		md.Append(s[0], s[1])
+	}
+
+	return md
 }
