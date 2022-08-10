@@ -34,8 +34,8 @@ files, plus metadata determined by other flags.`,
 
 	cmd.PersistentFlags().StringArrayVar(&dc.inPaths, "in-paths", nil, "Input files to read")
 	cmd.PersistentFlags().StringArrayVar(&dc.run, "run", nil, "Run")
-	cmd.PersistentFlags().StringArrayVar(&dc.tags, "tags", nil, "Tags")
-	cmd.PersistentFlags().StringVar(&dc.outPath, "out-path", "", "Output path")
+	cmd.PersistentFlags().StringArrayVar(&dc.tags, "tag", nil, "Tags")
+	cmd.PersistentFlags().StringVar(&dc.outPath, "out", "", "Output path")
 
 	cmd.RunE = dc.runDigest
 
@@ -45,7 +45,7 @@ files, plus metadata determined by other flags.`,
 func (dc *digestCmd) checkArgs(args []string) error {
 	dc.inPaths = args
 	if len(dc.inPaths) == 0 {
-		return fmt.Errorf("Need at least one path to digest")
+		return fmt.Errorf("need at least one path to digest")
 	}
 
 	return nil
