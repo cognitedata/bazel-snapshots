@@ -31,6 +31,6 @@ snapshots_deps()
 
 go_rules_dependencies()
 
-go_register_toolchains(version = "1.18")
+go_register_toolchains(version = "1.19")
 
 gazelle_dependencies()
