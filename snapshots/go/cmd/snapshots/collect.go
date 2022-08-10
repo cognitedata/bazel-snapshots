@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -43,8 +44,9 @@ func newCollectCmd() *collectCmd {
 	}
 
 	// bazel flags
-	cmd.PersistentFlags().StringVar(&cc.bazelPath, "bazel-path", "", "Full URL of the storage")
-	cmd.PersistentFlags().StringVar(&cc.workspacePath, "workspace-path", "", "Verbose output")
+	cmd.PersistentFlags().StringVar(&cc.bazelPath, "bazel-path", "", "full URL of the storage")
+	cmd.PersistentFlags().StringVar(&cc.bazelRcPath, "bazelrc", "", ".bazelrc path")
+	cmd.PersistentFlags().StringVar(&cc.workspacePath, "workspace-path", "", "workspace path")
 
 	// collect flags
 	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel-cache-grpc-insecure", true, "use insecure connection for grpc bazel cache")
@@ -59,8 +61,25 @@ func newCollectCmd() *collectCmd {
 }
 
 func (cc *collectCmd) checkArgs(args []string) error {
+	if cc.workspacePath == "" {
+		if wsDir := os.Getenv("BUILD_WORKSPACE_DIRECTORY"); wsDir != "" {
+			cc.workspacePath = wsDir
+		} else {
+			return fmt.Errorf("--workspace-path not specified and BUILD_WORKSPACE_DIRECTORY not set")
+		}
+	}
+
 	if cc.outPath != "" && !path.IsAbs(cc.outPath) {
 		cc.outPath = path.Join(cc.workspacePath, cc.outPath)
+	}
+
+	if cc.bazelRcPath != "" && !path.IsAbs(cc.bazelRcPath) {
+		cc.bazelRcPath = path.Join(cc.workspacePath, cc.bazelRcPath)
+	} else {
+		path := path.Join(cc.workspacePath, ".bazelrc")
+		if _, err := os.Stat(cc.bazelRcPath); err == nil {
+			cc.bazelRcPath = path
+		}
 	}
 
 	return nil

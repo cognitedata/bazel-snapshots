@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 
 	"github.com/spf13/cobra"
 
@@ -60,9 +61,9 @@ names.`,
 	}
 
 	// bazel flags
-	cmd.PersistentFlags().StringVar(&dc.bazelPath, "bazel-path", "", "Full URL of the storage")
-	cmd.PersistentFlags().StringVar(&dc.bazelRcPath, "bazelrc", "", "Full URL of the storage")
-	cmd.PersistentFlags().StringVar(&dc.workspacePath, "workspace-path", "", "Verbose output")
+	cmd.PersistentFlags().StringVar(&dc.bazelPath, "bazel-path", "", "full URL of the storage")
+	cmd.PersistentFlags().StringVar(&dc.bazelRcPath, "bazelrc", "", ".bazelrc path")
+	cmd.PersistentFlags().StringVar(&dc.workspacePath, "workspace-path", "", "workspace path")
 
 	// collect flags
 	cmd.PersistentFlags().StringVar(&dc.queryExpression, "bazel_query", "//...", "the bazel query expression to consider")
@@ -92,10 +93,10 @@ func (dc *diffCmd) resolveSnapshot(ctx context.Context, name, storageUrl string)
 	}
 
 	getArgs := getter.GetArgs{
-		Name: name,
+		Name:       name,
 		StorageUrl: dc.storageUrl,
-		SkipNames: false,
-		SkipTags: false,
+		SkipNames:  false,
+		SkipTags:   false,
 	}
 	return getter.NewGetter().Get(ctx, &getArgs)
 }
@@ -106,6 +107,27 @@ func (dc *diffCmd) checkArgs(args []string) error {
 		return err
 	}
 	dc.storageUrl = storageUrl
+
+	if dc.workspacePath == "" {
+		if wsDir := os.Getenv("BUILD_WORKSPACE_DIRECTORY"); wsDir != "" {
+			dc.workspacePath = wsDir
+		} else {
+			return fmt.Errorf("--workspace-path not specified and BUILD_WORKSPACE_DIRECTORY not set")
+		}
+	}
+
+	if dc.outPath != "" && !path.IsAbs(dc.outPath) {
+		dc.outPath = path.Join(dc.workspacePath, dc.outPath)
+	}
+
+	if dc.bazelRcPath != "" && !path.IsAbs(dc.bazelRcPath) {
+		dc.bazelRcPath = path.Join(dc.workspacePath, dc.bazelRcPath)
+	} else {
+		path := path.Join(dc.workspacePath, ".bazelrc")
+		if _, err := os.Stat(dc.bazelRcPath); err == nil {
+			dc.bazelRcPath = path
+		}
+	}
 
 	return nil
 }
