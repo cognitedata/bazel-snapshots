@@ -23,46 +23,59 @@ func NewCollecter() *collecter {
 	return &collecter{}
 }
 
+type CollectArgs struct {
+	BazelCacheGrpcInsecure bool
+	BazelExpression        string
+	BazelPath              string
+	BazelRcPath            string
+	BazelWorkspacePath     string
+	BazelWriteStderr       bool
+	OutPath                string
+	NoPrint                bool
+}
+
 // collect uses Bazel directly to build and collect all change tracker files to
 // compose a snapshot. It first runs 'bazel build' with a query expression, e.g.
 // '//...', with the change_track_files output groups, while also capturing
 // build events (see Bazel's --build_event_json_file). It then retrieves all
 // these tracker files, parses them and builds the snapshot.
-func (c *collecter) Collect(bazelPath, outPath, queryExpression, workspacePath string, bazelCacheGrpcInsecure, bazelStderr, noPrint bool) (*models.Snapshot, error) {
-	if bazelPath == "" {
+func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
+	if args.BazelPath == "" {
 		path, err := exec.LookPath("bazel")
 		if err != nil {
 			return nil, err
 		}
 
-		bazelPath = path
+		args.BazelPath = path
 	}
 
-	if workspacePath == "" {
+	if args.BazelWorkspacePath == "" {
 		if wsDir := os.Getenv("BUILD_WORKSPACE_DIRECTORY"); wsDir != "" {
-			workspacePath = wsDir
+			args.BazelWorkspacePath = wsDir
 		} else {
 			return nil, fmt.Errorf("workspace-path not specified and BUILD_WORKSPACE_DIRECTORY not set")
 		}
 	}
 
 	dialOptions := []grpc.DialOption{}
-	if bazelCacheGrpcInsecure {
+	if args.BazelCacheGrpcInsecure {
 		dialOptions = append(dialOptions, grpc.WithInsecure())
 	}
 
 	bstderr := io.Discard
-	if bazelStderr {
+	if args.BazelWriteStderr {
 		bstderr = os.Stderr
 	}
 
 	ctx := context.Background()
-	bazelc := bazel.NewClient(bazelPath, workspacePath, bstderr)
+	bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
 	bcache := bazel.NewDefaultDelegatingCache(dialOptions)
 
 	// build digests, get the build events
-	log.Printf("collecting digests from %s", queryExpression)
-	buildEvents, err := bazelc.BuildEventOutput(ctx, queryExpression, "--output_groups=change_track_files")
+	log.Printf("collecting digests from %s", args.BazelExpression)
+	bazelArgs := []string{args.BazelExpression, "--output_groups=change_track_files"}
+
+	buildEvents, err := bazelc.BuildEventOutput(ctx, args.BazelRcPath, bazelArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,9 +126,9 @@ func (c *collecter) Collect(bazelPath, outPath, queryExpression, workspacePath s
 		return nil, fmt.Errorf("failed to marshal manifest JSON: %w", err)
 	}
 
-	if outPath != "" {
+	if args.OutPath != "" {
 		// write to outpath
-		outFile, err := os.Create(outPath)
+		outFile, err := os.Create(args.OutPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to open out path: %w", err)
 		}
@@ -125,7 +138,8 @@ func (c *collecter) Collect(bazelPath, outPath, queryExpression, workspacePath s
 		}
 		log.Printf("wrote file to %s", outFile.Name())
 	}
-	if outPath == "" && !noPrint {
+
+	if args.OutPath == "" && !args.NoPrint {
 		// write to stdout
 		if _, err := io.Copy(os.Stdout, bytes.NewBuffer(snapshotJSON)); err != nil {
 			return nil, err

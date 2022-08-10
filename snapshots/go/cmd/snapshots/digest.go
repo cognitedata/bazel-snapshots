@@ -57,5 +57,11 @@ func (dc *digestCmd) runDigest(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return digester.NewDigester().Digest(dc.inPaths, dc.run, dc.tags, dc.outPath)
+	digestArgs := digester.DigestArgs{
+		InPaths: dc.inPaths,
+		Run:     dc.run,
+		Tags:    dc.tags,
+		OutPath: dc.outPath,
+	}
+	return digester.NewDigester().Digest(&digestArgs)
 }

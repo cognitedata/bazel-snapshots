@@ -28,6 +28,7 @@ type diffCmd struct {
 	queryExpression        string
 	bazelCacheGrpcInsecure bool
 	bazelStderr            bool
+	bazelRcPath            string
 	outPath                string
 	noPrint                bool
 
@@ -60,6 +61,7 @@ names.`,
 
 	// bazel flags
 	cmd.PersistentFlags().StringVar(&dc.bazelPath, "bazel-path", "", "Full URL of the storage")
+	cmd.PersistentFlags().StringVar(&dc.bazelRcPath, "bazelrc", "", "Full URL of the storage")
 	cmd.PersistentFlags().StringVar(&dc.workspacePath, "workspace-path", "", "Verbose output")
 
 	// collect flags
@@ -74,7 +76,7 @@ names.`,
 	return dc
 }
 
-func (*diffCmd) resolveSnapshot(ctx context.Context, name, storageUrl string) (*models.Snapshot, error) {
+func (dc *diffCmd) resolveSnapshot(ctx context.Context, name, storageUrl string) (*models.Snapshot, error) {
 	// Might be a file
 	if _, err := os.Stat(name); err != nil && !os.IsNotExist(err) {
 		return nil, fmt.Errorf("failed to look for file: %w", err)
@@ -87,7 +89,13 @@ func (*diffCmd) resolveSnapshot(ctx context.Context, name, storageUrl string) (*
 		return snapshot, json.Unmarshal(fileBytes, snapshot)
 	}
 
-	return getter.NewGetter().Get(ctx, name, storageUrl, false, false)
+	getArgs := getter.GetArgs{
+		Name: name,
+		StorageUrl: dc.storageUrl,
+		SkipNames: false,
+		SkipTags: false,
+	}
+	return getter.NewGetter().Get(ctx, &getArgs)
 }
 
 func (dc *diffCmd) checkArgs(args []string) error {
@@ -124,29 +132,42 @@ func (dc *diffCmd) runDiff(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	differ := differ.NewDiffer()
-	changes, err := differ.Diff(dc.bazelPath, dc.outPath, dc.queryExpression, dc.workspacePath, dc.bazelCacheGrpcInsecure, dc.bazelStderr, dc.noPrint, dc.fromSnapshot, dc.toSnapshot)
+	diff := differ.NewDiffer()
+	diffArgs := differ.DiffArgs{
+		BazelCacheGrpcInsecure: dc.bazelCacheGrpcInsecure,
+		BazelExpression:        dc.queryExpression,
+		BazelPath:              dc.bazelPath,
+		BazelRcPath:            dc.bazelRcPath,
+		BazelWorkspacePath:     dc.workspacePath,
+		BazelWriteStderr:       dc.bazelStderr,
+		OutPath:                dc.outPath,
+		NoPrint:                dc.noPrint,
+		FromSnapshot:           dc.fromSnapshot,
+		ToSnapshot:             dc.toSnapshot,
+	}
+
+	changes, err := diff.Diff(&diffArgs)
 	if err != nil {
 		return err
 	}
 
 	if dc.stderrPretty {
-		if err := differ.DiffOutputPretty(os.Stderr, changes); err != nil {
+		if err := diff.DiffOutputPretty(os.Stderr, changes); err != nil {
 			return err
 		}
 	}
 
 	switch dc.outputFormat {
 	case outputLabel:
-		if err := differ.DiffOutputLabel(os.Stdout, changes); err != nil {
+		if err := diff.DiffOutputLabel(os.Stdout, changes); err != nil {
 			return err
 		}
 	case outputJSON:
-		if err := differ.DiffOutputJSON(os.Stdout, changes); err != nil {
+		if err := diff.DiffOutputJSON(os.Stdout, changes); err != nil {
 			return err
 		}
 	case outputPretty:
-		if err := differ.DiffOutputPretty(os.Stdout, changes); err != nil {
+		if err := diff.DiffOutputPretty(os.Stdout, changes); err != nil {
 			return err
 		}
 	default:

@@ -18,13 +18,19 @@ func NewTagger() *tagger {
 	return &tagger{}
 }
 
-func (*tagger) Tag(ctx context.Context, storageUrl, snapshotName, tagName string) (*types.Object, error) {
-	store, err := storage.NewStorage(storageUrl)
+type TagArgs struct {
+	SnapshotName string
+	StorageUrl   string
+	TagName      string
+}
+
+func (*tagger) Tag(ctx context.Context, args *TagArgs) (*types.Object, error) {
+	store, err := storage.NewStorage(args.StorageUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create storage client: %w", err)
 	}
 
-	snapshotLocation := fmt.Sprintf("snapshots/%s.json", snapshotName)
+	snapshotLocation := fmt.Sprintf("snapshots/%s.json", args.SnapshotName)
 
 	attrs, err := store.StatWithContext(ctx, snapshotLocation)
 	if err != nil {
@@ -32,7 +38,7 @@ func (*tagger) Tag(ctx context.Context, storageUrl, snapshotName, tagName string
 	}
 
 	tagContent := []byte(strings.TrimSuffix(path.Base(attrs.Path), ".json"))
-	tagLocation := fmt.Sprintf("tags/%s", tagName)
+	tagLocation := fmt.Sprintf("tags/%s", args.TagName)
 	reader := bytes.NewReader(tagContent)
 
 	if _, err := store.WriteWithContext(ctx, tagLocation, reader, int64(reader.Len())); err != nil {

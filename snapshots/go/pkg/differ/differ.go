@@ -20,31 +20,54 @@ func NewDiffer() *differ {
 	return &differ{}
 }
 
-func (*differ) Diff(bazelPath, outPath, queryExpression, workspacePath string, bazelCacheGrpcInsecure, bazelStderr, noPrint bool, fromSnapshot, toSnapshot *models.Snapshot) ([]models.TrackerChange, error) {
+type DiffArgs struct {
+	BazelCacheGrpcInsecure bool
+	BazelExpression        string
+	BazelPath              string
+	BazelRcPath            string
+	BazelWorkspacePath     string
+	BazelWriteStderr       bool
+	OutPath                string
+	NoPrint                bool
+	FromSnapshot           *models.Snapshot
+	ToSnapshot             *models.Snapshot
+}
+
+func (*differ) Diff(args *DiffArgs) ([]models.TrackerChange, error) {
 	// if toSnapshot is not set, then run collect
-	if toSnapshot == nil {
-		snapshot, err := collecter.NewCollecter().Collect(bazelPath, outPath, queryExpression, workspacePath, bazelCacheGrpcInsecure, bazelStderr, noPrint)
+	if args.ToSnapshot == nil {
+		collectArgs := collecter.CollectArgs{
+			BazelCacheGrpcInsecure: args.BazelCacheGrpcInsecure,
+			BazelExpression:        args.BazelExpression,
+			BazelPath:              args.BazelPath,
+			BazelRcPath:            args.BazelRcPath,
+			BazelWorkspacePath:     args.BazelWorkspacePath,
+			BazelWriteStderr:       args.BazelWriteStderr,
+			OutPath:                args.OutPath,
+			NoPrint:                args.NoPrint,
+		}
+		snapshot, err := collecter.NewCollecter().Collect(&collectArgs)
 		if err != nil {
 			return nil, err
 		}
 
-		toSnapshot = snapshot
+		args.ToSnapshot = snapshot
 	}
 
 	// create a map with all labels
 	allLabels := make(map[string]bool)
-	for label := range fromSnapshot.Labels {
+	for label := range args.FromSnapshot.Labels {
 		allLabels[label] = true
 	}
-	for label := range toSnapshot.Labels {
+	for label := range args.ToSnapshot.Labels {
 		allLabels[label] = true
 	}
 
 	changes := make([]models.TrackerChange, 0, len(allLabels))
 
 	for label := range allLabels {
-		fromTracker := fromSnapshot.Labels[label]
-		toTracker := toSnapshot.Labels[label]
+		fromTracker := args.FromSnapshot.Labels[label]
+		toTracker := args.ToSnapshot.Labels[label]
 
 		change := models.TrackerChange{
 			Label: label,

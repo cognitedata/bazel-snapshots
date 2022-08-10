@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -15,6 +16,7 @@ type collectCmd struct {
 	bazelCacheGrpcInsecure bool
 	bazelPath              string
 	bazelQueryExpression   string
+	bazelRcPath            string
 	bazelStderr            bool
 	outPath                string
 	noPrint                bool
@@ -70,7 +72,23 @@ func (cc *collectCmd) runCollect(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if _, err := collecter.NewCollecter().Collect(cc.bazelPath, cc.outPath, cc.bazelQueryExpression, cc.workspacePath, cc.bazelCacheGrpcInsecure, cc.bazelStderr, cc.noPrint); err != nil {
+	log.Println("bazel path:      ", cc.bazelPath)
+	log.Println("bazelrc path:    ", cc.bazelRcPath)
+	log.Println("workspace path:  ", cc.workspacePath)
+	log.Println("query expression:", cc.bazelQueryExpression)
+	log.Println("out path:        ", cc.outPath)
+
+	collectArgs := collecter.CollectArgs{
+		BazelCacheGrpcInsecure: cc.bazelCacheGrpcInsecure,
+		BazelExpression:        cc.bazelQueryExpression,
+		BazelPath:              cc.bazelPath,
+		BazelRcPath:            cc.bazelRcPath,
+		BazelWorkspacePath:     cc.workspacePath,
+		BazelWriteStderr:       cc.bazelStderr,
+		OutPath:                cc.outPath,
+		NoPrint:                cc.noPrint,
+	}
+	if _, err := collecter.NewCollecter().Collect(&collectArgs); err != nil {
 		return fmt.Errorf("failed to collect: %w", err)
 	}
 

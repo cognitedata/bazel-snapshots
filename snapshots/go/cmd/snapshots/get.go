@@ -65,7 +65,14 @@ func (gc *getCmd) runGet(cmd *cobra.Command, args []string) error {
 	}
 
 	ctx := context.Background()
-	snapshot, err := getter.NewGetter().Get(ctx, gc.name, gc.storageUrl, gc.skipNames, gc.skipTags)
+
+	getArgs := getter.GetArgs{
+		Name: gc.name,
+		StorageUrl: gc.storageUrl,
+		SkipNames: gc.skipNames,
+		SkipTags: gc.skipTags,
+	}
+	snapshot, err := getter.NewGetter().Get(ctx, &getArgs)
 	if err != nil {
 		return err
 	}

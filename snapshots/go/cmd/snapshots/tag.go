@@ -89,7 +89,18 @@ func (tc *tagCmd) runTag(cmd *cobra.Command, args []string) error {
 	}
 
 	ctx := context.Background()
-	obj, err := tagger.NewTagger().Tag(ctx, tc.storageUrl, tc.snapshotName, tc.tagName)
+
+	log.Printf("workspace: %s", tc.workspacePath)
+	log.Printf("storage:    %s", tc.storageUrl)
+	log.Printf("snapshot:  %s", tc.snapshotName)
+	log.Printf("tag:       %s", tc.tagName)
+
+	tagArgs := tagger.TagArgs{
+		SnapshotName: tc.snapshotName,
+		StorageUrl: tc.storageUrl,
+		TagName: tc.tagName,
+	}
+	obj, err := tagger.NewTagger().Tag(ctx, &tagArgs)
 	if err != nil {
 		return err
 	}

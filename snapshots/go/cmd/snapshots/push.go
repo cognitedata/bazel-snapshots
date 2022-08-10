@@ -94,7 +94,18 @@ func (pc *pushCmd) runPush(cmd *cobra.Command, args []string) error {
 	}
 
 	ctx := context.Background()
-	obj, err := pusher.NewPusher().Push(ctx, pc.name, pc.storageUrl, pc.snapshot)
+
+	// log for debugging
+	log.Printf("name:      %s", pc.name)
+	log.Printf("workspace: %s", pc.workspacePath)
+	log.Printf("storage:    %s", pc.storageUrl)
+
+	pushArgs := pusher.PushArgs{
+		Name: pc.name,
+		StorageUrl: pc.storageUrl,
+		Snapshot: pc.snapshot,
+	}
+	obj, err := pusher.NewPusher().Push(ctx, &pushArgs)
 	if err != nil {
 		return err
 	}
