@@ -75,11 +75,6 @@ func (cc *collectCmd) checkArgs(args []string) error {
 
 	if cc.bazelRcPath != "" && !path.IsAbs(cc.bazelRcPath) {
 		cc.bazelRcPath = path.Join(cc.workspacePath, cc.bazelRcPath)
-	} else {
-		path := path.Join(cc.workspacePath, ".bazelrc")
-		if _, err := os.Stat(cc.bazelRcPath); err == nil {
-			cc.bazelRcPath = path
-		}
 	}
 
 	return nil

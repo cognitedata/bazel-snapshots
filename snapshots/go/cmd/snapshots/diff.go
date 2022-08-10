@@ -122,11 +122,6 @@ func (dc *diffCmd) checkArgs(args []string) error {
 
 	if dc.bazelRcPath != "" && !path.IsAbs(dc.bazelRcPath) {
 		dc.bazelRcPath = path.Join(dc.workspacePath, dc.bazelRcPath)
-	} else {
-		path := path.Join(dc.workspacePath, ".bazelrc")
-		if _, err := os.Stat(dc.bazelRcPath); err == nil {
-			dc.bazelRcPath = path
-		}
 	}
 
 	return nil
