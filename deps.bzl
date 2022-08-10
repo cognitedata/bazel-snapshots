@@ -514,6 +514,9 @@ def go_dependencies():
     )
     go_repository(
         name = "com_github_spf13_cobra",
+        build_directives = [
+            "gazelle:resolve go github.com/spf13/pflag @com_github_spf13_pflag//:pflag",
+        ],
         build_file_proto_mode = "disable_global",
         importpath = "github.com/spf13/cobra",
         sum = "h1:X+jTBEBqF0bHN+9cSMgmfuvv2VHJ9ezmFNf9Y/XstYU=",
