@@ -18,21 +18,15 @@ import (
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
 )
 
-const (
-	outputLabel  = "label"
-	outputJSON   = "json"
-	outputPretty = "pretty"
-)
-
 type diffCmd struct {
-	bazelPath              string
-	workspacePath          string
-	queryExpression        string
 	bazelCacheGrpcInsecure bool
-	bazelStderr            bool
+	bazelPath              string
+	bazelQueryExpression   string
 	bazelRcPath            string
+	bazelStderr            bool
 	outPath                string
 	noPrint                bool
+	workspacePath          string
 
 	fromSnapshot *models.Snapshot
 	toSnapshot   *models.Snapshot
@@ -67,8 +61,8 @@ names.`,
 	cmd.PersistentFlags().StringVar(&dc.workspacePath, "workspace-path", "", "workspace path")
 
 	// collect flags
-	cmd.PersistentFlags().StringVar(&dc.queryExpression, "bazel_query", "//...", "the bazel query expression to consider")
-	cmd.PersistentFlags().BoolVar(&dc.bazelCacheGrpcInsecure, "bazel_cache_grpc_insecure", true, "use insecure connection for grpc bazel cache")
+	cmd.PersistentFlags().BoolVar(&dc.bazelCacheGrpcInsecure, "bazel_cache_grpc_insecure", false, "use insecure connection for grpc bazel cache")
+	cmd.PersistentFlags().StringVar(&dc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
 	cmd.PersistentFlags().BoolVar(&dc.bazelStderr, "bazel_stderr", false, "show stderr from bazel")
 	cmd.PersistentFlags().Var(&dc.outputFormat, "format", "output format")
 	cmd.PersistentFlags().StringVar(&dc.outPath, "out", "", "output file path")
@@ -163,7 +157,7 @@ func (dc *diffCmd) runDiff(cmd *cobra.Command, args []string) error {
 	diff := differ.NewDiffer()
 	diffArgs := differ.DiffArgs{
 		BazelCacheGrpcInsecure: dc.bazelCacheGrpcInsecure,
-		BazelExpression:        dc.queryExpression,
+		BazelExpression:        dc.bazelQueryExpression,
 		BazelPath:              dc.bazelPath,
 		BazelRcPath:            dc.bazelRcPath,
 		BazelWorkspacePath:     dc.workspacePath,
@@ -186,15 +180,15 @@ func (dc *diffCmd) runDiff(cmd *cobra.Command, args []string) error {
 	}
 
 	switch dc.outputFormat {
-	case outputLabel:
+	case formatLabel:
 		if err := diff.DiffOutputLabel(os.Stdout, changes); err != nil {
 			return err
 		}
-	case outputJSON:
+	case formatJson:
 		if err := diff.DiffOutputJSON(os.Stdout, changes); err != nil {
 			return err
 		}
-	case outputPretty:
+	case formatPretty:
 		if err := diff.DiffOutputPretty(os.Stdout, changes); err != nil {
 			return err
 		}
