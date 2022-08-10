@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
+	"strings"
 
 	"google.golang.org/genproto/googleapis/bytestream"
 	"google.golang.org/grpc"
@@ -106,7 +107,11 @@ func (c *RemoteBazelCache) Read(ctx context.Context, secure bool, uri string) ([
 		c.clients[u.Host] = client
 	}
 
-	req := &bytestream.ReadRequest{ResourceName: uri}
+	req := &bytestream.ReadRequest{
+		ResourceName: strings.TrimPrefix(u.RequestURI(), "/"), 
+		ReadOffset:   0,
+		ReadLimit:    0,
+	}
 
 	bsrc, err := client.Read(ctx, req)
 	if err != nil {
