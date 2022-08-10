@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -102,6 +103,14 @@ func (dc *diffCmd) resolveSnapshot(ctx context.Context, name, storageUrl string)
 }
 
 func (dc *diffCmd) checkArgs(args []string) error {
+	if dc.bazelPath == "" {
+		path, err := exec.LookPath("bazel")
+		if err != nil {
+			return err
+		}
+		dc.bazelPath = path
+	}
+
 	storageUrl, err := dc.cmd.Flags().GetString("storage-url")
 	if err != nil {
 		return err

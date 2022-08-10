@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -61,6 +62,14 @@ func newCollectCmd() *collectCmd {
 }
 
 func (cc *collectCmd) checkArgs(args []string) error {
+	if cc.bazelPath == "" {
+		path, err := exec.LookPath("bazel")
+		if err != nil {
+			return err
+		}
+		cc.bazelPath = path
+	}
+
 	if cc.workspacePath == "" {
 		if wsDir := os.Getenv("BUILD_WORKSPACE_DIRECTORY"); wsDir != "" {
 			cc.workspacePath = wsDir

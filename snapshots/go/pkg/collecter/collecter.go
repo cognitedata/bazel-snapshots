@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/exec"
 
 	"google.golang.org/grpc"
 
@@ -40,23 +39,6 @@ type CollectArgs struct {
 // build events (see Bazel's --build_event_json_file). It then retrieves all
 // these tracker files, parses them and builds the snapshot.
 func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
-	if args.BazelPath == "" {
-		path, err := exec.LookPath("bazel")
-		if err != nil {
-			return nil, err
-		}
-
-		args.BazelPath = path
-	}
-
-	if args.BazelWorkspacePath == "" {
-		if wsDir := os.Getenv("BUILD_WORKSPACE_DIRECTORY"); wsDir != "" {
-			args.BazelWorkspacePath = wsDir
-		} else {
-			return nil, fmt.Errorf("workspace-path not specified and BUILD_WORKSPACE_DIRECTORY not set")
-		}
-	}
-
 	dialOptions := []grpc.DialOption{}
 	if args.BazelCacheGrpcInsecure {
 		dialOptions = append(dialOptions, grpc.WithInsecure())
