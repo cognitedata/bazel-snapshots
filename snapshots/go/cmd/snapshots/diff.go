@@ -9,9 +9,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	flag "github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 
-	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/differ"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/getter"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
@@ -23,97 +22,119 @@ const (
 	outputPretty = "pretty"
 )
 
-type diffConfig struct {
-	collectConfig
+type diffCmd struct {
+	bazelPath              string
+	workspacePath          string
+	queryExpression        string
+	bazelCacheGrpcInsecure bool
+	bazelStderr            bool
+	bazelRcPath            string
+	outPath                string
+	noPrint                bool
+
 	fromSnapshot *models.Snapshot
 	toSnapshot   *models.Snapshot
 
 	outputFormat string
 	stderrPretty bool
+
+	storageUrl string
+
+	cmd *cobra.Command
 }
 
-const diffName = "_diff"
+func newDiffCmd() *diffCmd {
+	cmd := &cobra.Command{
+		Use:   "diff",
+		Short: "Diff snapshots",
+		Long: `Compiles a list of the labels which have had changes between two snapshots,
+together with what type of change has been made: added, removed or changed.
+If only one snapshot is given, then the "to"-snapshot is created from the
+current state (see collect). Snapshots can either be files, tags or snapshot
+names.`,
+		Args: cobra.RangeArgs(1, 2),
+	}
 
-func getDiffConfig(c *config.Config) *diffConfig {
-	dc := c.Exts[diffName].(*diffConfig)
-	dc.collectConfig = *getCollectConfig(c)
+	dc := &diffCmd{
+		cmd: cmd,
+	}
+
+	// bazel flags
+	cmd.PersistentFlags().StringVar(&dc.bazelPath, "bazel-path", "", "Full URL of the storage")
+	cmd.PersistentFlags().StringVar(&dc.bazelRcPath, "bazelrc", "", "Full URL of the storage")
+	cmd.PersistentFlags().StringVar(&dc.workspacePath, "workspace-path", "", "Verbose output")
+
+	// collect flags
+	cmd.PersistentFlags().StringVar(&dc.queryExpression, "bazel_query", "//...", "the bazel query expression to consider")
+	cmd.PersistentFlags().BoolVar(&dc.bazelCacheGrpcInsecure, "bazel_cache_grpc_insecure", true, "use insecure connection for grpc bazel cache")
+	cmd.PersistentFlags().BoolVar(&dc.bazelStderr, "bazel_stderr", false, "show stderr from bazel")
+	cmd.PersistentFlags().StringVar(&dc.outPath, "out", "", "output file path")
+	cmd.PersistentFlags().BoolVar(&dc.noPrint, "no-print", false, "don't print if not writing to file")
+
+	cmd.RunE = dc.runDiff
+
 	return dc
 }
 
-type diffConfigurer struct{}
+func (dc *diffCmd) resolveSnapshot(ctx context.Context, name, storageUrl string) (*models.Snapshot, error) {
+	// Might be a file
+	if _, err := os.Stat(name); err != nil && !os.IsNotExist(err) {
+		return nil, fmt.Errorf("failed to look for file: %w", err)
+	} else if err == nil {
+		fileBytes, err := ioutil.ReadFile(name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read file %s: %w", name, err)
+		}
+		snapshot := &models.Snapshot{}
+		return snapshot, json.Unmarshal(fileBytes, snapshot)
+	}
 
-func (*diffConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.Config) {
-	dc := &diffConfig{}
-	c.Exts[diffName] = dc
-	fs.BoolVar(&dc.stderrPretty, "stderr-pretty", false, "pretty-print in stderr in addition")
-	fs.StringVar(&dc.outputFormat, "format", outputJSON, "output format (label, json, pretty)")
+	getArgs := getter.GetArgs{
+		Name: name,
+		StorageUrl: dc.storageUrl,
+		SkipNames: false,
+		SkipTags: false,
+	}
+	return getter.NewGetter().Get(ctx, &getArgs)
 }
 
-func (*diffConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
-	dc := getDiffConfig(c)
+func (dc *diffCmd) checkArgs(args []string) error {
+	storageUrl, err := dc.cmd.Flags().GetString("storage-url")
+	if err != nil {
+		return err
+	}
+	dc.storageUrl = storageUrl
+
+	return nil
+}
+
+func (dc *diffCmd) runDiff(cmd *cobra.Command, args []string) error {
+	err := dc.checkArgs(args)
+	if err != nil {
+		return err
+	}
 
 	ctx := context.Background()
 
-	resolveSnapshot := func(name string) (*models.Snapshot, error) {
-		// might be a file
-		if _, err := os.Stat(name); err != nil && !os.IsNotExist(err) {
-			return nil, fmt.Errorf("failed to look for file: %w", err)
-		} else if err == nil {
-			fileBytes, err := ioutil.ReadFile(name)
-			if err != nil {
-				return nil, fmt.Errorf("failed to read file %s: %w", name, err)
-			}
-			snapshot := &models.Snapshot{}
-			return snapshot, json.Unmarshal(fileBytes, snapshot)
-		}
-
-		getArgs := getter.GetArgs{
-			Name: name,
-			StorageUrl: dc.storageURL,
-			SkipNames: false,
-			SkipTags: false,
-		}
-		return getter.NewGetter().Get(ctx, &getArgs)
-	}
-
-	if fs.NArg() < 1 || fs.NArg() > 2 {
-		return fmt.Errorf("need 1-2 arguments")
-	}
-
-	if fromSnapshot, err := resolveSnapshot(fs.Arg(0)); err != nil {
-		return fmt.Errorf("failed to get snapshot %s: %w", fs.Arg(0), err)
+	fromSnapshotName := args[0]
+	if fromSnapshot, err := dc.resolveSnapshot(ctx, fromSnapshotName, dc.storageUrl); err != nil {
+		return fmt.Errorf("failed to get snapshot %s: %w", fromSnapshotName, err)
 	} else {
 		dc.fromSnapshot = fromSnapshot
 	}
 
-	if fs.NArg() == 2 {
-		if toSnapshot, err := resolveSnapshot(fs.Arg(1)); err != nil {
-			return fmt.Errorf("failed to get snapshot %s: %w", fs.Arg(1), err)
+	if len(args) == 2 {
+		toSnapshotName := args[1]
+		if toSnapshot, err := dc.resolveSnapshot(ctx, toSnapshotName, dc.storageUrl); err != nil {
+			return fmt.Errorf("failed to get snapshot %s: %w", toSnapshotName, err)
 		} else {
 			dc.toSnapshot = toSnapshot
 		}
 	}
 
-	return nil
-}
-
-func runDiff(args []string) error {
-	cexts := []config.Configurer{
-		&bazelConfigurer{},
-		&collectConfigurer{},
-		&diffConfigurer{},
-	}
-	c, err := newConfiguration("diff", args, cexts, diffUsage)
-	if err != nil {
-		return err
-	}
-
-	dc := getDiffConfig(c)
-	dc.collectConfig = *getCollectConfig(c)
-
 	diff := differ.NewDiffer()
 	diffArgs := differ.DiffArgs{
-		BazelCacheGrpcInsecure: dc.bazelCacheGRPCInsecure,
+		BazelCacheGrpcInsecure: dc.bazelCacheGrpcInsecure,
 		BazelExpression:        dc.queryExpression,
 		BazelPath:              dc.bazelPath,
 		BazelRcPath:            dc.bazelRcPath,
@@ -154,22 +175,4 @@ func runDiff(args []string) error {
 	}
 
 	return nil
-}
-
-func diffUsage(fs *flag.FlagSet) {
-	fmt.Fprint(os.Stderr, `usage: diff <from> [<to>]
-
-Compiles a list of the labels which have had changes between two snapshots,
-together with what type of change has been made: added, removed or changed.
-If only one snapshot is given, then the "to"-snapshot is created from the
-current state (see collect). Snapshots can either be files, tags or snapshot
-names.
-
-Examples:
-	snapshots diff /path/to/snapshot.json
-	snapshots diff deployed
-
-FLAGS:
-`)
-	fs.PrintDefaults()
 }

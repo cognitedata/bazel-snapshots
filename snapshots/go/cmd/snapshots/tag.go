@@ -6,42 +6,63 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
-	flag "github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 
-	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/config"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/tagger"
 )
 
-type tagConfig struct {
-	commonConfig
-	bazelConfig  // needed for workspace path
-	snapshotName string
-	tagName      string
+type tagCmd struct {
+	bazelCacheGrpcInsecure bool
+	bazelQueryExpression   string
+	bazelStderr            bool
+	outPath                string
+	noPrint                bool
+	workspacePath          string
+	snapshotName           string
+	tagName                string
+
+	storageUrl string
+
+	cmd *cobra.Command
 }
 
-const tagName = "_tag"
+func newTagCmd() *tagCmd {
+	cmd := &cobra.Command{
+		Use:   "tag",
+		Short: "Tag snapshot",
+		Long: `Assigns a tag to some (pushed) snapshot, referenced by name. Snapshot name
+defaults to the current git HEAD. Tagging a snapshot creates a named
+reference to it. For example, a tag "deployed" can be a reference to the
+snapshot which was most recently deployed.
+`,
+		Args: cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
 
-func getTagConfig(c *config.Config) *tagConfig {
-	tc := c.Exts[tagName].(*tagConfig)
-	tc.bazelConfig = *getBazelConfig(c)
-	tc.commonConfig = *getCommonConfig(c)
-	return tc
+		},
+	}
+
+	cc := &tagCmd{
+		cmd: cmd,
+	}
+
+	// bazel flags
+	cmd.PersistentFlags().StringVar(&cc.workspacePath, "workspace-path", "", "Verbose output")
+
+	// tag flags
+	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel-cache-grpc-insecure", true, "use insecure connection for grpc bazel cache")
+	cmd.PersistentFlags().StringVar(&cc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
+	cmd.PersistentFlags().BoolVar(&cc.bazelStderr, "bazel-stderr", false, "show stderr from bazel")
+	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")
+	cmd.PersistentFlags().BoolVar(&cc.noPrint, "no-print", false, "don't print if not writing to file")
+
+	cmd.RunE = cc.runTag
+
+	return cc
 }
 
-type tagConfigurer struct{}
-
-func (*tagConfigurer) RegisterFlags(fs *flag.FlagSet, cmd string, c *config.Config) {
-	tc := &tagConfig{}
-	c.Exts[tagName] = tc
-	fs.StringVar(&tc.snapshotName, "name", "", "name of snapshot to tag (defaults to HEAD git sha)")
-}
-
-func (*tagConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
-	tc := getTagConfig(c)
-
-	// if name is not set, find name from git head
+func (tc *tagCmd) checkArgs(args []string) error {
+	// If name is not set, find name from git head
 	if tc.snapshotName == "" {
 		head, err := getGitHead(tc.workspacePath)
 		if err != nil {
@@ -50,36 +71,33 @@ func (*tagConfigurer) CheckFlags(fs *flag.FlagSet, c *config.Config) error {
 		tc.snapshotName = head
 	}
 
-	if fs.NArg() != 1 {
-		return fmt.Errorf("need one argument for the tag name, got: %s", fs.Args())
+	storageUrl, err := tc.cmd.Flags().GetString("storage-url")
+	if err != nil {
+		return err
 	}
-	tc.tagName = fs.Arg(0)
+	tc.storageUrl = storageUrl
+
+	tc.tagName = args[0]
 
 	return nil
 }
 
-func runTag(args []string) error {
-	cexts := []config.Configurer{
-		&bazelConfigurer{},
-		&tagConfigurer{},
-	}
-	c, err := newConfiguration("tag", args, cexts, tagUsage)
+func (tc *tagCmd) runTag(cmd *cobra.Command, args []string) error {
+	err := tc.checkArgs(args)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
 
-	tc := getTagConfig(c)
-
 	log.Printf("workspace: %s", tc.workspacePath)
-	log.Printf("storage:    %s", tc.storageURL)
+	log.Printf("storage:    %s", tc.storageUrl)
 	log.Printf("snapshot:  %s", tc.snapshotName)
 	log.Printf("tag:       %s", tc.tagName)
 
 	tagArgs := tagger.TagArgs{
 		SnapshotName: tc.snapshotName,
-		StorageUrl: tc.storageURL,
+		StorageUrl: tc.storageUrl,
 		TagName: tc.tagName,
 	}
 	obj, err := tagger.NewTagger().Tag(ctx, &tagArgs)
@@ -90,20 +108,4 @@ func runTag(args []string) error {
 	log.Printf("tagged snapshot %s as %s: %s", tc.snapshotName, tc.tagName, obj.Path)
 
 	return nil
-}
-
-func tagUsage(fs *flag.FlagSet) {
-	fmt.Fprint(os.Stderr, `usage: tag --name <snapshot> <tag>
-
-Assigns a tag to some (pushed) snapshot, referenced by name. Snapshot name
-defaults to the current git HEAD. Tagging a snapshot creates a named
-reference to it. For example, a tag "deployed" can be a reference to the
-snapshot which was most recently deployed.
-
-Example:
-	snapshot tag --name <some-snapshot> mytag
-
-FLAGS:
-`)
-	fs.PrintDefaults()
 }
