@@ -40,9 +40,9 @@ or can optionally be specified.`,
 		cmd: cmd,
 	}
 
-	cmd.PersistentFlags().StringVar(&pc.name, "name", "", "Snapshot name (defaults to HEAD git sha)")
-	cmd.PersistentFlags().StringVar(&pc.snapshotPath, "snapshot-path", "", "Path to snapshot to be pushed")
-	cmd.PersistentFlags().StringVar(&pc.workspacePath, "workspace-path", "", "Workspace path")
+	cmd.PersistentFlags().StringVar(&pc.name, "name", "", "snapshot name (defaults to HEAD git sha)")
+	cmd.PersistentFlags().StringVar(&pc.snapshotPath, "snapshot-path", "", "path to snapshot to be pushed")
+	cmd.PersistentFlags().StringVar(&pc.workspacePath, "workspace-path", "", "workspace path")
 
 	cmd.RunE = pc.runPush
 
@@ -101,9 +101,9 @@ func (pc *pushCmd) runPush(cmd *cobra.Command, args []string) error {
 	log.Printf("storage:    %s", pc.storageUrl)
 
 	pushArgs := pusher.PushArgs{
-		Name: pc.name,
+		Name:       pc.name,
 		StorageUrl: pc.storageUrl,
-		Snapshot: pc.snapshot,
+		Snapshot:   pc.snapshot,
 	}
 	obj, err := pusher.NewPusher().Push(ctx, &pushArgs)
 	if err != nil {

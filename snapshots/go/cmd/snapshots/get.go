@@ -38,8 +38,8 @@ priority.`,
 		cmd: cmd,
 	}
 
-	cmd.PersistentFlags().BoolVar(&gc.skipTags, "skip-tags", false, "Don't look up by tag")
-	cmd.PersistentFlags().BoolVar(&gc.skipNames, "skip-names", false, "Don't look up by name")
+	cmd.PersistentFlags().BoolVar(&gc.skipTags, "skip-tags", false, "don't look up by tag")
+	cmd.PersistentFlags().BoolVar(&gc.skipNames, "skip-names", false, "don't look up by name")
 
 	cmd.RunE = gc.runGet
 
@@ -67,10 +67,10 @@ func (gc *getCmd) runGet(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 
 	getArgs := getter.GetArgs{
-		Name: gc.name,
+		Name:       gc.name,
 		StorageUrl: gc.storageUrl,
-		SkipNames: gc.skipNames,
-		SkipTags: gc.skipTags,
+		SkipNames:  gc.skipNames,
+		SkipTags:   gc.skipTags,
 	}
 	snapshot, err := getter.NewGetter().Get(ctx, &getArgs)
 	if err != nil {

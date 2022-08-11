@@ -50,7 +50,7 @@ func newCollectCmd() *collectCmd {
 	cmd.PersistentFlags().StringVar(&cc.workspacePath, "workspace-path", "", "workspace path")
 
 	// collect flags
-	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel-cache-grpc-insecure", true, "use insecure connection for grpc bazel cache")
+	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel-cache-grpc-insecure", false, "use insecure connection for grpc bazel cache")
 	cmd.PersistentFlags().StringVar(&cc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
 	cmd.PersistentFlags().BoolVar(&cc.bazelStderr, "bazel-stderr", false, "show stderr from bazel")
 	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")

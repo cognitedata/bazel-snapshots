@@ -47,7 +47,7 @@ snapshot which was most recently deployed.
 	}
 
 	// bazel flags
-	cmd.PersistentFlags().StringVar(&cc.workspacePath, "workspace-path", "", "Verbose output")
+	cmd.PersistentFlags().StringVar(&cc.workspacePath, "workspace-path", "", "workspace path")
 
 	// tag flags
 	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel-cache-grpc-insecure", true, "use insecure connection for grpc bazel cache")
@@ -97,8 +97,8 @@ func (tc *tagCmd) runTag(cmd *cobra.Command, args []string) error {
 
 	tagArgs := tagger.TagArgs{
 		SnapshotName: tc.snapshotName,
-		StorageUrl: tc.storageUrl,
-		TagName: tc.tagName,
+		StorageUrl:   tc.storageUrl,
+		TagName:      tc.tagName,
 	}
 	obj, err := tagger.NewTagger().Tag(ctx, &tagArgs)
 	if err != nil {
