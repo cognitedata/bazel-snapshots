@@ -82,7 +82,7 @@ type mockByteStreamServer struct {
 }
 
 func (s *mockByteStreamServer) Read(req *bytestream.ReadRequest, stream bytestream.ByteStream_ReadServer) error {
-	if req.GetResourceName() != "bytestream://bufnet/cache-key" {
+	if req.GetResourceName() != "cache-key" {
 		return status.Errorf(codes.NotFound, "wrong cache key: %s", req.GetResourceName())
 	}
 
