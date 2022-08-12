@@ -4,14 +4,13 @@ package bazel
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"math"
 	"net/url"
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/google"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 )
@@ -35,10 +34,7 @@ func DialTargetWithOptions(target string, grpcsBytestream bool, extraOptions ...
 		}
 
 		if grpcsBytestream {
-			cred := credentials.NewTLS(&tls.Config{
-				InsecureSkipVerify: true,
-			})
-			dialOptions = append(dialOptions, grpc.WithTransportCredentials(cred))
+			dialOptions = append(dialOptions, grpc.WithTransportCredentials(google.NewDefaultCredentials().TransportCredentials()))
 		} else {
 			dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		}
