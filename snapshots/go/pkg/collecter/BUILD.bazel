@@ -7,6 +7,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//snapshots/go/pkg/bazel",
+        "//snapshots/go/pkg/cache",
         "//snapshots/go/pkg/models",
         "@org_golang_google_grpc//metadata",
     ],

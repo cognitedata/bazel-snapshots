@@ -1,6 +1,6 @@
 /* Copyright 2022 Cognite AS */
 
-package bazel
+package cache
 
 import (
 	"context"
@@ -35,7 +35,7 @@ func TestFileBazelCache(t *testing.T) {
 	require.Nil(t, contents)
 
 	// read this file
-	thisFile, err := bazeltools.Runfile("snapshots/go/pkg/bazel/cache_test.go")
+	thisFile, err := bazeltools.Runfile("snapshots/go/pkg/cache/cache_test.go")
 	require.Nil(t, err)
 	contents, err = c.Read(ctx, false, fmt.Sprintf("file://%s", thisFile))
 	require.Nil(t, err)
@@ -70,7 +70,7 @@ func TestDelegatingBazelCache(t *testing.T) {
 	require.Nil(t, contents)
 
 	// delegate to file
-	thisFile, err := bazeltools.Runfile("snapshots/go/pkg/bazel/cache_test.go")
+	thisFile, err := bazeltools.Runfile("snapshots/go/pkg/cache/cache_test.go")
 	require.Nil(t, err)
 	contents, err = c.Read(ctx, false, fmt.Sprintf("file://%s", thisFile))
 	require.Nil(t, err)
