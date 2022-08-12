@@ -21,7 +21,8 @@ func NewDiffer() *differ {
 }
 
 type DiffArgs struct {
-	BazelCacheGrpcInsecure bool
+	BazelCacheGrpcs        bool
+	BazelCacheGrpcMetadata []string
 	BazelExpression        string
 	BazelPath              string
 	BazelRcPath            string
@@ -37,7 +38,8 @@ func (*differ) Diff(args *DiffArgs) ([]models.TrackerChange, error) {
 	// if toSnapshot is not set, then run collect
 	if args.ToSnapshot == nil {
 		collectArgs := collecter.CollectArgs{
-			BazelCacheGrpcInsecure: args.BazelCacheGrpcInsecure,
+			BazelCacheGrpcs:        args.BazelCacheGrpcs,
+			BazelCacheGrpcMetadata: args.BazelCacheGrpcMetadata,
 			BazelExpression:        args.BazelExpression,
 			BazelPath:              args.BazelPath,
 			BazelRcPath:            args.BazelRcPath,

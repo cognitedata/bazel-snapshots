@@ -16,6 +16,7 @@ go_library(
         "utils.go",
     ],
     importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/cmd/snapshots",
+    visibility = ["//visibility:private"],
     deps = [
         "//snapshots/go/pkg/collecter",
         "//snapshots/go/pkg/differ",
