@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/bazel"
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/cache"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
 )
 
@@ -48,7 +49,7 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 
 	ctx := context.Background()
 	bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
-	bcache := bazel.NewDefaultDelegatingCache()
+	bcache := cache.NewDefaultDelegatingCache()
 
 	// build digests, get the build events
 	log.Printf("collecting digests from %s", args.BazelExpression)
