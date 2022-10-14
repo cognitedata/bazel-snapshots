@@ -11,7 +11,7 @@ require (
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
 	google.golang.org/genproto v0.0.0-20220218161850-94dd64e39d7c
-	google.golang.org/grpc v1.48.0
+	google.golang.org/grpc v1.50.1
 )
 
 require (
