@@ -5,8 +5,9 @@ go 1.19
 require (
 	github.com/bazelbuild/rules_go v0.34.0
 	github.com/olekukonko/tablewriter v0.0.5
+	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
 	google.golang.org/genproto v0.0.0-20220218161850-94dd64e39d7c
@@ -37,7 +38,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0 // indirect
 	go.beyondstorage.io/credential v1.0.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
