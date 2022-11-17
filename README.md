@@ -189,7 +189,7 @@ At the end of the CD process, we can push the snapshot we collected earlier and 
 $ bazel run snapshots -- push --snapshot-path=snapshot.json
 
 # Tag it as 'deployed'
-baszel run snapshots -- tag deployed
+bazel run snapshots -- tag deployed
 ```
 
 ## How It Works
