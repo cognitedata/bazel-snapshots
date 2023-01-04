@@ -25,6 +25,7 @@ type diffCmd struct {
 	bazelQueryExpression   string
 	bazelRcPath            string
 	bazelStderr            bool
+	bazelStdout            bool
 	outPath                string
 	noPrint                bool
 	workspacePath          string
@@ -66,6 +67,7 @@ names.`,
 	cmd.PersistentFlags().StringArrayVar(&dc.bazelCacheGrpcMetadata, "bazel_cache_grpc_metadata", []string{}, "add metadata to connection for grpc bazel cache")
 	cmd.PersistentFlags().StringVar(&dc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
 	cmd.PersistentFlags().BoolVar(&dc.bazelStderr, "bazel_stderr", false, "show stderr from bazel")
+	cmd.PersistentFlags().BoolVar(&dc.bazelStdout, "bazel_stdout", false, "show stdout from bazel")
 	cmd.PersistentFlags().Var(&dc.outputFormat, "format", "output format")
 	cmd.PersistentFlags().StringVar(&dc.outPath, "out", "", "output file path")
 	cmd.PersistentFlags().BoolVar(&dc.noPrint, "no-print", false, "don't print if not writing to file")
@@ -165,6 +167,7 @@ func (dc *diffCmd) runDiff(cmd *cobra.Command, args []string) error {
 		BazelRcPath:            dc.bazelRcPath,
 		BazelWorkspacePath:     dc.workspacePath,
 		BazelWriteStderr:       dc.bazelStderr,
+		BazelWriteStdout:       dc.bazelStdout,
 		OutPath:                dc.outPath,
 		NoPrint:                dc.noPrint,
 		FromSnapshot:           dc.fromSnapshot,

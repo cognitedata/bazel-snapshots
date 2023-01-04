@@ -28,6 +28,7 @@ type DiffArgs struct {
 	BazelRcPath            string
 	BazelWorkspacePath     string
 	BazelWriteStderr       bool
+	BazelWriteStdout       bool
 	OutPath                string
 	NoPrint                bool
 	FromSnapshot           *models.Snapshot
@@ -45,6 +46,7 @@ func (*differ) Diff(args *DiffArgs) ([]models.TrackerChange, error) {
 			BazelRcPath:            args.BazelRcPath,
 			BazelWorkspacePath:     args.BazelWorkspacePath,
 			BazelWriteStderr:       args.BazelWriteStderr,
+			BazelWriteStdout:       args.BazelWriteStdout,
 			OutPath:                args.OutPath,
 			NoPrint:                args.NoPrint,
 		}

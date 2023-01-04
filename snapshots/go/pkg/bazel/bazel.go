@@ -6,7 +6,6 @@ package bazel
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -20,29 +19,29 @@ type Client struct {
 	path   string
 	ws     string
 	stderr io.Writer
+	stdout io.Writer
 }
 
-func NewClient(path, ws string, stderr io.Writer) *Client {
+func NewClient(path, ws string, stderr io.Writer, stdout io.Writer) *Client {
 	return &Client{
 		path:   path,
 		ws:     ws,
 		stderr: stderr,
+		stdout: stdout,
 	}
 }
 
-func (c *Client) Command(ctx context.Context, args ...string) ([]byte, error) {
-	buf := bytes.NewBuffer(nil)
-
+func (c *Client) Command(ctx context.Context, args ...string) error {
 	cmd := exec.CommandContext(ctx, c.path, args...)
 	cmd.Stderr = c.stderr
-	cmd.Stdout = buf
+	cmd.Stdout = c.stdout
 	cmd.Dir = c.ws
 
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("bazel command error: %w", err)
+		return fmt.Errorf("bazel command error: %w", err)
 	}
 
-	return buf.Bytes(), nil
+	return nil
 }
 
 func (c *Client) BuildEventOutput(ctx context.Context, bazelrc string, args ...string) ([]BuildEventOutput, error) {
@@ -59,7 +58,7 @@ func (c *Client) BuildEventOutput(ctx context.Context, bazelrc string, args ...s
 		args = append([]string{fmt.Sprintf("--bazelrc=%s", bazelrc)}, args...)
 	}
 
-	if _, err := c.Command(ctx, args...); err != nil {
+	if err := c.Command(ctx, args...); err != nil {
 		return nil, fmt.Errorf("failed to build: %w", err)
 	}
 

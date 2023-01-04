@@ -32,6 +32,7 @@ type CollectArgs struct {
 	BazelRcPath            string
 	BazelWorkspacePath     string
 	BazelWriteStderr       bool
+	BazelWriteStdout       bool
 	OutPath                string
 	NoPrint                bool
 }
@@ -47,8 +48,13 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 		bstderr = os.Stderr
 	}
 
+	bstdout := io.Discard
+	if args.BazelWriteStdout {
+		bstdout = os.Stdout
+	}
+
 	ctx := context.Background()
-	bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
+	bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr, bstdout)
 	bcache := cache.NewDefaultDelegatingCache()
 
 	// build digests, get the build events

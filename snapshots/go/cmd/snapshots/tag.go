@@ -16,6 +16,7 @@ type tagCmd struct {
 	bazelCacheGrpcInsecure bool
 	bazelQueryExpression   string
 	bazelStderr            bool
+	bazelStdout            bool
 	outPath                string
 	noPrint                bool
 	workspacePath          string
@@ -53,6 +54,7 @@ snapshot which was most recently deployed.
 	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel-cache-grpc-insecure", true, "use insecure connection for grpc bazel cache")
 	cmd.PersistentFlags().StringVar(&cc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
 	cmd.PersistentFlags().BoolVar(&cc.bazelStderr, "bazel-stderr", false, "show stderr from bazel")
+	cmd.PersistentFlags().BoolVar(&cc.bazelStdout, "bazel-stdout", false, "show stdout from bazel")
 	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")
 	cmd.PersistentFlags().BoolVar(&cc.noPrint, "no-print", false, "don't print if not writing to file")
 
