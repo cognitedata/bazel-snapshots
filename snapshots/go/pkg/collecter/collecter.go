@@ -48,13 +48,8 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 		bstderr = os.Stderr
 	}
 
-	bstdout := io.Discard
-	if args.BazelWriteStdout {
-		bstdout = os.Stdout
-	}
-
 	ctx := context.Background()
-	bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr, bstdout)
+	bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr, bstderr)
 	bcache := cache.NewDefaultDelegatingCache()
 
 	// build digests, get the build events
