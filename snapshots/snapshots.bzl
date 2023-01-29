@@ -36,10 +36,16 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
     args.add_all(tags, format_each = "--tag=%s")
 
     for bundle_info in bundle_infos:
-        # Simplified handling for image bundles: use only the blobsum files.
-        # for images created with container_run_and_commit the blobsum doesn't seem to change, so this doesn't work
+        # Simplified handling for image bundles: use only the digests of the Docker manifest files.
+        # We tried with `blobsum` previous to `manifest_digest`,
+        # but for images created with container_run_and_commit and install_pkgs the blobsum doesn't seem to change, so this didn't work.
         for _, data in bundle_info.container_images.items():
-            inputs.extend(data["blobsum"])
+            # images that come from container_pull without passing them through container_image
+            # do not have the manifest_digest field. Fallback to blobsum in that case.
+            if data["manifest_digest"] != None:
+                inputs.append(data["manifest_digest"])
+            else:
+                inputs.extend(data["blobsum"])
 
     args.add_all(inputs)
 
@@ -62,9 +68,15 @@ def _change_tracker_impl(ctx):
             # Handle BundleInfos separately
             bundle_infos.append(dep[BundleInfo])
         elif ImageInfo in dep:
-            # When passing a container_image as a dependency, use the blobsum
-            # files for tracking
-            track_files.extend(dep[ImageInfo].container_parts["blobsum"])
+            # When passing a container_image as a dependency, use the Docker manifest digest
+            # for tracking
+            # images that come from container_pull without passing them through container_image
+            # do not have the manifest_digest field. Fallback to blobsum in that case.
+            container_parts = dep[ImageInfo].container_parts
+            if container_parts["manifest_digest"] != None:
+                track_files.append(container_parts["manifest_digest"])
+            else:
+                track_files.extend(container_parts["blobsum"])
         else:
             # Handle other targets by just adding all the files
             track_files.extend(dep.files.to_list())
