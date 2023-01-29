@@ -629,6 +629,10 @@ def go_dependencies():
     )
     go_repository(
         name = "com_google_cloud_go_storage",
+        build_directives = [
+            # fixes `no such package '@com_google_cloud_go_compute_metadata//'`
+            "gazelle:resolve go cloud.google.com/go/compute/metadata @com_google_cloud_go_compute//metadata:go_default_library",  # keep
+        ],
         build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "cloud.google.com/go/storage",
@@ -739,6 +743,10 @@ def go_dependencies():
     )
     go_repository(
         name = "org_golang_google_api",
+        build_directives = [
+            # fixes `no such package '@com_google_cloud_go_compute_metadata//'`
+            "gazelle:resolve go cloud.google.com/go/compute/metadata @com_google_cloud_go_compute//metadata:go_default_library",  # keep
+        ],
         build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "google.golang.org/api",
@@ -842,6 +850,10 @@ def go_dependencies():
     )
     go_repository(
         name = "org_golang_x_oauth2",
+        build_directives = [
+            # fixes `no such package '@com_google_cloud_go_compute_metadata//'`
+            "gazelle:resolve go cloud.google.com/go/compute/metadata @com_google_cloud_go_compute//metadata:go_default_library",  # keep
+        ],
         build_external = "external",
         build_file_proto_mode = "disable_global",
         importpath = "golang.org/x/oauth2",
