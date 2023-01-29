@@ -45,7 +45,7 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
             if data["manifest_digest"] != None:
                 inputs.append(data["manifest_digest"])
             else:
-                inputs.append(data["blobsum"])
+                inputs.extend(data["blobsum"])
 
     args.add_all(inputs)
 
@@ -76,7 +76,7 @@ def _change_tracker_impl(ctx):
             if container_parts["manifest_digest"] != None:
                 track_files.append(container_parts["manifest_digest"])
             else:
-                track_files.append(container_parts["blobsum"])
+                track_files.extend(container_parts["blobsum"])
         else:
             # Handle other targets by just adding all the files
             track_files.extend(dep.files.to_list())
