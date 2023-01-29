@@ -40,11 +40,12 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
         # We tried with `blobsum` previous to `manifest_digest`,
         # but for images created with container_run_and_commit and install_pkgs the blobsum doesn't seem to change, so this didn't work.
         for _, data in bundle_info.container_images.items():
-            print(data["manifest_digest"])
+            # images that come from container_pull without passing them through container_image
+            # do not have the manifest_digets field. Fallback to blobsum in that case.
             if data["manifest_digest"] != None:
                 inputs.append(data["manifest_digest"])
             else:
-                print("wtf" + str(data))
+                inputs.append(data["blobsum"])
 
     args.add_all(inputs)
 
@@ -69,7 +70,13 @@ def _change_tracker_impl(ctx):
         elif ImageInfo in dep:
             # When passing a container_image as a dependency, use the Docker manifest digest
             # for tracking
-            track_files.append(dep[ImageInfo].container_parts["manifest_digest"])
+            # images that come from container_pull without passing them through container_image
+            # do not have the manifest_digets field. Fallback to blobsum in that case.
+            container_parts = dep[ImageInfo].container_parts
+            if container_parts["manifest_digest"] != None:
+                track_files.append(container_parts["manifest_digest"])
+            else:
+                track_files.append(container_parts["blobsum"])
         else:
             # Handle other targets by just adding all the files
             track_files.extend(dep.files.to_list())
