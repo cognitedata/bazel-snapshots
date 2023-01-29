@@ -41,7 +41,7 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
         # but for images created with container_run_and_commit and install_pkgs the blobsum doesn't seem to change, so this didn't work.
         for _, data in bundle_info.container_images.items():
             # images that come from container_pull without passing them through container_image
-            # do not have the manifest_digets field. Fallback to blobsum in that case.
+            # do not have the manifest_digest field. Fallback to blobsum in that case.
             if data["manifest_digest"] != None:
                 inputs.append(data["manifest_digest"])
             else:
