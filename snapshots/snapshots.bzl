@@ -71,7 +71,7 @@ def _change_tracker_impl(ctx):
             # When passing a container_image as a dependency, use the Docker manifest digest
             # for tracking
             # images that come from container_pull without passing them through container_image
-            # do not have the manifest_digets field. Fallback to blobsum in that case.
+            # do not have the manifest_digest field. Fallback to blobsum in that case.
             container_parts = dep[ImageInfo].container_parts
             if container_parts["manifest_digest"] != None:
                 track_files.append(container_parts["manifest_digest"])
