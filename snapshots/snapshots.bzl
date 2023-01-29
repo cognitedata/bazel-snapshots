@@ -39,6 +39,7 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
         # Simplified handling for image bundles: use only the digests of the Docker manifest files.
         # We tried with `blobsum` previous to `manifest_digest`,
         # but for images created with container_run_and_commit and install_pkgs the blobsum doesn't seem to change, so this didn't work.
+        print(data.keys())
         for _, data in bundle_info.container_images.items():
             inputs.append(data["manifest"])
 
