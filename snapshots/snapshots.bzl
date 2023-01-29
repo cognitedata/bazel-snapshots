@@ -40,7 +40,7 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
         # We tried with `blobsum` previous to `manifest_digest`,
         # but for images created with container_run_and_commit and install_pkgs the blobsum doesn't seem to change, so this didn't work.
         for _, data in bundle_info.container_images.items():
-            inputs.append(data["manifest_digest"])
+            inputs.append(data["manifest"])
 
     args.add_all(inputs)
 
