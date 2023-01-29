@@ -44,7 +44,7 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
             if data["manifest_digest"] != None:
                 inputs.append(data["manifest_digest"])
             else:
-                print("wtf" + data)
+                print("wtf" + str(data))
 
     args.add_all(inputs)
 
