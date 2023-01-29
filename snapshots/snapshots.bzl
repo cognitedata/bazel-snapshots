@@ -41,7 +41,10 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
         # but for images created with container_run_and_commit and install_pkgs the blobsum doesn't seem to change, so this didn't work.
         for _, data in bundle_info.container_images.items():
             print(data["manifest_digest"])
-            inputs.append(data["manifest_digest"])
+            if data["manifest_digest"] is not None:
+                inputs.append(data["manifest_digest"])
+            else:
+                print("wtf" + data)
 
     args.add_all(inputs)
 
