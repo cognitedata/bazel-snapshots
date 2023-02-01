@@ -36,16 +36,15 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
     args.add_all(tags, format_each = "--tag=%s")
 
     for bundle_info in bundle_infos:
-        # Simplified handling for image bundles: use only the digests of the Docker manifest files.
-        # We tried with `blobsum` previous to `manifest_digest`,
-        # but for images created with container_run_and_commit and install_pkgs the blobsum doesn't seem to change, so this didn't work.
+        # Use the blobsum and manifest_digest (when present) of the Docker images in the bundle.
+        # The reason for using both is that the blobsum of some images isn't changing (e.g images created with container_run_and_commit or install_pkgs),
+        # and the manifest for other images (e.g go_image,...) is set to `{}`, which also doesn't trigger changes.
         for _, data in bundle_info.container_images.items():
             # images that come from container_pull without passing them through container_image
             # do not have the manifest_digest field. Fallback to blobsum in that case.
             if data["manifest_digest"] != None:
                 inputs.append(data["manifest_digest"])
-            else:
-                inputs.extend(data["blobsum"])
+            inputs.extend(data["blobsum"])
 
     args.add_all(inputs)
 
@@ -68,15 +67,14 @@ def _change_tracker_impl(ctx):
             # Handle BundleInfos separately
             bundle_infos.append(dep[BundleInfo])
         elif ImageInfo in dep:
-            # When passing a container_image as a dependency, use the Docker manifest digest
+            # When passing a container_image as a dependency, use the Docker manifest digest and the blobsum
             # for tracking
-            # images that come from container_pull without passing them through container_image
-            # do not have the manifest_digest field. Fallback to blobsum in that case.
+            # Images that come from container_pull without passing them through container_image
+            # do not have the manifest_digest field.
             container_parts = dep[ImageInfo].container_parts
             if container_parts["manifest_digest"] != None:
                 track_files.append(container_parts["manifest_digest"])
-            else:
-                track_files.extend(container_parts["blobsum"])
+            track_files.extend(container_parts["blobsum"])
         else:
             # Handle other targets by just adding all the files
             track_files.extend(dep.files.to_list())
