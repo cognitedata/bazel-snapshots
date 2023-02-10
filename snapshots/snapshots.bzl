@@ -7,7 +7,7 @@ SNAPSHOTS_ATTRS = {
     "_snapshots": attr.label(
         executable = True,
         default = Label("@snapshots-bin//:snapshots"),
-        cfg = "host",
+        cfg = "exec",
     ),
 }
 
@@ -145,7 +145,7 @@ _snapshots_runner = rule(
     attrs = {
         "snapshots": attr.label(
             default = "@snapshots-bin//:snapshots",
-            cfg = "host",
+            cfg = "target",
             executable = True,
             allow_single_file = True,
         ),
