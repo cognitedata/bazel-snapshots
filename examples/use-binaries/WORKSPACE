@@ -1,11 +1,13 @@
 workspace(name = "use-binaries")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 http_archive(
     name = "com_cognitedata_bazel_snapshots",
-    sha256 = "007f7a6b4c27079e041869233dfbffcb102422453e38e490f2df6735eb250442",
-    url = "https://github.com/cognitedata/bazel-snapshots/releases/download/0.1.0/snapshots-0.1.0.tar",
+    #sha256 = "007f7a6b4c27079e041869233dfbffcb102422453e38e490f2df6735eb250442",
+    url = "https://github.com/cognitedata/bazel-snapshots/releases/download/0.5.1/snapshots-0.5.1.tar",
 )
 
 load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
+
 snapshots_repos()
