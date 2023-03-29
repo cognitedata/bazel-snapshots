@@ -149,7 +149,7 @@ Usage example:
 $ SNAPSHOT_NAME="$(git rev-parse --short HEAD)"
 
 # Create a snapshot
-$ bazel run snapshots -- collect --out "$SNAPSHOT_NAME.json"
+$ bazel run snapshots -- collect --out-path "$SNAPSHOT_NAME.json"
 snapshots: wrote file to /some-path/bcb0283.json
 
 # Push the snapshot
