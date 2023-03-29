@@ -4,7 +4,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "com_cognitedata_bazel_snapshots",
-    #sha256 = "007f7a6b4c27079e041869233dfbffcb102422453e38e490f2df6735eb250442",
+    sha256 = "57363bcc74c3b814f8cb81b326680c4b3ac3d6386c8ee6150c0d5f2439e22a52",
     url = "https://github.com/cognitedata/bazel-snapshots/releases/download/0.5.1/snapshots-0.5.1.tar",
 )
 
