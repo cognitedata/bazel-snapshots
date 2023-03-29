@@ -1,1 +1,1 @@
-exports_files(["runner.tmpl.sh"])
+exports_files(["runner.tmpl.sh", "snapshots.bzl"])
