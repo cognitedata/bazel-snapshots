@@ -1,7 +1,15 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 exports_files(["runner.tmpl.sh"])
 
-# export bzl files for the documentation
-exports_files(
-    glob(["*.bzl"]),
+bzl_library(
+    name = "snapshots_bzl",
+    srcs = [
+      "snapshots.bzl",
+    ],
     visibility = ["//visibility:public"],
+    deps = [
+        "@bazel_skylib//lib:shell",
+        "@io_bazel_rules_docker//container:container.docs",
+    ],
 )
