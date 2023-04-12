@@ -1,7 +1,7 @@
 """Snapshot rules for incremental deploys."""
 
-load("@io_bazel_rules_docker//container:providers.bzl", "BundleInfo", "ImageInfo")
 load("@bazel_skylib//lib:shell.bzl", "shell")
+load(":providers.bzl", "BundleInfo", "ImageInfo")
 
 SNAPSHOTS_ATTRS = {
     "_snapshots": attr.label(

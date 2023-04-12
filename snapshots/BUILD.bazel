@@ -5,11 +5,11 @@ exports_files(["runner.tmpl.sh"])
 bzl_library(
     name = "snapshots_bzl",
     srcs = [
-      "snapshots.bzl",
+        "providers.bzl",
+        "snapshots.bzl",
     ],
     visibility = ["//visibility:public"],
     deps = [
         "@bazel_skylib//lib:shell",
-        "@io_bazel_rules_docker//container:container.docs",
     ],
 )
