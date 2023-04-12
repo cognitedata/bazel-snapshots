@@ -1,6 +1,5 @@
 """Snapshot rules for incremental deploys."""
 
-load("@io_bazel_rules_docker//container:providers.bzl", "BundleInfo", "ImageInfo")
 load("@bazel_skylib//lib:shell.bzl", "shell")
 
 SNAPSHOTS_ATTRS = {
@@ -11,7 +10,7 @@ SNAPSHOTS_ATTRS = {
     ),
 }
 
-def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suffix = ".tracker.json"):
+def create_tracker_file(ctx, inputs, run = [], tags = [], suffix = ".tracker.json"):
     """Creates an output group with a tracker file.
 
     Equivalent to using
@@ -22,7 +21,6 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
         inputs: files to track
         run: targets to execute when digest changes
         tags: tags for the tracker
-        bundle_infos: BundleInfo objects to extract digests from
         suffix: suffix to add to label to create filename
     Returns:
         OutputGroupInfo with change_track_files.
@@ -34,18 +32,6 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
     args.add(tracker_file, format = "--out=%s")
     args.add_all(run, format_each = "--run=%s")
     args.add_all(tags, format_each = "--tag=%s")
-
-    for bundle_info in bundle_infos:
-        # Use the blobsum and manifest_digest (when present) of the Docker images in the bundle.
-        # The reason for using both is that the blobsum of some images isn't changing (e.g images created with container_run_and_commit or install_pkgs),
-        # and the manifest for other images (e.g go_image,...) is set to `{}`, which also doesn't trigger changes.
-        for _, data in bundle_info.container_images.items():
-            # images that come from container_pull without passing them through container_image
-            # do not have the manifest_digest field. Fallback to blobsum in that case.
-            if data["manifest_digest"] != None:
-                inputs.append(data["manifest_digest"])
-            inputs.extend(data["blobsum"])
-
     args.add_all(inputs)
 
     ctx.actions.run(
@@ -61,23 +47,8 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], bundle_infos = [], suf
 
 def _change_tracker_impl(ctx):
     track_files = []
-    bundle_infos = []
     for dep in ctx.attr.deps:
-        if BundleInfo in dep:
-            # Handle BundleInfos separately
-            bundle_infos.append(dep[BundleInfo])
-        elif ImageInfo in dep:
-            # When passing a container_image as a dependency, use the Docker manifest digest and the blobsum
-            # for tracking
-            # Images that come from container_pull without passing them through container_image
-            # do not have the manifest_digest field.
-            container_parts = dep[ImageInfo].container_parts
-            if container_parts["manifest_digest"] != None:
-                track_files.append(container_parts["manifest_digest"])
-            track_files.extend(container_parts["blobsum"])
-        else:
-            # Handle other targets by just adding all the files
-            track_files.extend(dep.files.to_list())
+        track_files.extend(dep.files.to_list())
 
     # unique track_files
     track_files = [x for i, x in enumerate(track_files) if i == track_files.index(x)]
@@ -88,7 +59,6 @@ def _change_tracker_impl(ctx):
             track_files,
             run = [target.label for target in ctx.attr.run],
             tags = ctx.attr.tracker_tags,
-            bundle_infos = bundle_infos,
             suffix = ".json",
         ),
     ]
@@ -165,7 +135,7 @@ def snapshots(name, **kwargs):
     _snapshots_runner(
         name = runner_name,
         tags = ["manual"],
-        **kwargs,
+        **kwargs
     )
     native.sh_binary(
         name = name,
