@@ -1,4 +1,4 @@
-load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "change_tracker", "snapshots")
+load("@com_cognitedata_bazel_snapshots//snapshots:defs.bzl", "change_tracker", "snapshots")
 
 # Output based change detection.
 #

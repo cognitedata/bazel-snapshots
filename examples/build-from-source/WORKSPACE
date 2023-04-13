@@ -35,13 +35,16 @@ local_repository(
     path = "../../",
 )
 
-load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
-
-snapshots_repos(from_source = True)
-
 load("@com_cognitedata_bazel_snapshots//:deps.bzl", "snapshots_deps")
 
 snapshots_deps()
+
+load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_register_toolchains")
+
+snapshots_register_toolchains(
+    name = "snapshots",
+    from_source = True,
+)
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
