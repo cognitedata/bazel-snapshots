@@ -56,7 +56,7 @@ def _snapshots_binaries(ctx):
 
     ctx.download(
         url,
-        output="snapshots-bin",
+        output = "snapshots-bin",
         sha256 = sha256,
         executable = True,
     )
@@ -75,7 +75,7 @@ snapshots_binaries = repository_rule(
         "from_source": attr.bool(),
         "urls": attr.string_list_dict(),
         "sha256s": attr.string_dict(),
-    }
+    },
 )
 
 def snapshots_repos(name = "snapshots", from_source = False, urls = URLS, sha256s = SHA256S):
@@ -92,7 +92,7 @@ def snapshots_repos(name = "snapshots", from_source = False, urls = URLS, sha256
         name = "{name}-bin".format(name = name),
         from_source = from_source,
         urls = urls,
-        sha256s = sha256s
+        sha256s = sha256s,
     )
 
     maybe(
@@ -103,13 +103,5 @@ def snapshots_repos(name = "snapshots", from_source = False, urls = URLS, sha256
             "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
         ],
         sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
-        strip_prefix = "",
-    )
-
-    maybe(
-        http_archive,
-        name = "io_bazel_rules_docker",
-        urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.25.0/rules_docker-v0.25.0.tar.gz"],
-        sha256 = "b1e80761a8a8243d03ebca8845e9cc1ba6c82ce7c5179ce2b295cd36f7e394bf",
         strip_prefix = "",
     )

@@ -32,8 +32,6 @@ load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
 snapshots_repos()
 ```
 
-_NOTE:_ If you're using [rules_docker](https://github.com/bazelbuild/rules_docker), put `snapshots_repos()` later in the `WORKSPACE` file to avoid overriding.
-
 Add the following to your _root_ `BUILD` file:
 
 ```
