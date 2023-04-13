@@ -86,11 +86,14 @@ snaptool_repositories = repository_rule(
     },
 )
 
-def snapshots_register_toolchains(name, from_source = True):
+def snapshots_register_toolchains(name, from_source = True, register = True):
     """Fetches the necessary repositories for bazel-snapshots.
 
     Args:
+      name: base name for all created repos, e.g. "snapshots"
       from_source: if True, will not fetch binaries and instead build the snapshots tool from source.
+      register: whether to call through to native.register_toolchains.
+          Should be True for WORKSPACE users, but false when used under bzlmod extension
     """
     snaptool_toolchain_name = "{name}_snaptool_toolchains".format(name = name)
 
@@ -99,7 +102,8 @@ def snapshots_register_toolchains(name, from_source = True):
         from_source = from_source,
     )
 
-    native.register_toolchains("@{repo}//:toolchain".format(repo = snaptool_toolchain_name))
+    if register:
+        native.register_toolchains("@{repo}//:toolchain".format(repo = snaptool_toolchain_name))
 
     toolchains_repo(
         name = snaptool_toolchain_name,

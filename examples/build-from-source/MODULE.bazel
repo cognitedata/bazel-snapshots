@@ -1,0 +1,8 @@
+module(name = "test", version = "0.0.0")
+
+bazel_dep(name = "com_cognitedata_bazel_snapshots", version = "0.0.0")
+local_path_override(
+    module_name = "com_cognitedata_bazel_snapshots",
+    path = "../..",
+)
+

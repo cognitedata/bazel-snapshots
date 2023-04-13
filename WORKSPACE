@@ -5,7 +5,7 @@ load(":internal_deps.bzl", "snapshots_internal_deps")
 # Fetch deps needed only locally for development
 snapshots_internal_deps()
 
-load("//snapshots:dependencies.bzl", "snapshots_dependencies")
+load("//snapshots:dependencies.bzl", "snapshots_deps")
 
 # Fetch our "runtime" dependencies which users need as well
 snapshots_deps()

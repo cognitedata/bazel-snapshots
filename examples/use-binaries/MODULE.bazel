@@ -1,0 +1,14 @@
+module(name = "test", version = "0.0.0")
+
+bazel_dep(name = "com_cognitedata_bazel_snapshots", version = "0.0.0")
+local_path_override(
+    module_name = "com_cognitedata_bazel_snapshots",
+    path = "../..",
+)
+
+snapshots = use_extension("@com_cognitedata_bazel_snapshots//snapshots:extensions.bzl", "snapshots")
+snapshots.toolchains(from_source = False)
+
+use_repo(snapshots, "snapshots_snaptool_toolchains")
+
+register_toolchains("@snapshots_snaptool_toolchains//:all")
