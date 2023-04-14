@@ -24,7 +24,7 @@ def _snapshots_extension(module_ctx):
         for toolchains in mod.tags.toolchains:
             if toolchains.name != "snapshots" and not mod.is_root:
                 fail("""\
-                Only the root module may override the default name for the oci toolchains.
+                Only the root module may override the default name for the snapshots toolchains.
                 This prevents conflicting registrations in the global namespace of external repos.
                 """)
 
