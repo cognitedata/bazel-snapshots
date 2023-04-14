@@ -1,6 +1,6 @@
 module(
     name = "com_cognitedata_bazel_snapshots",
-    version = "0.6.2"
+    version = "0.0.0"
 )
 
 bazel_dep(name = "rules_go", version = "0.39.0", repo_name = "io_bazel_rules_go")
