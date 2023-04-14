@@ -28,16 +28,15 @@ http_archive(
     url = "https://github.com/cognitedata/bazel-snapshots/releases/download/<VERSION>/snapshots-<VERSION>.tar",
 )
 
-load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
-snapshots_repos()
-```
+load("@com_cognitedata_bazel_snapshots//snapshots:repositories.bzl", "snapshots_repositories")
 
-_NOTE:_ If you're using [rules_docker](https://github.com/bazelbuild/rules_docker), put `snapshots_repos()` later in the `WORKSPACE` file to avoid overriding.
+snapshots_repositories()
+```
 
 Add the following to your _root_ `BUILD` file:
 
 ```
-load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snapshots")
+load("@com_cognitedata_bazel_snapshots//snapshots:defs.bzl", "snapshots")
 
 snapshots(name = "snapshots")
 ```

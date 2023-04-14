@@ -1,3 +1,7 @@
 bazel-*
 user.bazelrc
 .vscode
+
+# intellij
+.ijwb
+.idea

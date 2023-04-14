@@ -1,4 +1,4 @@
-load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snapshots")
+load("@com_cognitedata_bazel_snapshots//snapshots:defs.bzl", "snapshots")
 load("//rules/deployable-filegroup:deployable-filegroup.bzl", "deployable_filegroup")
 
 # Output based change detection.

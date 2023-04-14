@@ -1,0 +1,12 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+exports_files(["runner.tmpl.sh"])
+
+bzl_library(
+    name = "snapshots",
+    srcs = ["snapshots.bzl"],
+    visibility = ["//snapshots:__subpackages__"],
+    deps = [
+        "@bazel_skylib//lib:shell",
+    ],
+)

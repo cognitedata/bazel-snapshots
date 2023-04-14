@@ -2,14 +2,6 @@
 
 load("@bazel_skylib//lib:shell.bzl", "shell")
 
-SNAPSHOTS_ATTRS = {
-    "_snapshots": attr.label(
-        executable = True,
-        default = Label("@snapshots-bin//:snapshots"),
-        cfg = "exec",
-    ),
-}
-
 def create_tracker_file(ctx, inputs, run = [], tags = [], suffix = ".tracker.json"):
     """Creates an output group with a tracker file.
 
@@ -25,6 +17,7 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], suffix = ".tracker.jso
     Returns:
         OutputGroupInfo with change_track_files.
     """
+    snaptool = ctx.toolchains["@com_cognitedata_bazel_snapshots//snapshots:snaptool_toolchain_type"]
     tracker_file = ctx.actions.declare_file("{name}{suffix}".format(name = ctx.label.name, suffix = suffix))
 
     args = ctx.actions.args()
@@ -37,7 +30,7 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], suffix = ".tracker.jso
     ctx.actions.run(
         outputs = [tracker_file],
         inputs = inputs,
-        executable = ctx.executable._snapshots,
+        executable = snaptool.snaptool_info.binary,
         arguments = [args],
         progress_message = "Creating tracker",
         mnemonic = "ChangeTracker",
@@ -65,7 +58,7 @@ def _change_tracker_impl(ctx):
 
 _change_tracker = rule(
     implementation = _change_tracker_impl,
-    attrs = dict(SNAPSHOTS_ATTRS, **{
+    attrs = {
         "run": attr.label_list(
             doc = "List of executable targets to run when there are changes to deps",
         ),
@@ -73,7 +66,10 @@ _change_tracker = rule(
         "tracker_tags": attr.string_list(
             doc = "Tags for the tracker",
         ),
-    }),
+    },
+    toolchains = [
+        "@com_cognitedata_bazel_snapshots//snapshots:snaptool_toolchain_type",
+    ],
 )
 
 def change_tracker(name, **kwargs):
@@ -83,13 +79,15 @@ def change_tracker(name, **kwargs):
     )
 
 def _snapshots_runner_impl(ctx):
+    snaptool = ctx.toolchains["@com_cognitedata_bazel_snapshots//snapshots:snaptool_toolchain_type"]
+
     args = []
     args.extend(["--storage-url", ctx.attr.storage])
 
     out_file = ctx.actions.declare_file(ctx.label.name + ".bash")
     substitutions = {
         "@@ARGS@@": shell.array_literal(args),
-        "@@SNAPSHOTS@@": ctx.executable.snapshots.short_path,
+        "@@SNAPSHOTS@@": snaptool.snaptool_info.binary.short_path,
     }
     ctx.actions.expand_template(
         template = ctx.file._template,
@@ -98,10 +96,8 @@ def _snapshots_runner_impl(ctx):
         is_executable = True,
     )
     runfiles = ctx.runfiles(files = [
-        ctx.executable.snapshots,
-    ]).merge(
-        ctx.attr.snapshots[DefaultInfo].default_runfiles,
-    )
+        snaptool.snaptool_info.binary,
+    ]).merge(snaptool.default.default_runfiles)
     return [
         DefaultInfo(
             files = depset([out_file]),
@@ -113,20 +109,17 @@ def _snapshots_runner_impl(ctx):
 _snapshots_runner = rule(
     implementation = _snapshots_runner_impl,
     attrs = {
-        "snapshots": attr.label(
-            default = "@snapshots-bin//:snapshots",
-            cfg = "target",
-            executable = True,
-            allow_single_file = True,
-        ),
         "storage": attr.string(
             doc = "Full URL of the bucket",
         ),
         "_template": attr.label(
-            default = "//snapshots:runner.tmpl.sh",
+            default = "runner.tmpl.sh",
             allow_single_file = True,
         ),
     },
+    toolchains = [
+        "@com_cognitedata_bazel_snapshots//snapshots:snaptool_toolchain_type",
+    ],
     executable = True,
 )
 

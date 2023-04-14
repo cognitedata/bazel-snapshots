@@ -1,15 +1,21 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
-exports_files(["runner.tmpl.sh"])
+toolchain_type(
+    name = "snaptool_toolchain_type",
+    visibility = ["//visibility:public"],
+)
 
 bzl_library(
-    name = "snapshots_bzl",
-    srcs = [
-      "snapshots.bzl",
-    ],
+    name = "defs",
+    srcs = ["defs.bzl"],
     visibility = ["//visibility:public"],
     deps = [
-        "@bazel_skylib//lib:shell",
-        "@io_bazel_rules_docker//container:container.docs",
+        "//snapshots/private:snapshots",
     ],
+)
+
+bzl_library(
+    name = "toolchain",
+    srcs = ["toolchain.bzl"],
+    visibility = ["//visibility:public"],
 )
