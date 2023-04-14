@@ -18,7 +18,7 @@ jobs:
       - name: Build
         run: |
           bazel build //...
-      
+
       - name: Test
         run: |
           bazel test //...
@@ -31,4 +31,7 @@ jobs:
           for f in $EXAMPLES; do
             echo "Running example $f"
             (cd "$f" && bazel run snapshots -- collect)
+
+            echo "Running example $f (with bzlmod enabled)"
+            (cd "$f" && bazel run --enable_bzlmod snapshots -- collect)
           done

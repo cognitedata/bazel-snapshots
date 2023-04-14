@@ -1,5 +1,4 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 # gazelle:prefix github.com/cognitedata/bazel-snapshots
 # gazelle:proto disable_global
@@ -11,29 +10,9 @@ gazelle(
     name = "gazelle-update-repos",
     args = [
         "-from_file=go.mod",
-        "-to_macro=deps.bzl%go_dependencies",
+        "-to_macro=snapshots/dependencies.bzl%go_dependencies",
         "-build_file_proto_mode=disable_global",
         "-prune",
     ],
     command = "update-repos",
-)
-
-bzl_library(
-    name = "dependencies",
-    srcs = ["deps.bzl"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "@bazel_tools//tools/build_defs/repo:http.bzl",
-        "@bazel_tools//tools/build_defs/repo:utils.bzl",
-    ],
-)
-
-bzl_library(
-    name = "repositories",
-    srcs = ["repo.bzl"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "@bazel_tools//tools/build_defs/repo:http.bzl",
-        "@bazel_tools//tools/build_defs/repo:utils.bzl",
-    ],
 )

@@ -23,7 +23,12 @@ http_archive(
     url = "https://github.com/cognitedata/bazel-snapshots/releases/download/${TAG}/snapshots-${TAG}.tar",
 )
 
-load("@com_cognitedata_bazel_snapshots//:repo.bzl", "snapshots_repos")
-snapshots_repos()
+load("@com_cognitedata_bazel_snapshots//snapshots:dependencies.bzl", "snapshots_dependencies")
+
+snapshots_dependencies()
+
+load("@com_cognitedata_bazel_snapshots//snapshots:repositories.bzl", "snapshots_register_toolchains")
+
+snapshots_register_toolchains()
 \`\`\`
 EOF
