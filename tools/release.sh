@@ -19,7 +19,7 @@ OUT_DIR="$3"
 
 TARGETS=("darwin-amd64" "darwin-arm64" "linux-amd64" "linux-arm64")
 
-mkdir -p "$OUT_DIR"
+mkdir -p "$OUT_DIR/snapshots"
 
 cp "$BUILD_WORKSPACE_DIRECTORY/snapshots/repositories.bzl" "$OUT_DIR/snapshots/repositories.bzl"
 
