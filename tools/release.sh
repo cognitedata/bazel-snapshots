@@ -19,12 +19,13 @@ OUT_DIR="$3"
 
 TARGETS=("darwin-amd64" "darwin-arm64" "linux-amd64" "linux-arm64")
 
+mkdir -p "$OUT_DIR/docker"
 mkdir -p "$OUT_DIR/snapshots"
 
 cp "$BUILD_WORKSPACE_DIRECTORY/snapshots/repositories.bzl" "$OUT_DIR/snapshots/repositories.bzl"
 
 # create an archive with the relevant files
-tar -cf "$OUT_DIR/snapshots-$VERSION.tar" -C "$BUILD_WORKSPACE_DIRECTORY" snapshots snapshots/dependencies.bzl BUILD.bazel WORKSPACE README.md LICENSE
+tar -cf "$OUT_DIR/snapshots-$VERSION.tar" -C "$BUILD_WORKSPACE_DIRECTORY" docker snapshots snapshots/dependencies.bzl BUILD.bazel WORKSPACE README.md LICENSE
 
 for t in "${TARGETS[@]}";
 do

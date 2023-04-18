@@ -86,7 +86,7 @@ snaptool_repositories = repository_rule(
     },
 )
 
-def snapshots_register_toolchains(name, from_source = True, register = True):
+def snapshots_register_toolchains(name = "snapshots", from_source = True, register = True):
     """Fetches the necessary repositories for bazel-snapshots.
 
     Args:
