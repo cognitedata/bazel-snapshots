@@ -22,6 +22,7 @@ type collectCmd struct {
 	bazelQueryExpression   string
 	bazelRcPath            string
 	bazelStderr            bool
+	buildEventsPath        string
 	outPath                string
 	noPrint                bool
 	workspacePath          string
@@ -55,6 +56,7 @@ func newCollectCmd() *collectCmd {
 	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel_cache_grpc_insecure", false, "use insecure connection for grpc bazel cache")
 	cmd.PersistentFlags().StringArrayVar(&cc.bazelCacheGrpcMetadata, "bazel_cache_grpc_metadata", []string{}, "add metadata to connection for grpc bazel cache")
 	cmd.PersistentFlags().StringVar(&cc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
+	cmd.PersistentFlags().StringVar(&cc.buildEventsPath, "build_event_json_file", "", "a bazel build event json file")
 	cmd.PersistentFlags().BoolVar(&cc.bazelStderr, "bazel-stderr", false, "show stderr from bazel")
 	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")
 	cmd.PersistentFlags().BoolVar(&cc.noPrint, "no-print", false, "don't print if not writing to file")
@@ -119,6 +121,7 @@ func (cc *collectCmd) runCollect(cmd *cobra.Command, args []string) error {
 		BazelRcPath:            cc.bazelRcPath,
 		BazelWorkspacePath:     cc.workspacePath,
 		BazelWriteStderr:       cc.bazelStderr,
+		BazelBuildEventsPath:   cc.buildEventsPath,
 		OutPath:                cc.outPath,
 		NoPrint:                cc.noPrint,
 	}
