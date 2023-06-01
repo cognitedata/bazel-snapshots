@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/bazelbuild/rules_go v0.39.1
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/spf13/cobra v1.6.1
+	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
@@ -31,7 +31,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.1 // indirect
-	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kevinburke/go-bindata v3.22.0+incompatible // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
