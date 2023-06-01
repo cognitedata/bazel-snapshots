@@ -9,8 +9,9 @@ require (
 	github.com/stretchr/testify v1.8.2
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
-	google.golang.org/genproto v0.0.0-20230327215041-6ac7f18bb9d5
-	google.golang.org/grpc v1.54.0
+	google.golang.org/genproto v0.0.0-20230530153820-e85fd2cbaebc
+	google.golang.org/genproto/googleapis/bytestream v0.0.0-20230530153820-e85fd2cbaebc
+	google.golang.org/grpc v1.55.0
 )
 
 require (
@@ -52,6 +53,8 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.114.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20230526203410-71b5a4ffd15e // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230526203410-71b5a4ffd15e // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
