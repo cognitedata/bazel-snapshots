@@ -3,7 +3,6 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 # gazelle:prefix github.com/cognitedata/bazel-snapshots
 # gazelle:proto disable_global
 # gazelle:resolve go google.golang.org/genproto/googleapis/rpc/code @go_googleapis//google/rpc:code_go_proto
-# gazelle:resolve go google.golang.org/genproto/googleapis/api/annotations @go_googleapis//google/api:annotations_go_proto
 gazelle(name = "gazelle")
 
 gazelle(
