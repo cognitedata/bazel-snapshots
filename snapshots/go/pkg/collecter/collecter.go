@@ -52,11 +52,10 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 	ctx := context.Background()
 	bcache := cache.NewDefaultDelegatingCache()
 
-	// build digests, get the build events
-	log.Printf("collecting digests from %s", args.BazelExpression)
-	bazelArgs := []string{args.BazelExpression, "--output_groups=change_track_files"}
-
 	if args.BazelBuildEventsPath != "" {
+  // get digests from file
+	 log.Printf("collecting digests from %s", args.BazelBuildEventsPath)
+
 		f, err := os.Open(args.BazelBuildEventsPath)
 		if err != nil {
 			return nil, err
@@ -68,6 +67,10 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 		buildEvents = events
 	} else {
 		bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
+
+	 // build digests, get the build events
+	 log.Printf("collecting digests from %s", args.BazelExpression)
+	 bazelArgs := []string{args.BazelExpression, "--output_groups=change_track_files"}
 
 		events, err := bazelc.BuildEventOutput(ctx, args.BazelRcPath, bazelArgs...)
 		if err != nil {
