@@ -63,6 +63,10 @@ func (c *Client) BuildEventOutput(ctx context.Context, bazelrc string, args ...s
 		return nil, fmt.Errorf("failed to build: %w", err)
 	}
 
+	return ParseBuildEventsFile(f)
+}
+
+func ParseBuildEventsFile(f *os.File) ([]BuildEventOutput, error) {
 	buildEvents := make([]BuildEventOutput, 0)
 	reader := bufio.NewReader(f)
 

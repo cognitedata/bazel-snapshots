@@ -25,6 +25,7 @@ type diffCmd struct {
 	bazelQueryExpression   string
 	bazelRcPath            string
 	bazelStderr            bool
+	buildEventsPath        string
 	outPath                string
 	noPrint                bool
 	workspacePath          string
@@ -65,6 +66,7 @@ names.`,
 	cmd.PersistentFlags().BoolVar(&dc.bazelCacheGrpcInsecure, "bazel_cache_grpc_insecure", false, "use insecure connection for grpc bazel cache")
 	cmd.PersistentFlags().StringArrayVar(&dc.bazelCacheGrpcMetadata, "bazel_cache_grpc_metadata", []string{}, "add metadata to connection for grpc bazel cache")
 	cmd.PersistentFlags().StringVar(&dc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
+	cmd.PersistentFlags().StringVar(&dc.buildEventsPath, "build_event_json_file", "", "a bazel build event json file")
 	cmd.PersistentFlags().BoolVar(&dc.bazelStderr, "bazel_stderr", false, "show stderr from bazel")
 	cmd.PersistentFlags().Var(&dc.outputFormat, "format", "output format")
 	cmd.PersistentFlags().StringVar(&dc.outPath, "out", "", "output file path")
@@ -165,6 +167,7 @@ func (dc *diffCmd) runDiff(cmd *cobra.Command, args []string) error {
 		BazelRcPath:            dc.bazelRcPath,
 		BazelWorkspacePath:     dc.workspacePath,
 		BazelWriteStderr:       dc.bazelStderr,
+		BuildEventsPath:        dc.buildEventsPath,
 		OutPath:                dc.outPath,
 		NoPrint:                dc.noPrint,
 		FromSnapshot:           dc.fromSnapshot,

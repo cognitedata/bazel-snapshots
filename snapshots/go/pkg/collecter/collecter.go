@@ -32,6 +32,7 @@ type CollectArgs struct {
 	BazelRcPath            string
 	BazelWorkspacePath     string
 	BazelWriteStderr       bool
+	BazelBuildEventsPath   string
 	OutPath                string
 	NoPrint                bool
 }
@@ -47,18 +48,34 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 		bstderr = os.Stderr
 	}
 
+	var buildEvents []bazel.BuildEventOutput
 	ctx := context.Background()
-	bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
 	bcache := cache.NewDefaultDelegatingCache()
 
 	// build digests, get the build events
 	log.Printf("collecting digests from %s", args.BazelExpression)
 	bazelArgs := []string{args.BazelExpression, "--output_groups=change_track_files"}
 
-	buildEvents, err := bazelc.BuildEventOutput(ctx, args.BazelRcPath, bazelArgs...)
-	if err != nil {
-		return nil, err
+	if args.BazelBuildEventsPath != "" {
+		f, err := os.Open(args.BazelBuildEventsPath)
+		if err != nil {
+			return nil, err
+		}
+		events, err := bazel.ParseBuildEventsFile(f)
+		if err != nil {
+			return nil, err
+		}
+		buildEvents = events
+	} else {
+		bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
+
+		events, err := bazelc.BuildEventOutput(ctx, args.BazelRcPath, bazelArgs...)
+		if err != nil {
+			return nil, err
+		}
+		buildEvents = events
 	}
+
 	log.Printf("got %d build events", len(buildEvents))
 
 	// create a map from label to file
