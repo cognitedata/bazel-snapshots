@@ -26,6 +26,7 @@ type diffCmd struct {
 	bazelRcPath            string
 	bazelStderr            bool
 	buildEventsPath        string
+	credentialHelper       string
 	outPath                string
 	noPrint                bool
 	workspacePath          string
@@ -68,6 +69,7 @@ names.`,
 	cmd.PersistentFlags().StringVar(&dc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
 	cmd.PersistentFlags().StringVar(&dc.buildEventsPath, "build_event_json_file", "", "a bazel build event json file")
 	cmd.PersistentFlags().BoolVar(&dc.bazelStderr, "bazel_stderr", false, "show stderr from bazel")
+	cmd.PersistentFlags().StringVar(&dc.credentialHelper, "credential_helper", "", "path to a credential helper, relative to workspace-path")
 	cmd.PersistentFlags().Var(&dc.outputFormat, "format", "output format")
 	cmd.PersistentFlags().StringVar(&dc.outPath, "out", "", "output file path")
 	cmd.PersistentFlags().BoolVar(&dc.noPrint, "no-print", false, "don't print if not writing to file")
@@ -168,6 +170,7 @@ func (dc *diffCmd) runDiff(cmd *cobra.Command, args []string) error {
 		BazelWorkspacePath:     dc.workspacePath,
 		BazelWriteStderr:       dc.bazelStderr,
 		BuildEventsPath:        dc.buildEventsPath,
+		CredentialHelper:       exec.Cmd{Path: dc.credentialHelper, Dir: dc.workspacePath},
 		OutPath:                dc.outPath,
 		NoPrint:                dc.noPrint,
 		FromSnapshot:           dc.fromSnapshot,
