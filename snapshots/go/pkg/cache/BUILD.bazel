@@ -4,6 +4,7 @@ go_library(
     name = "cache",
     srcs = [
         "cache.go",
+        "credential_helper.go",
         "grpc_client.go",
     ],
     importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/cache",

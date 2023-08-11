@@ -23,6 +23,7 @@ type collectCmd struct {
 	bazelRcPath            string
 	bazelStderr            bool
 	buildEventsPath        string
+	credentialHelper       string
 	outPath                string
 	noPrint                bool
 	workspacePath          string
@@ -58,6 +59,7 @@ func newCollectCmd() *collectCmd {
 	cmd.PersistentFlags().StringVar(&cc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
 	cmd.PersistentFlags().StringVar(&cc.buildEventsPath, "build_event_json_file", "", "a bazel build event json file")
 	cmd.PersistentFlags().BoolVar(&cc.bazelStderr, "bazel-stderr", false, "show stderr from bazel")
+	cmd.PersistentFlags().StringVar(&cc.credentialHelper, "credential_helper", "", "path to a credential helper, relative to workspace-path")
 	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")
 	cmd.PersistentFlags().BoolVar(&cc.noPrint, "no-print", false, "don't print if not writing to file")
 
@@ -122,6 +124,7 @@ func (cc *collectCmd) runCollect(cmd *cobra.Command, args []string) error {
 		BazelWorkspacePath:     cc.workspacePath,
 		BazelWriteStderr:       cc.bazelStderr,
 		BazelBuildEventsPath:   cc.buildEventsPath,
+		CredentialHelper:       exec.Cmd{Path: cc.credentialHelper, Dir: cc.workspacePath},
 		OutPath:                cc.outPath,
 		NoPrint:                cc.noPrint,
 	}

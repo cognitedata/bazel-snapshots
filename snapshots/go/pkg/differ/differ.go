@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os/exec"
 	"sort"
 	"strings"
 
@@ -29,6 +30,7 @@ type DiffArgs struct {
 	BazelWorkspacePath     string
 	BazelWriteStderr       bool
 	BuildEventsPath        string
+	CredentialHelper       exec.Cmd
 	OutPath                string
 	NoPrint                bool
 	FromSnapshot           *models.Snapshot
@@ -47,6 +49,7 @@ func (*differ) Diff(args *DiffArgs) ([]models.TrackerChange, error) {
 			BazelWorkspacePath:     args.BazelWorkspacePath,
 			BazelWriteStderr:       args.BazelWriteStderr,
 			BazelBuildEventsPath:   args.BuildEventsPath,
+			CredentialHelper:       args.CredentialHelper,
 			OutPath:                args.OutPath,
 			NoPrint:                args.NoPrint,
 		}
