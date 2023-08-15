@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
-	"os/exec"
 	"strings"
 
 	"google.golang.org/genproto/googleapis/bytestream"
@@ -36,14 +35,14 @@ type DelegatingBazelCache struct {
 	caches map[string]BazelCache
 }
 
-func NewDefaultDelegatingCache(credentialHelper *exec.Cmd, dialOptions ...grpc.DialOption) BazelCache {
+func NewDefaultDelegatingCache(credentials string, dialOptions ...grpc.DialOption) BazelCache {
 	return &DelegatingBazelCache{
 		caches: map[string]BazelCache{
 			"file": &FileBazelCache{},
 			"bytestream": &RemoteBazelCache{
-				clients:          make(map[string]bytestream.ByteStreamClient),
-				credentialHelper: NewCredentialHelper(credentialHelper),
-				DialOptions:      dialOptions,
+				clients:     make(map[string]bytestream.ByteStreamClient),
+				credentials: credentials,
+				DialOptions: dialOptions,
 			},
 		},
 	}
@@ -88,9 +87,9 @@ func (c *FileBazelCache) Read(ctx context.Context, secure bool, uri string) ([]b
 
 // RemoteBazelCache provides access to cached items with 'bytestream://' uris.
 type RemoteBazelCache struct {
-	clients          map[string]bytestream.ByteStreamClient
-	credentialHelper *CredentialHelper
-	DialOptions      []grpc.DialOption
+	clients     map[string]bytestream.ByteStreamClient
+	credentials string
+	DialOptions []grpc.DialOption
 }
 
 func (c *RemoteBazelCache) Read(ctx context.Context, secure bool, uri string) ([]byte, error) {
@@ -102,7 +101,7 @@ func (c *RemoteBazelCache) Read(ctx context.Context, secure bool, uri string) ([
 	// obtain a client
 	client, ok := c.clients[u.Host]
 	if !ok {
-		conn, err := DialTargetWithOptions(uri, secure, c.credentialHelper, c.DialOptions...)
+		conn, err := DialTargetWithOptions(uri, secure, c.credentials, c.DialOptions...)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dial host %s: %w", u.Host, err)
 		}

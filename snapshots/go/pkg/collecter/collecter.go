@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
 
 	"google.golang.org/grpc/metadata"
@@ -34,7 +33,7 @@ type CollectArgs struct {
 	BazelWorkspacePath     string
 	BazelWriteStderr       bool
 	BazelBuildEventsPath   string
-	CredentialHelper       exec.Cmd
+	CredentialHelper       string
 	OutPath                string
 	NoPrint                bool
 }
@@ -52,7 +51,17 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 
 	var buildEvents []bazel.BuildEventOutput
 	ctx := context.Background()
-	bcache := cache.NewDefaultDelegatingCache(&args.CredentialHelper)
+
+	var credential string
+	if args.CredentialHelper != "" {
+		creds, err := getAuthorization(args.CredentialHelper, args.BazelWorkspacePath)
+		if err != nil {
+			return nil, fmt.Errorf("error getting credentials: %w", err)
+		}
+		credential = creds[0]
+	}
+
+	bcache := cache.NewDefaultDelegatingCache(credential)
 
 	// build digests, get the build events
 	log.Printf("collecting digests from %s", args.BazelExpression)

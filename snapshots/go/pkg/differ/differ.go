@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os/exec"
 	"sort"
 	"strings"
 
@@ -30,7 +29,7 @@ type DiffArgs struct {
 	BazelWorkspacePath     string
 	BazelWriteStderr       bool
 	BuildEventsPath        string
-	CredentialHelper       exec.Cmd
+	CredentialHelper       string
 	OutPath                string
 	NoPrint                bool
 	FromSnapshot           *models.Snapshot

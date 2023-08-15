@@ -15,11 +15,11 @@ import (
 	"google.golang.org/grpc/keepalive"
 )
 
-func DialTarget(target string, credentialHelper *CredentialHelper) (*grpc.ClientConn, error) {
-	return DialTargetWithOptions(target, true, credentialHelper)
+func DialTarget(target string, credentials string) (*grpc.ClientConn, error) {
+	return DialTargetWithOptions(target, true, credentials)
 }
 
-func DialTargetWithOptions(target string, grpcsBytestream bool, credentialHelper *CredentialHelper, extraOptions ...grpc.DialOption) (*grpc.ClientConn, error) {
+func DialTargetWithOptions(target string, grpcsBytestream bool, credentials string, extraOptions ...grpc.DialOption) (*grpc.ClientConn, error) {
 	dialOptions := CommonGRPCClientOptions()
 	dialOptions = append(dialOptions, extraOptions...)
 
@@ -30,13 +30,8 @@ func DialTargetWithOptions(target string, grpcsBytestream bool, credentialHelper
 		}
 
 		// Only get user credentials if no credential helper is provided
-		if credentialHelper != nil {
-			credentials, err := credentialHelper.GetAuthorization()
-			if err != nil {
-				return nil, err
-			}
-
-			dialOptions = append(dialOptions, grpc.WithPerRPCCredentials(newRPCCredentials(credentials[0])))
+		if len(credentials) != 0 {
+			dialOptions = append(dialOptions, grpc.WithPerRPCCredentials(newRPCCredentials(credentials)))
 		} else if u.User != nil {
 			dialOptions = append(dialOptions, grpc.WithPerRPCCredentials(newRPCCredentials(u.User.String())))
 		}
