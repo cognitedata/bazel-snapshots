@@ -1,6 +1,6 @@
 /* Copyright 2022 Cognite AS */
 
-package cache
+package collecter
 
 import (
 	"encoding/json"
@@ -8,27 +8,20 @@ import (
 	"os/exec"
 )
 
-type CredentialHelper struct {
-	Cmd *exec.Cmd
-}
-
 type Credentials struct {
 	Headers struct {
 		Authorization []string `json:"Authorization"`
 	} `json:"headers"`
 }
 
-func NewCredentialHelper(cmd *exec.Cmd) *CredentialHelper {
-	return &CredentialHelper{Cmd: cmd}
-}
-
-func (ch *CredentialHelper) GetAuthorization() ([]string, error) {
-	// Having no credential helper isn't an error
-	if ch.Cmd == nil || ch.Cmd.Path == "" {
+func getAuthorization(credentialHelper, workspacePath string) ([]string, error) {
+	if credentialHelper == "" {
 		return nil, nil
 	}
 
-	headers, err := ch.Cmd.Output()
+	cmd := exec.Cmd{Path: credentialHelper, Dir: workspacePath}
+
+	headers, err := cmd.Output()
 	if err != nil {
 		return nil, err
 	}
@@ -36,6 +29,10 @@ func (ch *CredentialHelper) GetAuthorization() ([]string, error) {
 	credentials := &Credentials{}
 	if err := json.Unmarshal(headers, &credentials); err != nil {
 		return nil, fmt.Errorf("invalid headers %s: %w", headers, err)
+	}
+
+	if len(credentials.Headers.Authorization) == 0 {
+		return nil, fmt.Errorf("empty authorization header")
 	}
 
 	return credentials.Headers.Authorization, nil

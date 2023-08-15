@@ -124,7 +124,7 @@ func (cc *collectCmd) runCollect(cmd *cobra.Command, args []string) error {
 		BazelWorkspacePath:     cc.workspacePath,
 		BazelWriteStderr:       cc.bazelStderr,
 		BazelBuildEventsPath:   cc.buildEventsPath,
-		CredentialHelper:       exec.Cmd{Path: cc.credentialHelper, Dir: cc.workspacePath},
+		CredentialHelper:       cc.credentialHelper,
 		OutPath:                cc.outPath,
 		NoPrint:                cc.noPrint,
 	}

@@ -170,7 +170,7 @@ func (dc *diffCmd) runDiff(cmd *cobra.Command, args []string) error {
 		BazelWorkspacePath:     dc.workspacePath,
 		BazelWriteStderr:       dc.bazelStderr,
 		BuildEventsPath:        dc.buildEventsPath,
-		CredentialHelper:       exec.Cmd{Path: dc.credentialHelper, Dir: dc.workspacePath},
+		CredentialHelper:       dc.credentialHelper,
 		OutPath:                dc.outPath,
 		NoPrint:                dc.noPrint,
 		FromSnapshot:           dc.fromSnapshot,

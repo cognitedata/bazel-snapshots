@@ -2,7 +2,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "collecter",
-    srcs = ["collecter.go"],
+    srcs = [
+        "collecter.go",
+        "credential_helper.go",
+    ],
     importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/collecter",
     visibility = ["//visibility:public"],
     deps = [
