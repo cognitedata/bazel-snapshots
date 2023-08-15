@@ -24,7 +24,7 @@ func NewCredentialHelper(cmd *exec.Cmd) *CredentialHelper {
 
 func (ch *CredentialHelper) GetAuthorization() ([]string, error) {
 	// Having no credential helper isn't an error
-	if ch.Cmd == nil {
+	if ch.Cmd == nil || ch.Cmd.Path == "" {
 		return nil, nil
 	}
 
