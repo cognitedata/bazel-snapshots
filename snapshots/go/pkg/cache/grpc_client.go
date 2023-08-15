@@ -36,7 +36,9 @@ func DialTargetWithOptions(target string, grpcsBytestream bool, credentialHelper
 				return nil, err
 			}
 
-			dialOptions = append(dialOptions, grpc.WithPerRPCCredentials(newRPCCredentials(credentials[0])))
+			if len(credentials) > 0 {
+				dialOptions = append(dialOptions, grpc.WithPerRPCCredentials(newRPCCredentials(credentials[0])))
+			}
 		} else if u.User != nil {
 			dialOptions = append(dialOptions, grpc.WithPerRPCCredentials(newRPCCredentials(u.User.String())))
 		}
