@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
-	"os/exec"
 	"strings"
 
 	"google.golang.org/genproto/googleapis/bytestream"
