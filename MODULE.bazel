@@ -12,12 +12,12 @@ go_deps.from_file(go_mod = "//:go.mod")
 
 use_repo(
     go_deps,
-    "org_golang_google_genproto_googleapis_bytestream",
     "com_github_olekukonko_tablewriter",
     "com_github_spf13_cobra",
     "com_github_stretchr_testify",
     "io_beyondstorage_go_services_gcs_v3",
     "io_beyondstorage_go_v5",
+    "org_golang_google_genproto_googleapis_bytestream",
     "org_golang_google_grpc",
 )
 
