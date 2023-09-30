@@ -25,7 +25,7 @@ mkdir -p "$OUT_DIR/snapshots"
 cp "$BUILD_WORKSPACE_DIRECTORY/snapshots/repositories.bzl" "$OUT_DIR/snapshots/repositories.bzl"
 
 # create an archive with the relevant files
-tar -cf "$OUT_DIR/snapshots-$VERSION.tar" -C "$BUILD_WORKSPACE_DIRECTORY" docker snapshots snapshots/dependencies.bzl BUILD.bazel WORKSPACE README.md LICENSE
+tar -cf "$OUT_DIR/snapshots-$VERSION.tar" -C "$BUILD_WORKSPACE_DIRECTORY" docker snapshots snapshots/dependencies.bzl BUILD.bazel MODULE.bazel WORKSPACE WORKSPACE.bzlmod README.md LICENSE
 
 for t in "${TARGETS[@]}";
 do
