@@ -19,7 +19,12 @@ jobs:
         run: |
           bazel run //:gazelle-update-repos
           bazel run //:gazelle_check
-          git diff --exit-code snapshots/dependencies.bzl
+          if git diff --exit-code snapshots/dependencies.bzl ; then
+              echo "Gazelle repos are up to date."
+          else
+              echo "Gazelle repos aren't up to date. Run `bazel run //:gazelle-update-repos` locally, and commit the changes."
+              exit 1
+          fi
 
       - name: Build
         run: |
