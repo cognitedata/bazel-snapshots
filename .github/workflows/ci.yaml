@@ -15,6 +15,12 @@ jobs:
           path: "/home/runner/.cache/bazel"
           key: bazel
 
+      - name: Gazelle
+        run: |
+          bazel run //:gazelle-update-repos_check
+          bazel run //:gazelle_check
+          git diff --exit-code snapshots/dependencies.bzl
+
       - name: Build
         run: |
           bazel build //...

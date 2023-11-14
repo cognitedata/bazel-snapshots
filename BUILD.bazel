@@ -4,6 +4,16 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 # gazelle:proto disable_global
 gazelle(name = "gazelle")
 
+# Gazelle check: exits with 1 if gazelle wants to make changes.
+#
+# Usage:
+#   bazel run gazelle_check
+gazelle(
+    name = "gazelle_check",
+    command = "update",
+    extra_args = ["-mode=diff"],
+)
+
 gazelle(
     name = "gazelle-update-repos",
     args = [
