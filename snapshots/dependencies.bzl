@@ -48,7 +48,7 @@ def go_dependencies():
         build_file_proto_mode = "disable_global",
         importpath = "honnef.co/go/tools",
         sum = "h1:UoveltGrhghAA7ePc+e+QYDHXrBps2PqFZiHkGR/xK8=",
-        version = "v0.0.1-2020.1.4",
+        #version = "v0.0.1-2020.1.4",
     )
     go_repository(
         name = "com_github_antihax_optional",
