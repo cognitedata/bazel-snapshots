@@ -9,11 +9,7 @@ jobs:
     steps:
       # Hack to gain some free space https://github.com/marketplace/actions/maximize-build-disk-space
       - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 512
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
+        uses: easimon/maximize-build-space@v8
 
       - uses: actions/checkout@v4
 
