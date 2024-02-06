@@ -5,3 +5,5 @@ user.bazelrc
 # intellij
 .ijwb
 .idea
+
+MODULE.bazel.lock
