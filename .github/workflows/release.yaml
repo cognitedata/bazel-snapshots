@@ -35,7 +35,7 @@ jobs:
 
       - name: Prepare import snippets
         run: |
-          bash .github/scripts/import-snippets.sh ${{ env.outputDir }}/${{ env.sourceTarName }} > release-notes.txt
+          bash .github/scripts/import_snippets.sh ${{ env.outputDir }}/${{ env.sourceTarName }} > release-notes.txt
 
       - name: Release
         uses: softprops/action-gh-release@v1
