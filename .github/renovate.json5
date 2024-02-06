@@ -11,6 +11,14 @@
         "digest"
       ],
       "automerge": true
-    }
+    },
+    {
+      matchPackagePatterns: ["gazelle"],
+      groupName: "gazelle",
+    },
+    {
+      matchPackagePatterns: ["rules_go"],
+      groupName: "rules_go",
+    },
   ]
 }
