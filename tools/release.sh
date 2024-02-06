@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 display_usage() {
-	echo -e "\nUsage: ./release.sh [repository_url] [version] [output_path] \n"
+	echo -e "\nUsage: ./release.sh [repository_url] [tag] [output_path] \n"
 }
 
 # if less than three arguments supplied, display usage
@@ -14,7 +14,7 @@ fi
 set -e
 
 REPOSITORY="$1"
-VERSION="$2"
+TAG="$2"
 OUT_DIR="$3"
 
 TARGETS=("darwin-amd64" "darwin-arm64" "linux-amd64" "linux-arm64")
@@ -24,8 +24,11 @@ mkdir -p "$OUT_DIR/snapshots"
 
 cp "$BUILD_WORKSPACE_DIRECTORY/snapshots/repositories.bzl" "$OUT_DIR/snapshots/repositories.bzl"
 
+VERSION=${TAG//v/}
+sed -i "3s/version = .*/version = \"$VERSION\"/g" MODULE.bazel
+
 # create an archive with the relevant files
-tar -cf "$OUT_DIR/snapshots-$VERSION.tar" -C "$BUILD_WORKSPACE_DIRECTORY" docker snapshots snapshots/dependencies.bzl BUILD.bazel MODULE.bazel WORKSPACE WORKSPACE.bzlmod README.md LICENSE
+tar -cf "$OUT_DIR/snapshots-$TAG.tar" -C "$BUILD_WORKSPACE_DIRECTORY" go.mod go.sum docker snapshots snapshots/dependencies.bzl BUILD.bazel MODULE.bazel WORKSPACE WORKSPACE.bzlmod README.md LICENSE
 
 for t in "${TARGETS[@]}";
 do
@@ -49,7 +52,7 @@ do
     sed -i_bak "s,$PLACEHOLDER_SHA,$FILE_SHA256,g" "$OUT_DIR/snapshots/repositories.bzl"
 
     # build download url
-    FILE_URL="$REPOSITORY/releases/download/$VERSION/$FILENAME"
+    FILE_URL="$REPOSITORY/releases/download/$TAG/$FILENAME"
     PLACEHOLDER_URL="${PLACEHOLDER}_URL"
 
     # replace urls in snapshots/repositories.bzl
@@ -59,7 +62,7 @@ do
 done
 
 # add to the archive
-tar --append -C "$OUT_DIR" --file="$OUT_DIR/snapshots-$VERSION.tar" "snapshots/repositories.bzl"
+tar --append -C "$OUT_DIR" --file="$OUT_DIR/snapshots-$TAG.tar" "snapshots/repositories.bzl"
 
 # create sha file for archive
-(cd "$OUT_DIR" ; shasum -a 256 "snapshots-$VERSION.tar" > "snapshots-$VERSION.tar.sha256")
+(cd "$OUT_DIR" ; shasum -a 256 "snapshots-$TAG.tar" > "snapshots-$TAG.tar.sha256")
