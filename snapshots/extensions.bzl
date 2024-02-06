@@ -1,4 +1,3 @@
-load("@com_cognitedata_bazel_snapshots//snapshots:dependencies.bzl", "go_dependencies")
 load("@com_cognitedata_bazel_snapshots//snapshots:repositories.bzl", "snapshots_register_toolchains")
 
 toolchains = tag_class(attrs = {
@@ -17,8 +16,6 @@ toolchains = tag_class(attrs = {
 
 # buildifier: disable=unused-variable
 def _snapshots_extension(module_ctx):
-    go_dependencies()
-
     registrations = {}
     for mod in module_ctx.modules:
         for toolchains in mod.tags.toolchains:

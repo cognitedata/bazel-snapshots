@@ -2,6 +2,4 @@
 build --verbose_failures
 test --test_output=errors
 
-common --enable_bzlmod
-
 try-import %workspace%/user.bazelrc
