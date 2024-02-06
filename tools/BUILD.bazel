@@ -1,5 +1,3 @@
-load("//tools:snaptool_toolchain.bzl", "snaptool_toolchain")
-
 toolchain_type(
     name = "toolchain_type",
     visibility = ["//visibility:public"],
