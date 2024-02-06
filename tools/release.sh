@@ -25,7 +25,7 @@ mkdir -p "$OUT_DIR/snapshots"
 cp "$BUILD_WORKSPACE_DIRECTORY/snapshots/repositories.bzl" "$OUT_DIR/snapshots/repositories.bzl"
 
 VERSION=${TAG//v/}
-sed -i "3s/version = .*/version = \"$VERSION\",/g" MODULE.bazel
+sed -i "3s/version = .*/version = \"$VERSION\",/g" "$BUILD_WORKSPACE_DIRECTORY"/MODULE.bazel
 
 # create an archive with the relevant files
 tar -cf "$OUT_DIR/snapshots-$TAG.tar" -C "$BUILD_WORKSPACE_DIRECTORY" go.mod go.sum docker snapshots snapshots/dependencies.bzl BUILD.bazel MODULE.bazel WORKSPACE WORKSPACE.bzlmod README.md LICENSE
