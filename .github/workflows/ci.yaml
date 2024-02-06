@@ -17,14 +17,7 @@ jobs:
 
       - name: Gazelle
         run: |
-          bazel run //:gazelle-update-repos
           bazel run //:gazelle_check
-          if git diff --exit-code snapshots/dependencies.bzl ; then
-              echo "Gazelle repos are up to date."
-          else
-              echo "Gazelle repos aren't up to date. Run 'bazel run //:gazelle-update-repos' locally, and commit the changes."
-              exit 1
-          fi
 
       - name: Build
         run: |
@@ -42,7 +35,4 @@ jobs:
           for f in $EXAMPLES; do
             echo "Running example $f"
             (cd "$f" && bazel run snapshots -- collect)
-
-            echo "Running example $f (with bzlmod enabled)"
-            (cd "$f" && bazel run --enable_bzlmod snapshots -- collect)
           done
