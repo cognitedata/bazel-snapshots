@@ -28,7 +28,7 @@ VERSION=${TAG//v/}
 sed -i "3s/version = .*/version = \"$VERSION\",/g" "$BUILD_WORKSPACE_DIRECTORY"/MODULE.bazel
 
 # create an archive with the relevant files
-tar -cf "$OUT_DIR/snapshots-$TAG.tar" -C "$BUILD_WORKSPACE_DIRECTORY" go.mod go.sum docker snapshots snapshots/dependencies.bzl BUILD.bazel MODULE.bazel WORKSPACE WORKSPACE.bzlmod README.md LICENSE
+tar -cf "$OUT_DIR/snapshots-$TAG.tar" -C "$BUILD_WORKSPACE_DIRECTORY" go.mod go.sum docker snapshots BUILD.bazel MODULE.bazel WORKSPACE README.md LICENSE
 
 for t in "${TARGETS[@]}";
 do
