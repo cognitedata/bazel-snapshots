@@ -33,9 +33,9 @@ jobs:
           bazel build //snapshots/go/cmd/snapshots:snapshots
           bazel run //tools:release -- ${{ env.repoUrl }} ${{ github.ref_name }} ${{ env.outputDir }}
 
-      - name: Prepare workspace snippet
+      - name: Prepare import snippets
         run: |
-          bash .github/scripts/workplace-snippet.sh ${{ env.outputDir }}/${{ env.sourceTarName }} > release-notes.txt
+          bash .github/scripts/import-snippets.sh ${{ env.outputDir }}/${{ env.sourceTarName }} > release-notes.txt
 
       - name: Release
         uses: softprops/action-gh-release@v1
