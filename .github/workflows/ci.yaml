@@ -41,7 +41,7 @@ jobs:
           EXAMPLES="$(find examples -type d -maxdepth 1 -mindepth 1 | grep -v use-binaries)"
           for f in $EXAMPLES; do
             echo "Running example $f"
-            (cd "$f" && bazel run snapshots -- collect)
+            (cd "$f" && bazel run --noenable_bzlmod snapshots -- collect)
 
             echo "Running example $f (with bzlmod enabled)"
             (cd "$f" && bazel run --enable_bzlmod snapshots -- collect)
