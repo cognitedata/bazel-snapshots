@@ -5,7 +5,7 @@ go 1.21.1
 toolchain go1.21.6
 
 require (
-	github.com/bazelbuild/rules_go v0.45.1
+	github.com/bazelbuild/rules_go v0.46.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
