@@ -13,3 +13,14 @@ gazelle(
     command = "update",
     extra_args = ["-mode=diff"],
 )
+
+gazelle(
+    name = "gazelle-update-repos",
+    args = [
+        "-from_file=go.mod",
+        "-to_macro=snapshots/dependencies.bzl%go_dependencies",
+        "-build_file_proto_mode=disable_global",
+        "-prune",
+    ],
+    command = "update-repos",
+)
