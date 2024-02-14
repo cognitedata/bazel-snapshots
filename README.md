@@ -118,6 +118,7 @@ If not set, the default credentials will be used and the project ID will be infe
 Backend | Docs | Notes
 ---|---|---
 Google Cloud Storage | [gcs](https://beyondstorage.io/docs/go-storage/services/gcs#storager) | `credential` and `project_id` defaults to `env`
+AWS S3 | [s3](https://beyondstorage.io/docs/go-storage/services/s3) | defaults to using default config (from aws-cli)
 
 Bazel Snapshots will create the following structure in the remote storage:
 
