@@ -38,7 +38,7 @@ jobs:
           bash .github/scripts/import_snippets.sh ${{ env.outputDir }}/${{ env.sourceTarName }} > release-notes.txt
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: true
           generate_release_notes: true
