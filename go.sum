@@ -86,6 +86,8 @@ github.com/bazelbuild/rules_go v0.46.0 h1:CTefzjN/D3Cdn3rkrM6qMWuQj59OBcuOjyIp3m
 github.com/bazelbuild/rules_go v0.46.0/go.mod h1:Dhcz716Kqg1RHNWos+N6MlXNkjNP2EwZQ0LukRKJfMs=
 github.com/bazelbuild/rules_go v0.47.0 h1:TTl2buKt0lqJe5s6up5FtaB1F95Wg997Lv15MWetU88=
 github.com/bazelbuild/rules_go v0.47.0/go.mod h1:Dhcz716Kqg1RHNWos+N6MlXNkjNP2EwZQ0LukRKJfMs=
+github.com/bazelbuild/rules_go v0.47.1 h1:9s9FA2l8IAxCbwV97E1WLu5ai21muLNrjZRV0+agTRs=
+github.com/bazelbuild/rules_go v0.47.1/go.mod h1:Dhcz716Kqg1RHNWos+N6MlXNkjNP2EwZQ0LukRKJfMs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
 github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
