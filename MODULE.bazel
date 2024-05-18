@@ -21,7 +21,7 @@ use_repo(
     "org_golang_google_grpc",
 )
 
-snapshots = use_extension("@com_cognitedata_bazel_snapshots//snapshots:extensions.bzl", "snapshots")
+snapshots = use_extension("//snapshots:extensions.bzl", "snapshots")
 snapshots.toolchains(from_source = True)
 
 use_repo(
