@@ -1624,8 +1624,8 @@ def go_dependencies():
         name = "org_golang_google_genproto_googleapis_bytestream",
         build_file_proto_mode = "disable_global",
         importpath = "google.golang.org/genproto/googleapis/bytestream",
-        sum = "h1:YqFWYZXim8bG9v68xU8WjTZmYKb5M5dMeSOWIp6jogI=",
-        version = "v0.0.0-20240304161311-37d4d3c04a78",
+        sum = "h1:FIZaBPBrNOIADhX3rwSLHnn0D0jp1mQ9d4a5KfgXAaI=",
+        version = "v0.0.0-20240515191416-fc5f0ca64291",
     )
     go_repository(
         name = "org_golang_google_genproto_googleapis_rpc",
@@ -1655,8 +1655,8 @@ def go_dependencies():
         name = "org_golang_google_protobuf",
         build_file_proto_mode = "disable_global",
         importpath = "google.golang.org/protobuf",
-        sum = "h1:uNO2rsAINq/JlFpSdYEKIZ0uKD/R9cpdv0T+yoGwGmI=",
-        version = "v1.33.0",
+        sum = "h1:9ddQBjfCyZPOHPUiPxpYESBLc+T8P3E+Vo4IbKZgFWg=",
+        version = "v1.34.1",
     )
     go_repository(
         name = "org_golang_x_arch",
