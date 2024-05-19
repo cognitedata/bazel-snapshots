@@ -9,7 +9,6 @@ bazel_dep(name = "rules_go", version = "0.47.1", repo_name = "io_bazel_rules_go"
 
 go_deps = use_extension("@bazel_gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")
-
 use_repo(
     go_deps,
     "com_github_olekukonko_tablewriter",
@@ -21,9 +20,8 @@ use_repo(
     "org_golang_google_grpc",
 )
 
-snapshots = use_extension("@com_cognitedata_bazel_snapshots//snapshots:extensions.bzl", "snapshots")
+snapshots = use_extension("//snapshots:extensions.bzl", "snapshots")
 snapshots.toolchains(from_source = True)
-
 use_repo(
     snapshots,
     "snapshots_snaptool_toolchains",
