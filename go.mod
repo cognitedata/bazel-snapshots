@@ -6,7 +6,7 @@ require (
 	github.com/bazelbuild/rules_go v0.51.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.8.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
 	google.golang.org/genproto/googleapis/bytestream v0.0.0-20250106144421-5f5ef82da422
