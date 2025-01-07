@@ -66,6 +66,8 @@ github.com/Xuanwo/templateutils v0.1.0/go.mod h1:OdE0DJ+CJxDBq6psX5DPV+gOZi8bhuH
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/bazelbuild/rules_go v0.47.1 h1:9s9FA2l8IAxCbwV97E1WLu5ai21muLNrjZRV0+agTRs=
 github.com/bazelbuild/rules_go v0.47.1/go.mod h1:Dhcz716Kqg1RHNWos+N6MlXNkjNP2EwZQ0LukRKJfMs=
+github.com/bazelbuild/rules_go v0.51.0 h1:og6AqW7T4uFgcySRYn/EFg5VUHR2KY7jypYmVeIGh9k=
+github.com/bazelbuild/rules_go v0.51.0/go.mod h1:+jnXOJJO4C+WYH5v1v0SsPTncQ9sHGsCrAOgrflqSUE=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=

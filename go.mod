@@ -3,7 +3,7 @@ module github.com/cognitedata/bazel-snapshots
 go 1.22.2
 
 require (
-	github.com/bazelbuild/rules_go v0.47.1
+	github.com/bazelbuild/rules_go v0.51.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
