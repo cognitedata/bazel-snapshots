@@ -2,6 +2,8 @@
 build --verbose_failures
 test --test_output=errors
 
-common --enable_bzlmod
+# Docs: Use this to suppress generation of the legacy important_outputs field in the TargetComplete event. important_outputs are required for Bazel to ResultStore/BTX integration.
+# This output is used by bazel-snapshots. This flag will be removed in Bazel 9, and we'll have to update snapshots before then.
+common --legacy_important_outputs
 
 try-import %workspace%/user.bazelrc
