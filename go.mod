@@ -10,7 +10,7 @@ require (
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
 	google.golang.org/genproto/googleapis/bytestream v0.0.0-20250115164207-1a7da9e5054f
-	google.golang.org/grpc v1.69.2
+	google.golang.org/grpc v1.69.4
 )
 
 require (
