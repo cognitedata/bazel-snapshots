@@ -717,6 +717,8 @@ google.golang.org/genproto/googleapis/bytestream v0.0.0-20250127172529-29210b9bc
 google.golang.org/genproto/googleapis/bytestream v0.0.0-20250127172529-29210b9bc287/go.mod h1:7VGktjvijnuhf2AobFqsoaBGnG8rImcxqoL+QPBPRq4=
 google.golang.org/genproto/googleapis/bytestream v0.0.0-20250204164813-702378808489 h1:aQNaRQChnzAOUcD7zeHqqL/0IfPghNdiTzhuwgA+jVg=
 google.golang.org/genproto/googleapis/bytestream v0.0.0-20250204164813-702378808489/go.mod h1:7VGktjvijnuhf2AobFqsoaBGnG8rImcxqoL+QPBPRq4=
+google.golang.org/genproto/googleapis/bytestream v0.0.0-20250207221924-e9438ea467c6 h1:2FBsm1NN1gB068gQXGnpWH7WDYlHz9ITquoAeTMy4AI=
+google.golang.org/genproto/googleapis/bytestream v0.0.0-20250207221924-e9438ea467c6/go.mod h1:7VGktjvijnuhf2AobFqsoaBGnG8rImcxqoL+QPBPRq4=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 h1:NnYq6UN9ReLM9/Y01KWNOWyI5xQ9kbIms5GGJVwS/Yc=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237/go.mod h1:WtryC6hu0hhx87FDGxWCDptyssuo68sk10vYjF+T9fY=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20240814211410-ddb44dafa142 h1:e7S5W7MGGLaSu8j3YjdezkZ+m1/Nm0uRVRMEMGk26Xs=
