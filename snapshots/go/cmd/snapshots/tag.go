@@ -55,6 +55,7 @@ snapshot which was most recently deployed.
 	cmd.PersistentFlags().BoolVar(&cc.bazelStderr, "bazel-stderr", false, "show stderr from bazel")
 	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")
 	cmd.PersistentFlags().BoolVar(&cc.noPrint, "no-print", false, "don't print if not writing to file")
+	cmd.PersistentFlags().StringVar(&cc.snapshotName, "name", "", "snapshot name")
 
 	cmd.RunE = cc.runTag
 
