@@ -11,7 +11,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
-	google.golang.org/genproto/googleapis/bytestream v0.0.0-20250603155806-513f23925822
+	google.golang.org/genproto/googleapis/bytestream v0.0.0-20250707201910-8d1bb00bc6a7
 	google.golang.org/grpc v1.73.0
 )
 
