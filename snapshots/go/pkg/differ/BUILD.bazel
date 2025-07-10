@@ -9,5 +9,6 @@ go_library(
         "//snapshots/go/pkg/collecter",
         "//snapshots/go/pkg/models",
         "@com_github_olekukonko_tablewriter//:tablewriter",
+        "@com_github_olekukonko_tablewriter//tw",
     ],
 )

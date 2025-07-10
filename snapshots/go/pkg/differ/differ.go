@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/collecter"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
@@ -130,8 +131,14 @@ func (*differ) DiffOutputJSON(dest io.Writer, changes []models.TrackerChange) er
 // diffOutputPretty writes a human-readable table of added, changed or removed trackers.
 func (*differ) DiffOutputPretty(dest io.Writer, changes []models.TrackerChange) error {
 	table := tablewriter.NewWriter(dest)
-	table.SetAutoMergeCells(true)
-	table.SetRowLine(true)
+	tablewriter.WithRowMergeMode(tw.MergeHorizontal)
+	tablewriter.WithRendition(tw.Rendition{
+		Settings: tw.Settings{
+			Separators: tw.Separators{
+				BetweenRows: tw.On,
+			},
+		},
+	})
 
 	// a somewhat arbitrary sorting algorithm attempting to make things pretty
 	for _, change := range changes {
@@ -154,7 +161,7 @@ func (*differ) DiffOutputPretty(dest io.Writer, changes []models.TrackerChange) 
 		return changes[i].Label < changes[j].Label
 	})
 
-	table.SetHeader([]string{"Change", "Tags", "Label"})
+	table.Header([]string{"Change", "Tags", "Label"})
 	for _, change := range changes {
 		if change.ChangeType == models.Added || change.ChangeType == models.Changed || change.ChangeType == models.Removed {
 			table.Append([]string{
