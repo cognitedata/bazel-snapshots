@@ -66,7 +66,7 @@ The `change_tracker` rule is a stand-alone rule defining a tracker.
 You can use it to create trackers for existing targets.
 
 ```skylark
-load("@com_cognitedata_bazel_snapshots//snapshots:snapshots.bzl", "snapshots", "change_tracker")
+load("@com_cognitedata_bazel_snapshots//snapshots:defs.bzl", "snapshots", "change_tracker")
 
 # A change_tracker
 change_tracker(
