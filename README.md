@@ -24,7 +24,7 @@ See [Releases](https://github.com/cognitedata/bazel-snapshots/releases) for the 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "com_cognitedata_bazel_snapshots",
-    sha256 = "...",
+    integrity = "...",
     url = "https://github.com/cognitedata/bazel-snapshots/releases/download/<VERSION>/snapshots-<VERSION>.tar",
 )
 

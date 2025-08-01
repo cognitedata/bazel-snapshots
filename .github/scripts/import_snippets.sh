@@ -12,7 +12,9 @@ TARFILE="$1"
 # https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
 TAG=${GITHUB_REF_NAME}
 VERSION=${TAG//v/}
-SHA=$(shasum -a 256 $TARFILE | awk '{print $1}')
+
+# https://github.com/bazelbuild/bazel/issues/17124
+INTEGRITY=$(openssl dgst -sha256 -binary "$TARFILE" | openssl base64 -A | sed 's/^/sha256-/')
 
 cat << EOF
 Add to your \`MODULE.bazel\` file:
@@ -22,7 +24,7 @@ bazel_dep(name = "com_cognitedata_bazel_snapshots", version = "${VERSION}")
 
 archive_override(
     module_name = "com_cognitedata_bazel_snapshots",
-    sha256 = "${SHA}",
+    integrity = "${INTEGRITY}",
     urls = ["https://github.com/cognitedata/bazel-snapshots/releases/download/${TAG}/snapshots-${TAG}.tar"],
 )
 
