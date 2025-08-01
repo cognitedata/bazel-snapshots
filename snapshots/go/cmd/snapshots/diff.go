@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -85,7 +84,7 @@ func (dc *diffCmd) resolveSnapshot(ctx context.Context, name, storageUrl string)
 	if _, err := os.Stat(name); err != nil && !os.IsNotExist(err) {
 		return nil, fmt.Errorf("failed to look for file: %w", err)
 	} else if err == nil {
-		fileBytes, err := ioutil.ReadFile(name)
+		fileBytes, err := os.ReadFile(name)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read file %s: %w", name, err)
 		}
