@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"strings"
@@ -74,7 +73,7 @@ func (c *FileBazelCache) Read(ctx context.Context, secure bool, uri string) ([]b
 		return nil, fmt.Errorf("expected scheme to be file, not %s: %w", u.Scheme, ErrScheme)
 	}
 
-	contents, err := ioutil.ReadFile(u.Path)
+	contents, err := os.ReadFile(u.Path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, fmt.Errorf("file %s does not exist: %w", u.Path, ErrUnavailable)

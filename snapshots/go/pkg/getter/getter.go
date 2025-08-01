@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"path"
 	"strings"
 
@@ -45,7 +45,7 @@ func (g *getter) Get(ctx context.Context, args *GetArgs) (*models.Snapshot, erro
 			if err != nil {
 				return nil, fmt.Errorf("failed to look for tag %s: %w", args.Name, err)
 			}
-			snapshotBytes, err := ioutil.ReadAll(tagBuffer)
+			snapshotBytes, err := io.ReadAll(tagBuffer)
 			if err != nil {
 				return nil, fmt.Errorf("failed to read tag: %w", err)
 			}

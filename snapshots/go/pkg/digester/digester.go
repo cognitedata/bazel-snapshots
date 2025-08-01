@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"sort"
@@ -58,5 +57,5 @@ func (d *digester) Digest(args *DigestArgs) error {
 		return fmt.Errorf("failed to render json file: %w", err)
 	}
 
-	return ioutil.WriteFile(args.OutPath, content, 0644)
+	return os.WriteFile(args.OutPath, content, 0o644)
 }

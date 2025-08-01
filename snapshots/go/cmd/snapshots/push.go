@@ -6,8 +6,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -75,7 +75,7 @@ func (pc *pushCmd) checkArgs(args []string) error {
 
 		log.Println("reading snapshot from", pc.snapshotPath)
 		pc.snapshot = &models.Snapshot{}
-		contents, err := ioutil.ReadFile(pc.snapshotPath)
+		contents, err := os.ReadFile(pc.snapshotPath)
 		if err != nil {
 			return fmt.Errorf("failed to read snapshot path: %w", err)
 		}
