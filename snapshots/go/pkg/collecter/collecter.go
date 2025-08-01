@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"iter"
 	"log"
 	"os"
 	"strings"
@@ -17,8 +18,7 @@ import (
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
 )
 
-type collecter struct {
-}
+type collecter struct{}
 
 func NewCollecter() *collecter {
 	return &collecter{}
@@ -49,7 +49,6 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 		bstderr = os.Stderr
 	}
 
-	var buildEvents []bazel.BuildEventOutput
 	ctx := context.Background()
 
 	var credential string
@@ -67,31 +66,27 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 	log.Printf("collecting digests from %s", args.BazelExpression)
 	bazelArgs := []string{args.BazelExpression, "--output_groups=change_track_files"}
 
+	var buildEvents iter.Seq2[bazel.BuildEventOutput, error]
 	if args.BazelBuildEventsPath != "" {
 		f, err := os.Open(args.BazelBuildEventsPath)
 		if err != nil {
 			return nil, err
 		}
-		events, err := bazel.ParseBuildEventsFile(f)
-		if err != nil {
-			return nil, err
-		}
-		buildEvents = events
+		defer func() { _ = f.Close() }()
+
+		buildEvents = bazel.ParseBuildEventsFile(f)
 	} else {
 		bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
-
-		events, err := bazelc.BuildEventOutput(ctx, args.BazelRcPath, bazelArgs...)
-		if err != nil {
-			return nil, err
-		}
-		buildEvents = events
+		buildEvents = bazelc.BuildEventOutput(ctx, args.BazelRcPath, bazelArgs...)
 	}
-
-	log.Printf("got %d build events", len(buildEvents))
 
 	// create a map from label to file
 	labelFiles := map[string]string{}
-	for _, event := range buildEvents {
+	for event, err := range buildEvents {
+		if err != nil {
+			return nil, fmt.Errorf("error reading build event: %w", err)
+		}
+
 		label := event.ID.TargetCompleted.Label
 		var uri string
 
