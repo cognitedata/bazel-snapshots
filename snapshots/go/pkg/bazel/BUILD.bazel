@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "bazel",
@@ -8,4 +8,14 @@ go_library(
     ],
     importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/bazel",
     visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "bazel_test",
+    srcs = ["bazel_test.go"],
+    embed = [":bazel"],
+    deps = [
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
 )
