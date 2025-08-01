@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
+
+go_test(
+    name = "tests_test",
+    srcs = ["import_snippets_test.go"],
+    data = ["//:.github/scripts/import_snippets.sh"],
+    deps = [
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@io_bazel_rules_go//go/tools/bazel",
+    ],
+)

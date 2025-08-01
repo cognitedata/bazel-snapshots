@@ -13,3 +13,10 @@ gazelle(
     command = "update",
     extra_args = ["-mode=diff"],
 )
+
+exports_files(
+    [
+        ".github/scripts/import_snippets.sh",
+    ],
+    visibility = ["//tests:__pkg__"],
+)
