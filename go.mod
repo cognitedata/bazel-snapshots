@@ -5,11 +5,13 @@ go 1.24
 toolchain go1.24.5
 
 require (
+	github.com/aws/aws-sdk-go-v2/config v1.30.2
 	github.com/bazelbuild/rules_go v0.56.0
 	github.com/olekukonko/tablewriter v1.0.9
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
+	go.beyondstorage.io/services/s3/v3 v3.0.1
 	go.beyondstorage.io/v5 v5.0.0
 	google.golang.org/genproto/googleapis/bytestream v0.0.0-20250721164621-a45f3dfb1074
 	google.golang.org/grpc v1.74.1
@@ -25,6 +27,20 @@ require (
 	github.com/Xuanwo/gg v0.2.0 // indirect
 	github.com/Xuanwo/go-bufferpool v0.2.0 // indirect
 	github.com/Xuanwo/templateutils v0.1.0 // indirect
+	github.com/aws/aws-sdk-go-v2 v1.37.1 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.18.2 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.1 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.1 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.1 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.8.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.17.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.26.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.31.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.35.1 // indirect
+	github.com/aws/smithy-go v1.22.5 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
 	github.com/dave/dst v0.26.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -51,6 +67,7 @@ require (
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/urfave/cli/v2 v2.3.0 // indirect
 	go.beyondstorage.io/credential v1.0.0 // indirect
+	go.beyondstorage.io/endpoint v1.2.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.54.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.54.0 // indirect
