@@ -101,9 +101,9 @@ The tracker files can still be built separately using `bazel build //some:label 
 
 ### Remote Storage
 
-So far, only Google Cloud Storage is supported for remote storage.
-To start using a remote storage backend, add a `storage` attribute to `snapshots`
-in your root BUILD file:
+Google Cloud Storage and AWS S3 are supported for remote storage.
+To start using a remote storage backend,
+add a `storage` attribute to `snapshots` in your root BUILD file:
 
 ```skylark
 snapshots(
@@ -112,13 +112,43 @@ snapshots(
 )
 ```
 
-Google Cloud Storage optionally takes `credential` and `project_id` query parameters in the storage URL.
-If not set, the default credentials will be used and the project ID will be inferred.
+The backends may be configured with additional options
+by adding query parameters to the storage URL:
 
-Backend | Docs | Notes
----|---|---
-Google Cloud Storage | [gcs](https://beyondstorage.io/docs/go-storage/services/gcs#storager) | `credential` and `project_id` defaults to `env`
-AWS S3 | [s3](https://beyondstorage.io/docs/go-storage/services/s3) | defaults to using default config (from aws-cli)
+* **Google Cloud Storage**:
+   URLs must be in the form `gcs://<bucket>/<workspace-name>`.
+   The following query parameters are required:
+
+    * `credential`:
+      Source of credentials.
+      Defaults to "env", which will load credentials from the environment.
+      See https://pkg.go.dev/go.beyondstorage.io/credential for options.
+    * `project_id`:
+      Google Cloud project ID.
+      Defaults to "env".
+
+    See https://beyondstorage.io/docs/go-storage/services/gcs for all
+    parameters.
+
+* **AWS S3**
+  URLs must be in the form `s3://<bucket>/<workspace-name>`.
+  AWS will use the default AWS credential configuration
+  (per `AWS_*` environment variables or AWS configuration files).
+  The following query parameters are supported:
+
+    * `credential`:
+      A string in the form `hmac:<access_key_id>:<secret_access_key>`.
+      Overrides the default AWS credentials.
+    * `location`:
+      AWS region to use.
+      Overrides the default region from the AWS configuration.
+
+
+
+Backend | Example storage URL
+---|---
+Google Cloud Storage | `gcs://my-bucket/my-workspace?credential=file:/path/to/creds`
+AWS S3 | `s3://my-bucket/my-workspace?location=us-west-2`
 
 Bazel Snapshots will create the following structure in the remote storage:
 
