@@ -1,130 +1,48 @@
 /* Copyright 2022 Cognite AS */
 
+// Package storage implements the storage backend for snapshots.
 package storage
 
 import (
-	"bytes"
-	"cmp"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"iter"
-	"net/url"
 	"os"
-	"strings"
 
-	awscfg "github.com/aws/aws-sdk-go-v2/config"
-	_ "go.beyondstorage.io/services/fs/v4"
-	_ "go.beyondstorage.io/services/gcs/v3"
-	_ "go.beyondstorage.io/services/s3/v3"
-	"go.beyondstorage.io/v5/pairs"
-	"go.beyondstorage.io/v5/services"
-	"go.beyondstorage.io/v5/types"
+	"gocloud.dev/blob"
+	_ "gocloud.dev/blob/fileblob"
+	_ "gocloud.dev/blob/gcsblob"
+	_ "gocloud.dev/blob/s3blob"
+	"gocloud.dev/gcerrors"
 )
 
 // Storage stores files in a cloud storage bucket or a local file system.
 type Storage struct {
-	bucket types.Storager
+	bucket *blob.Bucket
 }
 
+// NewStorage builds a storage instance from a storage URL.
+// Storage URLs can be in the format:
+//
+//	file:///path/to/local/storage
+//	gs://bucket-name/subdir
+//	s3://bucket-name/subdir
+//
+// For backwards compatibility, "gcs://" may be in place of "gs://".
 func NewStorage(storageURL string) (*Storage, error) {
-	storager, err := newStorager(storageURL)
+	ctx := context.Background()
+
+	storageURL = backwardsCompatibleStorageURL(storageURL)
+	bucket, err := blob.OpenBucket(ctx, storageURL)
 	if err != nil {
-		return nil, fmt.Errorf("new storager: %w", err)
+		return nil, fmt.Errorf("open bucket: %w", err)
 	}
 
 	return &Storage{
-		bucket: storager,
+		bucket: bucket,
 	}, nil
-}
-
-func newStorager(storageURL string) (types.Storager, error) {
-	ctx := context.Background()
-
-	u, err := url.Parse(storageURL)
-	if err != nil {
-		return nil, err
-	}
-
-	values := u.Query()
-
-	// S3 backend for beyondstorage does not support any query parameters
-	// so we implement our own scheme around it
-	// on top of default AWS credentials.
-	if u.Scheme == "s3" {
-		config, err := awscfg.LoadDefaultConfig(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("load default AWS config: %w", err)
-		}
-
-		name := u.Hostname() // bucket name
-
-		// Make sure path ends with a '/'
-		workdir := u.Path
-		if !strings.HasSuffix(workdir, "/") {
-			workdir = fmt.Sprintf("%s/", workdir)
-		}
-
-		// Credentials may come from the query string
-		// or from the default AWS config (in that order).
-		creds := values.Get("credentials")
-		if creds == "" {
-			c, err := config.Credentials.Retrieve(ctx)
-			if err != nil {
-				return nil, fmt.Errorf("retrieve default AWS credentials: %w", err)
-			}
-			creds = fmt.Sprintf("hmac:%s:%s", c.AccessKeyID, c.SecretAccessKey)
-		}
-
-		// Region comes from the query string or from the default AWS config.
-		region := cmp.Or(values.Get("region"), config.Region)
-
-		return services.NewStorager(
-			"s3",
-			pairs.WithName(name),
-			pairs.WithCredential(creds),
-			pairs.WithLocation(region),
-			pairs.WithWorkDir(workdir),
-		)
-	}
-
-	// automatically fix the storage URL for common problems
-	if u.Scheme == "gcs" {
-		// set default value for 'credential' if not set: will use default
-		// credentials.
-		if values.Get("credential") == "" {
-			values.Add("credential", "env")
-		}
-
-		// set default value for 'project_id' if not set: will be inferred.
-		if values.Get("project_id") == "" {
-			values.Add("project_id", "env")
-		}
-
-		// make sure path ends with a '/'
-		if !strings.HasSuffix(u.Path, "/") {
-			u.Path = fmt.Sprintf("%s/", u.Path)
-		}
-	}
-
-	if u.Scheme == "file" {
-		// Hack: "fs" == "file".
-		//
-		// beyondstorage uses "fs://" for local file system storage.
-		// gocloud.dev uses "file://" for the same purpose.
-		//
-		// As we're considering switching to gocloud.dev,
-		// we map "file://" to "fs://" here for beyondstorage
-		// so that we can still use "file://" in tests.
-		// If/when we do switch to gocloud.dev,
-		// the tests won't need to be modified because of this.
-		u.Scheme = "fs"
-	}
-
-	u.RawQuery = values.Encode()
-
-	return services.NewStoragerFromString(u.String())
 }
 
 // ErrNotExist indicates that a requested path does not exist.
@@ -133,21 +51,19 @@ var ErrNotExist = os.ErrNotExist
 // ReadAll reads the entire content of a file at the specified path.
 // Returns [ErrNotExist] if the file does not exist.
 func (s *Storage) ReadAll(ctx context.Context, path string) ([]byte, error) {
-	var buf bytes.Buffer
-	_, err := s.bucket.ReadWithContext(ctx, path, &buf)
+	bs, err := s.bucket.ReadAll(ctx, path)
 	if err != nil {
-		if errors.Is(err, services.ErrObjectNotExist) {
+		if gcerrors.Code(err) == gcerrors.NotFound {
 			return nil, ErrNotExist
 		}
 		return nil, fmt.Errorf("read all: %w", err)
 	}
-	return buf.Bytes(), nil
+	return bs, nil
 }
 
 // WriteAll writes the entire content of a file at the specified path.
 func (s *Storage) WriteAll(ctx context.Context, path string, bs []byte) error {
-	_, err := s.bucket.WriteWithContext(ctx, path, bytes.NewReader(bs), int64(len(bs)))
-	return err
+	return s.bucket.WriteAll(ctx, path, bs, nil)
 }
 
 // ObjectMetadata contains metadata about an object in the storage.
@@ -163,22 +79,17 @@ type ObjectMetadata struct {
 // Stat inspects an object in the storage and returns its metadata.
 // Returns [ErrNotExist] if the object does not exist.
 func (s *Storage) Stat(ctx context.Context, path string) (*ObjectMetadata, error) {
-	attrs, err := s.bucket.StatWithContext(ctx, path)
+	attrs, err := s.bucket.Attributes(ctx, path)
 	if err != nil {
-		if errors.Is(err, services.ErrObjectNotExist) {
+		if gcerrors.Code(err) == gcerrors.NotFound {
 			return nil, ErrNotExist
 		}
 		return nil, fmt.Errorf("stat: %w", err)
 	}
 
-	contentLength, ok := attrs.GetContentLength()
-	if !ok {
-		return nil, fmt.Errorf("stat: content length not available")
-	}
-
 	return &ObjectMetadata{
 		Path:          path,
-		ContentLength: contentLength,
+		ContentLength: attrs.Size,
 	}, nil
 }
 
@@ -188,14 +99,16 @@ func (s *Storage) Stat(ctx context.Context, path string) (*ObjectMetadata, error
 // Returns the number of bytes written and an error if any.
 // Returns [ErrNotExist] if the file does not exist.
 func (s *Storage) ReadInto(ctx context.Context, path string, w io.Writer) (int64, error) {
-	n, err := s.bucket.ReadWithContext(ctx, path, w)
+	reader, err := s.bucket.NewReader(ctx, path, nil)
 	if err != nil {
-		if errors.Is(err, services.ErrObjectNotExist) {
+		if gcerrors.Code(err) == gcerrors.NotFound {
 			return 0, ErrNotExist
 		}
 		return 0, fmt.Errorf("new reader: %w", err)
 	}
-	return n, nil
+	defer reader.Close()
+
+	return reader.WriteTo(w)
 }
 
 // ListObject is an object in a bucket list iteration.
@@ -207,24 +120,25 @@ type ListObject struct {
 // with the specified prefix.
 func (s *Storage) List(ctx context.Context, prefix string) iter.Seq2[ListObject, error] {
 	return func(yield func(ListObject, error) bool) {
-		it, err := s.bucket.ListWithContext(ctx, prefix)
-		if err != nil {
-			yield(ListObject{}, fmt.Errorf("list: %w", err))
-			return
-		}
-
+		it := s.bucket.List(&blob.ListOptions{
+			Prefix:    prefix,
+			Delimiter: "/",
+		})
 		for {
-			attrs, err := it.Next()
+			obj, err := it.Next(ctx)
 			if err != nil {
-				if errors.Is(err, types.IterateDone) {
-					return
+				if !errors.Is(err, io.EOF) {
+					yield(ListObject{}, fmt.Errorf("list: %w", err))
 				}
-
-				yield(ListObject{}, fmt.Errorf("list: %w", err))
 				return
 			}
 
-			if !yield(ListObject{Path: attrs.Path}, nil) {
+			if obj.IsDir {
+				continue
+			}
+
+			listObj := ListObject{Path: obj.Key}
+			if !yield(listObj, nil) {
 				return
 			}
 		}
