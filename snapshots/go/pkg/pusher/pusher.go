@@ -1,19 +1,15 @@
 package pusher
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"go.beyondstorage.io/v5/types"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
 )
 
-type pusher struct {
-}
+type pusher struct{}
 
 func NewPusher() *pusher {
 	return &pusher{}
@@ -25,7 +21,7 @@ type PushArgs struct {
 	Snapshot   *models.Snapshot
 }
 
-func (p *pusher) Push(ctx context.Context, args *PushArgs) (*types.Object, error) {
+func (p *pusher) Push(ctx context.Context, args *PushArgs) (*storage.ObjectMetadata, error) {
 	if args.Snapshot == nil {
 		return nil, fmt.Errorf("no snapshot specified")
 	}
@@ -41,12 +37,11 @@ func (p *pusher) Push(ctx context.Context, args *PushArgs) (*types.Object, error
 	}
 
 	location := fmt.Sprintf("snapshots/%s.json", args.Name)
-	reader := bytes.NewReader(snapshotBytes)
-	if _, err := store.WriteWithContext(ctx, location, reader, int64(reader.Len())); err != nil {
+	if err := store.WriteAll(ctx, location, snapshotBytes); err != nil {
 		return nil, fmt.Errorf("failed to write to bucket file: %w", err)
 	}
 
-	obj, err := store.StatWithContext(ctx, location)
+	obj, err := store.Stat(ctx, location)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get object details: %w", err)
 	}
