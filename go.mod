@@ -6,7 +6,7 @@ toolchain go1.24.5
 
 require (
 	github.com/aws/aws-sdk-go-v2/config v1.30.2
-	github.com/bazelbuild/rules_go v0.56.0
+	github.com/bazelbuild/rules_go v0.56.1
 	github.com/olekukonko/tablewriter v1.0.9
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
