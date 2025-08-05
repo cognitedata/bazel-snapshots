@@ -7,7 +7,7 @@ import (
 )
 
 type rootCmd struct {
-	storageUrl string
+	storageURL string
 	verbose    bool
 
 	cmd *cobra.Command
@@ -21,7 +21,6 @@ func newRootCmd() *rootCmd {
 	These snapshots are summaries of the outputs of a set of Bazel targets, and
 	can be used to check whether a target has changed.`,
 		Run: func(cmd *cobra.Command, args []string) {
-
 		},
 	}
 
@@ -36,7 +35,7 @@ func newRootCmd() *rootCmd {
 		cmd: cmd,
 	}
 
-	cmd.PersistentFlags().StringVarP(&rc.storageUrl, "storage-url", "s", "", "Full URL of the storage")
+	cmd.PersistentFlags().StringVarP(&rc.storageURL, "storage-url", "s", "", "Full URL of the storage")
 	cmd.PersistentFlags().BoolVarP(&rc.verbose, "verbose", "v", false, "Verbose output")
 
 	return rc
