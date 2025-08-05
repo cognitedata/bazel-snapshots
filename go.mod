@@ -10,6 +10,7 @@ require (
 	github.com/olekukonko/tablewriter v1.0.9
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
+	go.beyondstorage.io/services/fs/v4 v4.0.0
 	go.beyondstorage.io/services/gcs/v3 v3.0.0
 	go.beyondstorage.io/services/s3/v3 v3.0.1
 	go.beyondstorage.io/v5 v5.0.0
@@ -61,6 +62,7 @@ require (
 	github.com/olekukonko/ll v0.0.9 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/qingstor/go-mime v0.1.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect

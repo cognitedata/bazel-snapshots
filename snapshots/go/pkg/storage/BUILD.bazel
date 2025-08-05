@@ -1,4 +1,4 @@
-load("@rules_go//go:def.bzl", "go_library")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "storage",
@@ -7,10 +7,21 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "@com_github_aws_aws_sdk_go_v2_config//:config",
+        "@io_beyondstorage_go_services_fs_v4//:fs",
         "@io_beyondstorage_go_services_gcs_v3//:gcs",
         "@io_beyondstorage_go_services_s3_v3//:s3",
         "@io_beyondstorage_go_v5//pairs",
         "@io_beyondstorage_go_v5//services",
         "@io_beyondstorage_go_v5//types",
+    ],
+)
+
+go_test(
+    name = "storage_test",
+    srcs = ["storage_test.go"],
+    embed = [":storage"],
+    deps = [
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
     ],
 )

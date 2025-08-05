@@ -18,6 +18,7 @@ use_repo(
     "com_github_olekukonko_tablewriter",
     "com_github_spf13_cobra",
     "com_github_stretchr_testify",
+    "io_beyondstorage_go_services_fs_v4",
     "io_beyondstorage_go_services_gcs_v3",
     "io_beyondstorage_go_services_s3_v3",
     "io_beyondstorage_go_v5",
