@@ -2,23 +2,27 @@ load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "storage",
-    srcs = ["storage.go"],
+    srcs = [
+        "storage.go",
+        "url.go",
+    ],
     importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage",
     visibility = ["//visibility:public"],
     deps = [
-        "@com_github_aws_aws_sdk_go_v2_config//:config",
-        "@io_beyondstorage_go_services_fs_v4//:fs",
-        "@io_beyondstorage_go_services_gcs_v3//:gcs",
-        "@io_beyondstorage_go_services_s3_v3//:s3",
-        "@io_beyondstorage_go_v5//pairs",
-        "@io_beyondstorage_go_v5//services",
-        "@io_beyondstorage_go_v5//types",
+        "@dev_gocloud//blob",
+        "@dev_gocloud//blob/fileblob",
+        "@dev_gocloud//blob/gcsblob",
+        "@dev_gocloud//blob/s3blob",
+        "@dev_gocloud//gcerrors",
     ],
 )
 
 go_test(
     name = "storage_test",
-    srcs = ["storage_test.go"],
+    srcs = [
+        "storage_test.go",
+        "url_test.go",
+    ],
     embed = [":storage"],
     deps = [
         "@com_github_stretchr_testify//assert",
