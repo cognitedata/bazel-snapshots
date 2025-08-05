@@ -128,8 +128,6 @@ github.com/aws/aws-sdk-go-v2/service/sts v1.36.0/go.mod h1:tgBsFzxwl65BWkuJ/x2EU
 github.com/aws/smithy-go v1.8.1/go.mod h1:SObp3lf9smib00L/v3U2eAKG8FyQ7iLrJnQiAmR5n+E=
 github.com/aws/smithy-go v1.22.5 h1:P9ATCXPMb2mPjYBgueqJNCA5S9UfktsW0tTxi+a7eqw=
 github.com/aws/smithy-go v1.22.5/go.mod h1:t1ufH5HMublsJYulve2RKmHDC15xu1f26kHCp/HgceI=
-github.com/bazelbuild/rules_go v0.56.0 h1:Ow/oLK5NRhaooY2M2f1+fBiFlGPzmvA4TSaEHisL/RQ=
-github.com/bazelbuild/rules_go v0.56.0/go.mod h1:T90Gpyq4HDFlsrvtQa2CBdHNJ2P4rAu/uUTmQbanzf0=
 github.com/bazelbuild/rules_go v0.56.1 h1:YOyW1J8kdvJl1AzlWrR+qikC6EPiFVbT4l1gjTBfXT0=
 github.com/bazelbuild/rules_go v0.56.1/go.mod h1:T90Gpyq4HDFlsrvtQa2CBdHNJ2P4rAu/uUTmQbanzf0=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
@@ -306,6 +304,8 @@ github.com/pelletier/go-toml v1.9.4/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCko
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
+github.com/qingstor/go-mime v0.1.0 h1:FhTJtM7TRm9pfgCXpjGUxqwbumGojrgE9ecRz5PXvfc=
+github.com/qingstor/go-mime v0.1.0/go.mod h1:EDwWgaMufg74m7futsF0ZGkdA52ajjAycY+XDeV8M88=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
@@ -346,6 +346,8 @@ go.beyondstorage.io/credential v1.0.0 h1:xJ7hBXmeUE0+rbW+RYZSz4KgHpXvc9g7oQ56f8d
 go.beyondstorage.io/credential v1.0.0/go.mod h1:7KAYievVw4a8u/eLZmnQt65Z91n84sMQj3LFbt8Xous=
 go.beyondstorage.io/endpoint v1.2.0 h1:/7mgKquTykeqJ9op82hso2+WQfECeywGd/Lda1N3tF4=
 go.beyondstorage.io/endpoint v1.2.0/go.mod h1:oZ7Z7HZ7mAo337JBLjuCF/DM66HVEUu6+hw68c3UcLs=
+go.beyondstorage.io/services/fs/v4 v4.0.0 h1:ukDNhoUI1E5x6DDDRUFaA6JbOdrE0taDHKiOemLqnL8=
+go.beyondstorage.io/services/fs/v4 v4.0.0/go.mod h1:gxqLiBwoQQBt1xHTUw2js59tXiYiW67M/RzbP3FwRUc=
 go.beyondstorage.io/services/gcs/v3 v3.0.0 h1:SPMTdsz6As4GSOuX/V8jPxz36qRXv12X7uSkyT7OOfM=
 go.beyondstorage.io/services/gcs/v3 v3.0.0/go.mod h1:4L+8y+igAsIPMwxdO03mjFN8BdsWkvuuLa723rGv64U=
 go.beyondstorage.io/services/s3/v3 v3.0.1 h1:ccNdY88tU3AenaaCAZlYCHD2hZD7ozc9anrmfDse/RU=

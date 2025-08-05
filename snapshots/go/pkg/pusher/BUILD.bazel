@@ -8,6 +8,5 @@ go_library(
     deps = [
         "//snapshots/go/pkg/models",
         "//snapshots/go/pkg/storage",
-        "@io_beyondstorage_go_v5//types",
     ],
 )
