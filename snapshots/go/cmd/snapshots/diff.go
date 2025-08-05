@@ -43,11 +43,11 @@ type diffCmd struct {
 
 func newDiffCmd() *diffCmd {
 	cmd := &cobra.Command{
-		Use:   "diff",
+		Use:   "diff --format=FORMAT FROM [TO]",
 		Short: "Diff snapshots",
-		Long: `Compiles a list of the labels which have had changes between two snapshots,
+		Long: `Compiles a list of the labels which have had changes between two snapshots (FROM and TO),
 together with what type of change has been made: added, removed or changed.
-If only one snapshot is given, then the "to"-snapshot is created from the
+If only the FROM snapshot is given, then the TO snapshot is created from the
 current state (see collect). Snapshots can either be files, tags or snapshot
 names.`,
 		Args: cobra.RangeArgs(1, 2),
