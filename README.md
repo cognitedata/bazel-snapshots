@@ -139,7 +139,7 @@ by adding query parameters to the storage URL:
     * `credential`:
       A string in the form `hmac:<access_key_id>:<secret_access_key>`.
       Overrides the default AWS credentials.
-    * `location`:
+    * `region`:
       AWS region to use.
       Overrides the default region from the AWS configuration.
 
@@ -148,7 +148,7 @@ by adding query parameters to the storage URL:
 Backend | Example storage URL
 ---|---
 Google Cloud Storage | `gcs://my-bucket/my-workspace?credential=file:/path/to/creds`
-AWS S3 | `s3://my-bucket/my-workspace?location=us-west-2`
+AWS S3 | `s3://my-bucket/my-workspace?region=us-west-2`
 
 Bazel Snapshots will create the following structure in the remote storage:
 

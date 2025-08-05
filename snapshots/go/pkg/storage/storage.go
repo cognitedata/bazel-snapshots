@@ -3,6 +3,7 @@
 package storage
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"net/url"
@@ -28,44 +29,42 @@ func NewStorage(storageURL string) (types.Storager, error) {
 
 	values := u.Query()
 
-	// for s3, credentials can't be set from URL, so we handle it specially
+	// S3 backend for beyondstorage does not support any query parameters
+	// so we implement our own scheme around it
+	// on top of default AWS credentials.
 	if u.Scheme == "s3" {
-
-		// get the default credentials
 		config, err := awscfg.LoadDefaultConfig(ctx)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("load default AWS config: %w", err)
 		}
 
-		name := u.Hostname()
+		name := u.Hostname() // bucket name
 
-		// make sure path ends with a '/'
+		// Make sure path ends with a '/'
 		workdir := u.Path
 		if !strings.HasSuffix(workdir, "/") {
 			workdir = fmt.Sprintf("%s/", workdir)
 		}
 
-		// read credentials from query or fall back to default
+		// Credentials may come from the query string
+		// or from the default AWS config (in that order).
 		creds := values.Get("credentials")
 		if creds == "" {
 			c, err := config.Credentials.Retrieve(ctx)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("retrieve default AWS credentials: %w", err)
 			}
 			creds = fmt.Sprintf("hmac:%s:%s", c.AccessKeyID, c.SecretAccessKey)
 		}
 
-		// read location from query or fall back to default config
-		location := values.Get("location")
-		if location == "" {
-			location = config.Region
-		}
+		// Region comes from the query string or from the default AWS config.
+		region := cmp.Or(values.Get("region"), config.Region)
 
 		return services.NewStorager(
 			"s3",
 			pairs.WithName(name),
 			pairs.WithCredential(creds),
-			pairs.WithLocation(location),
+			pairs.WithLocation(region),
 			pairs.WithWorkDir(workdir),
 		)
 	}
