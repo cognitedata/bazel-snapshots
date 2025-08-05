@@ -1,4 +1,4 @@
-load("@rules_go//go:def.bzl", "go_library")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "tagger",
@@ -6,4 +6,15 @@ go_library(
     importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/tagger",
     visibility = ["//visibility:public"],
     deps = ["//snapshots/go/pkg/storage"],
+)
+
+go_test(
+    name = "tagger_test",
+    srcs = ["tagger_test.go"],
+    embed = [":tagger"],
+    deps = [
+        "//snapshots/go/pkg/storage",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
 )

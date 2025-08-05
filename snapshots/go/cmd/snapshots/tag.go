@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/tagger"
 )
 
@@ -85,12 +86,16 @@ func (tc *tagCmd) runTag(cmd *cobra.Command, args []string) error {
 	log.Printf("snapshot:  %s", tc.snapshotName)
 	log.Printf("tag:       %s", tc.tagName)
 
+	store, err := storage.NewStorage(tc.storageURL)
+	if err != nil {
+		return fmt.Errorf("open storage client: %w", err)
+	}
+
 	tagArgs := tagger.TagArgs{
 		SnapshotName: tc.snapshotName,
-		StorageUrl:   tc.storageURL,
 		TagName:      tc.tagName,
 	}
-	obj, err := tagger.NewTagger().Tag(ctx, &tagArgs)
+	obj, err := tagger.NewTagger(store).Tag(ctx, &tagArgs)
 	if err != nil {
 		return err
 	}
