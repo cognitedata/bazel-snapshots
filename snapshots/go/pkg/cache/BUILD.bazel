@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "cache",
@@ -30,11 +30,11 @@ go_test(
     embed = [":cache"],
     deps = [
         "@com_github_stretchr_testify//require",
-        "@io_bazel_rules_go//go/tools/bazel",
         "@org_golang_google_genproto_googleapis_bytestream//:bytestream",
         "@org_golang_google_grpc//:grpc",
         "@org_golang_google_grpc//codes",
         "@org_golang_google_grpc//status",
         "@org_golang_google_grpc//test/bufconn",
+        "@rules_go//go/tools/bazel",
     ],
 )
