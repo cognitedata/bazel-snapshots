@@ -24,6 +24,7 @@ go_library(
         "//snapshots/go/pkg/getter",
         "//snapshots/go/pkg/models",
         "//snapshots/go/pkg/pusher",
+        "//snapshots/go/pkg/storage",
         "//snapshots/go/pkg/tagger",
         "@com_github_spf13_cobra//:cobra",
     ],
