@@ -13,16 +13,11 @@ import (
 )
 
 type tagCmd struct {
-	bazelCacheGrpcInsecure bool
-	bazelQueryExpression   string
-	bazelStderr            bool
-	outPath                string
-	noPrint                bool
-	workspacePath          string
-	snapshotName           string
-	tagName                string
+	workspacePath string
+	snapshotName  string
+	tagName       string
 
-	storageUrl string
+	storageURL string
 
 	cmd *cobra.Command
 }
@@ -38,7 +33,6 @@ snapshot which was most recently deployed.
 `,
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-
 		},
 	}
 
@@ -50,11 +44,6 @@ snapshot which was most recently deployed.
 	cmd.PersistentFlags().StringVar(&cc.workspacePath, "workspace-path", "", "workspace path")
 
 	// tag flags
-	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel-cache-grpc-insecure", true, "use insecure connection for grpc bazel cache")
-	cmd.PersistentFlags().StringVar(&cc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
-	cmd.PersistentFlags().BoolVar(&cc.bazelStderr, "bazel-stderr", false, "show stderr from bazel")
-	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")
-	cmd.PersistentFlags().BoolVar(&cc.noPrint, "no-print", false, "don't print if not writing to file")
 	cmd.PersistentFlags().StringVar(&cc.snapshotName, "name", "", "snapshot name")
 
 	cmd.RunE = cc.runTag
@@ -72,11 +61,11 @@ func (tc *tagCmd) checkArgs(args []string) error {
 		tc.snapshotName = head
 	}
 
-	storageUrl, err := tc.cmd.Flags().GetString("storage-url")
+	storageURL, err := tc.cmd.Flags().GetString("storage-url")
 	if err != nil {
 		return err
 	}
-	tc.storageUrl = storageUrl
+	tc.storageURL = storageURL
 
 	tc.tagName = args[0]
 
@@ -92,13 +81,13 @@ func (tc *tagCmd) runTag(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 
 	log.Printf("workspace: %s", tc.workspacePath)
-	log.Printf("storage:    %s", tc.storageUrl)
+	log.Printf("storage:    %s", tc.storageURL)
 	log.Printf("snapshot:  %s", tc.snapshotName)
 	log.Printf("tag:       %s", tc.tagName)
 
 	tagArgs := tagger.TagArgs{
 		SnapshotName: tc.snapshotName,
-		StorageUrl:   tc.storageUrl,
+		StorageUrl:   tc.storageURL,
 		TagName:      tc.tagName,
 	}
 	obj, err := tagger.NewTagger().Tag(ctx, &tagArgs)

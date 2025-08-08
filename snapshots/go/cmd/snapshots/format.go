@@ -10,7 +10,7 @@ type OutputFormat string
 
 const (
 	formatLabel  OutputFormat = "label"
-	formatJson   OutputFormat = "json"
+	formatJSON   OutputFormat = "json"
 	formatPretty OutputFormat = "pretty"
 )
 

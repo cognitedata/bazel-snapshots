@@ -40,7 +40,6 @@ func newCollectCmd() *collectCmd {
 	output group. Observes the build events to find the relevant files. Compiles
 	all the digest files to a snapshot.`,
 		Run: func(cmd *cobra.Command, args []string) {
-
 		},
 	}
 
@@ -68,7 +67,7 @@ func newCollectCmd() *collectCmd {
 	return cc
 }
 
-func (cc *collectCmd) checkArgs(args []string) error {
+func (cc *collectCmd) checkArgs() error {
 	if cc.bazelPath == "" {
 		path, err := exec.LookPath("bazel")
 		if err != nil {
@@ -104,8 +103,7 @@ func (cc *collectCmd) checkArgs(args []string) error {
 }
 
 func (cc *collectCmd) runCollect(cmd *cobra.Command, args []string) error {
-	err := cc.checkArgs(args)
-	if err != nil {
+	if err := cc.checkArgs(); err != nil {
 		return err
 	}
 
