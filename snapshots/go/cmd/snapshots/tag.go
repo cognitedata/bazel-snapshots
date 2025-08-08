@@ -13,14 +13,9 @@ import (
 )
 
 type tagCmd struct {
-	bazelCacheGrpcInsecure bool
-	bazelQueryExpression   string
-	bazelStderr            bool
-	outPath                string
-	noPrint                bool
-	workspacePath          string
-	snapshotName           string
-	tagName                string
+	workspacePath string
+	snapshotName  string
+	tagName       string
 
 	storageUrl string
 
@@ -50,11 +45,6 @@ snapshot which was most recently deployed.
 	cmd.PersistentFlags().StringVar(&cc.workspacePath, "workspace-path", "", "workspace path")
 
 	// tag flags
-	cmd.PersistentFlags().BoolVar(&cc.bazelCacheGrpcInsecure, "bazel-cache-grpc-insecure", true, "use insecure connection for grpc bazel cache")
-	cmd.PersistentFlags().StringVar(&cc.bazelQueryExpression, "bazel-query", "//...", "the bazel query expression to consider")
-	cmd.PersistentFlags().BoolVar(&cc.bazelStderr, "bazel-stderr", false, "show stderr from bazel")
-	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")
-	cmd.PersistentFlags().BoolVar(&cc.noPrint, "no-print", false, "don't print if not writing to file")
 	cmd.PersistentFlags().StringVar(&cc.snapshotName, "name", "", "snapshot name")
 
 	cmd.RunE = cc.runTag
