@@ -39,17 +39,10 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], suffix = ".tracker.jso
     return OutputGroupInfo(change_track_files = depset([tracker_file]))
 
 def _change_tracker_impl(ctx):
-    track_files = []
-    for dep in ctx.attr.deps:
-        track_files.extend(dep.files.to_list())
-
-    # unique track_files
-    track_files = [x for i, x in enumerate(track_files) if i == track_files.index(x)]
-
     return [
         create_tracker_file(
             ctx,
-            track_files,
+            inputs = depset(ctx.files.deps),
             run = [target.label for target in ctx.attr.run],
             tags = ctx.attr.tracker_tags,
             suffix = ".json",
