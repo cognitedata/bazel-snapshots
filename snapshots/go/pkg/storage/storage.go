@@ -110,7 +110,15 @@ func newStorager(storageURL string) (types.Storager, error) {
 
 	if u.Scheme == "file" {
 		// Hack: "fs" == "file".
-		// Will be deleted when we switch to gocloud.dev.
+		//
+		// beyondstorage uses "fs://" for local file system storage.
+		// gocloud.dev uses "file://" for the same purpose.
+		//
+		// As we're considering switching to gocloud.dev,
+		// we map "file://" to "fs://" here for beyondstorage
+		// so that we can still use "file://" in tests.
+		// If/when we do switch to gocloud.dev,
+		// the tests won't need to be modified because of this.
 		u.Scheme = "fs"
 	}
 
