@@ -17,7 +17,7 @@ type tagCmd struct {
 	snapshotName  string
 	tagName       string
 
-	storageUrl string
+	storageURL string
 
 	cmd *cobra.Command
 }
@@ -33,7 +33,6 @@ snapshot which was most recently deployed.
 `,
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-
 		},
 	}
 
@@ -62,11 +61,11 @@ func (tc *tagCmd) checkArgs(args []string) error {
 		tc.snapshotName = head
 	}
 
-	storageUrl, err := tc.cmd.Flags().GetString("storage-url")
+	storageURL, err := tc.cmd.Flags().GetString("storage-url")
 	if err != nil {
 		return err
 	}
-	tc.storageUrl = storageUrl
+	tc.storageURL = storageURL
 
 	tc.tagName = args[0]
 
@@ -82,13 +81,13 @@ func (tc *tagCmd) runTag(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 
 	log.Printf("workspace: %s", tc.workspacePath)
-	log.Printf("storage:    %s", tc.storageUrl)
+	log.Printf("storage:    %s", tc.storageURL)
 	log.Printf("snapshot:  %s", tc.snapshotName)
 	log.Printf("tag:       %s", tc.tagName)
 
 	tagArgs := tagger.TagArgs{
 		SnapshotName: tc.snapshotName,
-		StorageUrl:   tc.storageUrl,
+		StorageUrl:   tc.storageURL,
 		TagName:      tc.tagName,
 	}
 	obj, err := tagger.NewTagger().Tag(ctx, &tagArgs)

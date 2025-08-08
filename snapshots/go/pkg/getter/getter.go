@@ -22,13 +22,13 @@ func NewGetter() *getter {
 
 type GetArgs struct {
 	Name       string
-	StorageUrl string
+	StorageURL string
 	SkipNames  bool
 	SkipTags   bool
 }
 
 func (g *getter) Get(ctx context.Context, args *GetArgs) (*models.Snapshot, error) {
-	store, err := storage.NewStorage(args.StorageUrl)
+	store, err := storage.NewStorage(args.StorageURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create client: %w", err)
 	}

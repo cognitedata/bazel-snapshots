@@ -23,7 +23,7 @@ type pushCmd struct {
 
 	snapshot *models.Snapshot
 
-	storageUrl string
+	storageURL string
 
 	cmd *cobra.Command
 }
@@ -49,7 +49,7 @@ or can optionally be specified.`,
 	return pc
 }
 
-func (pc *pushCmd) checkArgs(args []string) error {
+func (pc *pushCmd) checkArgs() error {
 	// If name is not set, find name from git head
 	if pc.name == "" {
 		head, err := getGitHead(pc.workspacePath)
@@ -59,11 +59,11 @@ func (pc *pushCmd) checkArgs(args []string) error {
 		pc.name = head
 	}
 
-	storageUrl, err := pc.cmd.Flags().GetString("storage-url")
+	storageURL, err := pc.cmd.Flags().GetString("storage-url")
 	if err != nil {
 		return err
 	}
-	pc.storageUrl = storageUrl
+	pc.storageURL = storageURL
 
 	// Read the manifest
 	if pc.snapshot == nil && pc.snapshotPath != "" {
@@ -88,8 +88,7 @@ func (pc *pushCmd) checkArgs(args []string) error {
 }
 
 func (pc *pushCmd) runPush(cmd *cobra.Command, args []string) error {
-	err := pc.checkArgs(args)
-	if err != nil {
+	if err := pc.checkArgs(); err != nil {
 		return err
 	}
 
@@ -98,11 +97,11 @@ func (pc *pushCmd) runPush(cmd *cobra.Command, args []string) error {
 	// log for debugging
 	log.Printf("name:      %s", pc.name)
 	log.Printf("workspace: %s", pc.workspacePath)
-	log.Printf("storage:    %s", pc.storageUrl)
+	log.Printf("storage:    %s", pc.storageURL)
 
 	pushArgs := pusher.PushArgs{
 		Name:       pc.name,
-		StorageUrl: pc.storageUrl,
+		StorageUrl: pc.storageURL,
 		Snapshot:   pc.snapshot,
 	}
 	obj, err := pusher.NewPusher().Push(ctx, &pushArgs)

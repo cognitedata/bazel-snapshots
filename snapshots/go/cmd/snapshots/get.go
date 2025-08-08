@@ -20,7 +20,7 @@ type getCmd struct {
 	skipNames bool
 	name      string
 
-	storageUrl string
+	storageURL string
 
 	cmd *cobra.Command
 }
@@ -49,11 +49,11 @@ priority.`,
 func (gc *getCmd) checkArgs(args []string) error {
 	gc.name = args[0]
 
-	storageUrl, err := gc.cmd.Flags().GetString("storage-url")
+	storageURL, err := gc.cmd.Flags().GetString("storage-url")
 	if err != nil {
 		return err
 	}
-	gc.storageUrl = storageUrl
+	gc.storageURL = storageURL
 
 	return nil
 }
@@ -68,7 +68,7 @@ func (gc *getCmd) runGet(cmd *cobra.Command, args []string) error {
 
 	getArgs := getter.GetArgs{
 		Name:       gc.name,
-		StorageUrl: gc.storageUrl,
+		StorageURL: gc.storageURL,
 		SkipNames:  gc.skipNames,
 		SkipTags:   gc.skipTags,
 	}
