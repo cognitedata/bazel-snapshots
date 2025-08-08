@@ -109,12 +109,8 @@ func (pc *pushCmd) runPush(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	contentLenght, isOk := obj.GetContentLength()
-	if !isOk {
-		log.Printf("failed to get contentLenght of pushed snapshot: %s", obj.Path)
-	}
-
-	log.Printf("pushed snapshot of %d bytes: %s", contentLenght, obj.Path)
+	contentLength := obj.ContentLength
+	log.Printf("pushed snapshot of %d bytes: %s", contentLength, obj.Path)
 
 	return nil
 }

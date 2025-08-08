@@ -3,13 +3,19 @@
 package storage
 
 import (
+	"bytes"
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
+	"io"
+	"iter"
 	"net/url"
+	"os"
 	"strings"
 
 	awscfg "github.com/aws/aws-sdk-go-v2/config"
+	_ "go.beyondstorage.io/services/fs/v4"
 	_ "go.beyondstorage.io/services/gcs/v3"
 	_ "go.beyondstorage.io/services/s3/v3"
 	"go.beyondstorage.io/v5/pairs"
@@ -17,9 +23,23 @@ import (
 	"go.beyondstorage.io/v5/types"
 )
 
-var IteratorDone = types.IterateDone
+// Storage stores files in a cloud storage bucket or a local file system.
+type Storage struct {
+	bucket types.Storager
+}
 
-func NewStorage(storageURL string) (types.Storager, error) {
+func NewStorage(storageURL string) (*Storage, error) {
+	storager, err := newStorager(storageURL)
+	if err != nil {
+		return nil, fmt.Errorf("new storager: %w", err)
+	}
+
+	return &Storage{
+		bucket: storager,
+	}, nil
+}
+
+func newStorager(storageURL string) (types.Storager, error) {
 	ctx := context.Background()
 
 	u, err := url.Parse(storageURL)
@@ -88,7 +108,125 @@ func NewStorage(storageURL string) (types.Storager, error) {
 		}
 	}
 
+	if u.Scheme == "file" {
+		// Hack: "fs" == "file".
+		//
+		// beyondstorage uses "fs://" for local file system storage.
+		// gocloud.dev uses "file://" for the same purpose.
+		//
+		// As we're considering switching to gocloud.dev,
+		// we map "file://" to "fs://" here for beyondstorage
+		// so that we can still use "file://" in tests.
+		// If/when we do switch to gocloud.dev,
+		// the tests won't need to be modified because of this.
+		u.Scheme = "fs"
+	}
+
 	u.RawQuery = values.Encode()
 
 	return services.NewStoragerFromString(u.String())
+}
+
+// ErrNotExist indicates that a requested path does not exist.
+var ErrNotExist = os.ErrNotExist
+
+// ReadAll reads the entire content of a file at the specified path.
+// Returns [ErrNotExist] if the file does not exist.
+func (s *Storage) ReadAll(ctx context.Context, path string) ([]byte, error) {
+	var buf bytes.Buffer
+	_, err := s.bucket.ReadWithContext(ctx, path, &buf)
+	if err != nil {
+		if errors.Is(err, services.ErrObjectNotExist) {
+			return nil, ErrNotExist
+		}
+		return nil, fmt.Errorf("read all: %w", err)
+	}
+	return buf.Bytes(), nil
+}
+
+// WriteAll writes the entire content of a file at the specified path.
+func (s *Storage) WriteAll(ctx context.Context, path string, bs []byte) error {
+	_, err := s.bucket.WriteWithContext(ctx, path, bytes.NewReader(bs), int64(len(bs)))
+	return err
+}
+
+// ObjectMetadata contains metadata about an object in the storage.
+type ObjectMetadata struct {
+	// Path is the path to the object in the storage
+	// relative to the bucket root.
+	Path string
+
+	// ContentLength is the size of the object in bytes.
+	ContentLength int64
+}
+
+// Stat inspects an object in the storage and returns its metadata.
+// Returns [ErrNotExist] if the object does not exist.
+func (s *Storage) Stat(ctx context.Context, path string) (*ObjectMetadata, error) {
+	attrs, err := s.bucket.StatWithContext(ctx, path)
+	if err != nil {
+		if errors.Is(err, services.ErrObjectNotExist) {
+			return nil, ErrNotExist
+		}
+		return nil, fmt.Errorf("stat: %w", err)
+	}
+
+	contentLength, ok := attrs.GetContentLength()
+	if !ok {
+		return nil, fmt.Errorf("stat: content length not available")
+	}
+
+	return &ObjectMetadata{
+		Path:          path,
+		ContentLength: contentLength,
+	}, nil
+}
+
+// ReadInto reads the content of a file at the specified path
+// and writes it to the provided writer.
+//
+// Returns the number of bytes written and an error if any.
+// Returns [ErrNotExist] if the file does not exist.
+func (s *Storage) ReadInto(ctx context.Context, path string, w io.Writer) (int64, error) {
+	n, err := s.bucket.ReadWithContext(ctx, path, w)
+	if err != nil {
+		if errors.Is(err, services.ErrObjectNotExist) {
+			return 0, ErrNotExist
+		}
+		return 0, fmt.Errorf("new reader: %w", err)
+	}
+	return n, nil
+}
+
+// ListObject is an object in a bucket list iteration.
+type ListObject struct {
+	Path string
+}
+
+// List returns an iterator over objects in the storage
+// with the specified prefix.
+func (s *Storage) List(ctx context.Context, prefix string) iter.Seq2[ListObject, error] {
+	return func(yield func(ListObject, error) bool) {
+		it, err := s.bucket.ListWithContext(ctx, prefix)
+		if err != nil {
+			yield(ListObject{}, fmt.Errorf("list: %w", err))
+			return
+		}
+
+		for {
+			attrs, err := it.Next()
+			if err != nil {
+				if errors.Is(err, types.IterateDone) {
+					return
+				}
+
+				yield(ListObject{}, fmt.Errorf("list: %w", err))
+				return
+			}
+
+			if !yield(ListObject{Path: attrs.Path}, nil) {
+				return
+			}
+		}
+	}
 }

@@ -5,8 +5,5 @@ go_library(
     srcs = ["tagger.go"],
     importpath = "github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/tagger",
     visibility = ["//visibility:public"],
-    deps = [
-        "//snapshots/go/pkg/storage",
-        "@io_beyondstorage_go_v5//types",
-    ],
+    deps = ["//snapshots/go/pkg/storage"],
 )
