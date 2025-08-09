@@ -1,4 +1,4 @@
-load("@rules_go//go:def.bzl", "go_library")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "pusher",
@@ -8,5 +8,17 @@ go_library(
     deps = [
         "//snapshots/go/pkg/models",
         "//snapshots/go/pkg/storage",
+    ],
+)
+
+go_test(
+    name = "pusher_test",
+    srcs = ["pusher_test.go"],
+    embed = [":pusher"],
+    deps = [
+        "//snapshots/go/pkg/models",
+        "//snapshots/go/pkg/storage",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
     ],
 )

@@ -9,16 +9,24 @@ import (
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
 )
 
-type pusher struct{}
+type Storage interface {
+	WriteAll(ctx context.Context, location string, data []byte) error
+	Stat(ctx context.Context, location string) (*storage.ObjectMetadata, error)
+}
 
-func NewPusher() *pusher {
-	return &pusher{}
+var _ Storage = (*storage.Storage)(nil)
+
+type pusher struct {
+	store Storage
+}
+
+func NewPusher(store Storage) *pusher {
+	return &pusher{store: store}
 }
 
 type PushArgs struct {
-	Name       string
-	StorageUrl string
-	Snapshot   *models.Snapshot
+	Name     string
+	Snapshot *models.Snapshot
 }
 
 func (p *pusher) Push(ctx context.Context, args *PushArgs) (*storage.ObjectMetadata, error) {
@@ -31,17 +39,12 @@ func (p *pusher) Push(ctx context.Context, args *PushArgs) (*storage.ObjectMetad
 		return nil, fmt.Errorf("failed to marshal snapshot: %w", err)
 	}
 
-	store, err := storage.NewStorage(args.StorageUrl)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create storage client: %w", err)
-	}
-
 	location := fmt.Sprintf("snapshots/%s.json", args.Name)
-	if err := store.WriteAll(ctx, location, snapshotBytes); err != nil {
+	if err := p.store.WriteAll(ctx, location, snapshotBytes); err != nil {
 		return nil, fmt.Errorf("failed to write to bucket file: %w", err)
 	}
 
-	obj, err := store.Stat(ctx, location)
+	obj, err := p.store.Stat(ctx, location)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get object details: %w", err)
 	}
