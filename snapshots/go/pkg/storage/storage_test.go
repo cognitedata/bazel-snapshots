@@ -91,8 +91,6 @@ func TestList(t *testing.T) {
 	}
 
 	t.Run("PrefixFile", func(t *testing.T) {
-		t.Skip("beyondstorage FS backend does not support prefix matching")
-
 		var got []string
 		for obj, err := range storage.List(t.Context(), "foo") {
 			require.NoError(t, err)
@@ -119,8 +117,6 @@ func TestList(t *testing.T) {
 	})
 
 	t.Run("PrefixDirFile", func(t *testing.T) {
-		t.Skip("beyondstorage FS backend does not support prefix matching")
-
 		var got []string
 		for obj, err := range storage.List(t.Context(), "foo/b") {
 			require.NoError(t, err)
