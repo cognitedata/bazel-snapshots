@@ -108,7 +108,7 @@ add a `storage` attribute to `snapshots` in your root BUILD file:
 ```skylark
 snapshots(
     name = "snapshots",
-    storage = "gcs://some-bucket/workspace-name",
+    storage = "gs://some-bucket/workspace-name",
 )
 ```
 
@@ -116,39 +116,33 @@ The backends may be configured with additional options
 by adding query parameters to the storage URL:
 
 * **Google Cloud Storage**:
-   URLs must be in the form `gcs://<bucket>/<workspace-name>`.
-   The following query parameters are required:
+   URLs must be in the form `gs://<bucket>/<workspace-name>`.
+   Default credentials are used from the environment.
+   Query parameters can be used to override the defaults.
 
-    * `credential`:
-      Source of credentials.
-      Defaults to "env", which will load credentials from the environment.
-      See https://pkg.go.dev/go.beyondstorage.io/credential for options.
-    * `project_id`:
-      Google Cloud project ID.
-      Defaults to "env".
+   For a complete list of query parameters, see:
 
-    See https://beyondstorage.io/docs/go-storage/services/gcs for all
-    parameters.
+   - https://pkg.go.dev/gocloud.dev/blob/gcsblob#URLOpener
 
 * **AWS S3**
   URLs must be in the form `s3://<bucket>/<workspace-name>`.
-  AWS will use the default AWS credential configuration
+  The default AWS credentials are used
   (per `AWS_*` environment variables or AWS configuration files).
-  The following query parameters are supported:
+  Query parameters can be used to override the defaults.
 
-    * `credential`:
-      A string in the form `hmac:<access_key_id>:<secret_access_key>`.
-      Overrides the default AWS credentials.
-    * `region`:
-      AWS region to use.
-      Overrides the default region from the AWS configuration.
+  ```
+  s3://my-bucket/my-workspace?region=us-west-2&profile=my-profile
+  ```
 
+  For a complete list of query parameters, see:
 
+  - https://pkg.go.dev/gocloud.dev/aws#V2ConfigFromURLParams
+  - https://pkg.go.dev/gocloud.dev/blob/s3blob#URLOpener
 
-Backend | Example storage URL
+Backend | Documentation
 ---|---
-Google Cloud Storage | `gcs://my-bucket/my-workspace?credential=file:/path/to/creds`
-AWS S3 | `s3://my-bucket/my-workspace?region=us-west-2`
+Google Cloud Storage | https://pkg.go.dev/gocloud.dev/blob/gcsblob
+AWS S3 | https://pkg.go.dev/gocloud.dev/blob/s3blob
 
 Bazel Snapshots will create the following structure in the remote storage:
 
