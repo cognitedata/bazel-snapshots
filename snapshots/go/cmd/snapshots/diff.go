@@ -15,6 +15,7 @@ import (
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/differ"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/getter"
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/models"
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
 )
 
 type diffCmd struct {
@@ -92,13 +93,22 @@ func (dc *diffCmd) resolveSnapshot(ctx context.Context, name string) (*models.Sn
 		return snapshot, json.Unmarshal(fileBytes, snapshot)
 	}
 
-	getArgs := getter.GetArgs{
-		Name:       name,
-		StorageURL: dc.storageURL,
-		SkipNames:  false,
-		SkipTags:   false,
+	// If the name is not a file, we'll have to look it up in the store.
+	if dc.storageURL == "" {
+		return nil, fmt.Errorf("no storage provided, cannot resolve snapshot %s", name)
 	}
-	return getter.NewGetter().Get(ctx, &getArgs)
+
+	store, err := storage.NewStorage(dc.storageURL)
+	if err != nil {
+		return nil, fmt.Errorf("open storage: %w", err)
+	}
+
+	getArgs := getter.GetArgs{
+		Name:      name,
+		SkipNames: false,
+		SkipTags:  false,
+	}
+	return getter.NewGetter(store).Get(ctx, &getArgs)
 }
 
 func (dc *diffCmd) checkArgs() error {

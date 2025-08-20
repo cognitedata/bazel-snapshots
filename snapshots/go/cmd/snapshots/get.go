@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/getter"
+	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
 )
 
 type getCmd struct {
@@ -66,13 +67,17 @@ func (gc *getCmd) runGet(cmd *cobra.Command, args []string) error {
 
 	ctx := context.Background()
 
-	getArgs := getter.GetArgs{
-		Name:       gc.name,
-		StorageURL: gc.storageURL,
-		SkipNames:  gc.skipNames,
-		SkipTags:   gc.skipTags,
+	store, err := storage.NewStorage(gc.storageURL)
+	if err != nil {
+		return fmt.Errorf("open storage: %w", err)
 	}
-	snapshot, err := getter.NewGetter().Get(ctx, &getArgs)
+
+	getArgs := getter.GetArgs{
+		Name:      gc.name,
+		SkipNames: gc.skipNames,
+		SkipTags:  gc.skipTags,
+	}
+	snapshot, err := getter.NewGetter(store).Get(ctx, &getArgs)
 	if err != nil {
 		return err
 	}

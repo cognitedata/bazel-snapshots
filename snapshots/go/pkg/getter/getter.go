@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"iter"
 	"path"
 	"strings"
 
@@ -13,30 +15,34 @@ import (
 	"github.com/cognitedata/bazel-snapshots/snapshots/go/pkg/storage"
 )
 
-type getter struct{}
+type Storage interface {
+	ReadAll(ctx context.Context, path string) ([]byte, error)
+	ReadInto(ctx context.Context, path string, w io.Writer) (int64, error)
+	List(ctx context.Context, prefix string) iter.Seq2[storage.ListObject, error]
+}
 
-func NewGetter() *getter {
-	return &getter{}
+var _ Storage = (*storage.Storage)(nil)
+
+type getter struct {
+	store Storage
+}
+
+func NewGetter(store Storage) *getter {
+	return &getter{store: store}
 }
 
 type GetArgs struct {
-	Name       string
-	StorageURL string
-	SkipNames  bool
-	SkipTags   bool
+	Name      string
+	SkipNames bool
+	SkipTags  bool
 }
 
 func (g *getter) Get(ctx context.Context, args *GetArgs) (*models.Snapshot, error) {
-	store, err := storage.NewStorage(args.StorageURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create client: %w", err)
-	}
-
 	var snapshotName string
 	if !args.SkipTags {
 		tagPath := fmt.Sprintf("tags/%s", args.Name)
 
-		snapshotBytes, err := store.ReadAll(ctx, tagPath)
+		snapshotBytes, err := g.store.ReadAll(ctx, tagPath)
 		if err != nil {
 			if !errors.Is(err, storage.ErrNotExist) {
 				return nil, fmt.Errorf("read tag %q: %w", args.Name, err)
@@ -47,7 +53,7 @@ func (g *getter) Get(ctx context.Context, args *GetArgs) (*models.Snapshot, erro
 	}
 	if !args.SkipNames && snapshotName == "" {
 		prefix := fmt.Sprintf("snapshots/%s", args.Name)
-		for obj, err := range store.List(ctx, prefix) {
+		for obj, err := range g.store.List(ctx, prefix) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to list snapshots with prefix %s: %w", prefix, err)
 			}
@@ -63,10 +69,14 @@ func (g *getter) Get(ctx context.Context, args *GetArgs) (*models.Snapshot, erro
 		}
 	}
 
+	if snapshotName == "" {
+		return nil, fmt.Errorf("snapshot %s not found", args.Name)
+	}
+
 	snapshotBuffer := new(bytes.Buffer)
-	_, err = store.ReadInto(ctx, fmt.Sprintf("snapshots/%s.json", snapshotName), snapshotBuffer)
+	_, err := g.store.ReadInto(ctx, fmt.Sprintf("snapshots/%s.json", snapshotName), snapshotBuffer)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find resolved snapshot %s: %w", snapshotName, err)
+		return nil, fmt.Errorf("failed to find resolved snapshot %q: %w", snapshotName, err)
 	}
 
 	snapshot := &models.Snapshot{}
