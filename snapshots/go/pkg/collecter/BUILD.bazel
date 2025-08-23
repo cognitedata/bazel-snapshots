@@ -1,4 +1,4 @@
-load("@rules_go//go:def.bzl", "go_library")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "collecter",
@@ -13,5 +13,15 @@ go_library(
         "//snapshots/go/pkg/cache",
         "//snapshots/go/pkg/models",
         "@org_golang_google_grpc//metadata",
+    ],
+)
+
+go_test(
+    name = "collecter_test",
+    srcs = ["collecter_test.go"],
+    embed = [":collecter"],
+    deps = [
+        "//snapshots/go/pkg/bazel",
+        "@com_github_stretchr_testify//assert",
     ],
 )

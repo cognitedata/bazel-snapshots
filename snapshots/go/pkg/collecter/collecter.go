@@ -80,25 +80,46 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 		buildEvents = bazelc.BuildEventOutput(ctx, args.BazelRcPath, bazelArgs...)
 	}
 
-	// create a map from label to file
-	labelFiles := map[string]string{}
+	bazelFiles := make(namedSetsOfFiles)
+	labelFiles := make(map[string]string) // label -> uri
 	for event, err := range buildEvents {
 		if err != nil {
 			return nil, fmt.Errorf("error reading build event: %w", err)
 		}
+		switch {
+		case event.ID.NamedSet.ID != "":
+			bazelFiles.Put(event.ID.NamedSet.ID, event.NamedSetOfFiles)
 
-		label := event.ID.TargetCompleted.Label
-		var uri string
+		case event.ID.TargetCompleted.Label != "":
+			label := event.ID.TargetCompleted.Label
+			var labelURI string
+		uriSearch:
+			for _, group := range event.Completed.OutputGroups {
+				if group.Name != "change_track_files" {
+					continue
+				}
 
-		for idx, g := range event.Completed.OutputGroups {
-			if g.Name == "change_track_files" {
-				uri = event.Completed.ImportantOutput[idx].URI
-				break
+				// Found a change_track_files output group.
+				// Find the file set for this label.
+				// File sets can point to other file sets,
+				// so we need to traverse them
+				// until we find the actual change tracker files.
+				//
+				// Bazel guarantees that a file set will be
+				// provided before it's referenced.
+				for _, fileSet := range group.FileSets {
+					for uri := range bazelFiles.ByID(fileSet.ID) {
+						// change_track_files will
+						// contain only one file per label,
+						// so we can stop at the first one.
+						labelURI = uri
+						break uriSearch
+					}
+				}
 			}
-		}
-
-		if label != "" && uri != "" {
-			labelFiles[label] = uri
+			if label != "" && labelURI != "" {
+				labelFiles[label] = labelURI
+			}
 		}
 	}
 	log.Printf("got %d change trackers", len(labelFiles))
@@ -153,6 +174,51 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 	}
 
 	return manifest, nil
+}
+
+// namedSetsOfFiles is an in-memory buffer for NamedSetOfFiles.
+//
+// Bazel produces NamedSetOfFiles events in the build event stream,
+// alongside TargetCompleted events.
+// Both events can reference other NamedSetOfFiles by ID.
+// Bazel guarantees that a NamedSetOfFiles event will be
+// provided before it's referenced.
+//
+// To use namedSetsOfFiles, populate it with NamedSetOfFiles events
+// as they are produced by Bazel using Put().
+//
+// To retrieve all files in a NamedSetOfFiles by ID,
+// use ByID(), to get an iterator over the file URIs.
+type namedSetsOfFiles map[string]bazel.NamedSetOfFiles
+
+func (fs namedSetsOfFiles) Put(id string, ns bazel.NamedSetOfFiles) {
+	fs[id] = ns
+}
+
+func (fs namedSetsOfFiles) ByID(fileSetID string) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		pending := []string{fileSetID}
+		seen := make(map[string]struct{})
+		for len(pending) > 0 {
+			currentID := pending[len(pending)-1]
+			pending = pending[:len(pending)-1]
+
+			if _, ok := seen[currentID]; ok {
+				continue // already seen this file set
+			}
+			seen[currentID] = struct{}{}
+
+			for _, file := range fs[currentID].Files {
+				if !yield(file.URI) {
+					return
+				}
+			}
+
+			for _, fileSet := range fs[currentID].FileSets {
+				pending = append(pending, fileSet.ID)
+			}
+		}
+	}
 }
 
 func createMetadata(input []string) metadata.MD {
