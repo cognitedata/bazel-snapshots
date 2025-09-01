@@ -7,7 +7,7 @@ toolchain go1.25.0
 require (
 	github.com/bazelbuild/rules_go v0.57.0
 	github.com/olekukonko/tablewriter v1.0.9
-	github.com/spf13/cobra v1.9.1
+	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
 	gocloud.dev v0.43.0
 	google.golang.org/genproto/googleapis/bytestream v0.0.0-20250826171959-ef028d996bc1
@@ -71,7 +71,7 @@ require (
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
 	github.com/zeebo/errs v1.4.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
