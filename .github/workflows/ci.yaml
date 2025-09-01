@@ -11,11 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # - name: Mount bazel cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: "/home/runner/.cache/bazel"
-      #     key: bazel
+      - name: Mount bazel cache
+        id: cache-bazel
+        uses: actions/cache@v4
+        with:
+          path: |
+            /home/runner/.cache/bazel/disk-cache
+            /home/runner/.cache/bazel/repo-cache
+          key: bazel
+
+      - name: Setup bazelrc for CI
+        run: |
+          cp .ci.bazelrc user.bazelrc
 
       - name: Gazelle
         run: |
@@ -42,5 +49,6 @@ jobs:
           EXAMPLES="$(find examples -type d -maxdepth 1 -mindepth 1 | grep -v use-binaries)"
           for f in $EXAMPLES; do
             echo "Running example $f"
+            cp user.bazelrc "$f"/user.bazelrc
             (cd "$f" && bazel run snapshots -- collect)
           done

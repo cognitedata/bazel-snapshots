@@ -1,0 +1,2 @@
+common --disk_cache=/home/runner/.cache/bazel/disk-cache
+common --repository_cache=/home/runner/.cache/bazel/repo-cache
