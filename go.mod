@@ -11,7 +11,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	gocloud.dev v0.43.0
 	google.golang.org/genproto/googleapis/bytestream v0.0.0-20250826171959-ef028d996bc1
-	google.golang.org/grpc v1.75.0
+	google.golang.org/grpc v1.75.1
 )
 
 require (
