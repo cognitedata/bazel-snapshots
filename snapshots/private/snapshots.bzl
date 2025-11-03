@@ -1,6 +1,7 @@
 """Snapshot rules for incremental deploys."""
 
 load("@bazel_skylib//lib:shell.bzl", "shell")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 def create_tracker_file(ctx, inputs, run = [], tags = [], suffix = ".tracker.json"):
     """Creates an output group with a tracker file.
@@ -123,7 +124,7 @@ def snapshots(name, **kwargs):
         tags = ["manual"],
         **kwargs
     )
-    native.sh_binary(
+    sh_binary(
         name = name,
         srcs = [runner_name],
         tags = ["manual"],
