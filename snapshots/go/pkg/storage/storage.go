@@ -34,7 +34,7 @@ type Storage struct {
 func NewStorage(storageURL string) (*Storage, error) {
 	ctx := context.Background()
 
-	storageURL = backwardsCompatibleStorageURL(storageURL)
+	storageURL = transformURL(storageURL)
 	bucket, err := blob.OpenBucket(ctx, storageURL)
 	if err != nil {
 		return nil, fmt.Errorf("open bucket: %w", err)

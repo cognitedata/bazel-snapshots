@@ -2,6 +2,9 @@ package storage
 
 import (
 	"bytes"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -127,4 +130,41 @@ func TestList(t *testing.T) {
 			"foo/bar",
 		}, got)
 	})
+}
+
+// Verifies that s3://bucket/subdir URLs write to the subdir prefix,
+// not the bucket root.
+func TestS3SubdirectoryURL(t *testing.T) {
+	var capturedPath string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedPath = r.URL.Path
+
+		// Return a minimal response for PUT requests.
+		if r.Method == http.MethodPut {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Return S3-style NotFound for anything else.
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = fmt.Fprint(w, `<?xml version="1.0" encoding="UTF-8"?>
+<Error>
+	<Code>NoSuchKey</Code>
+	<Message>The specified key does not exist.</Message>
+</Error>`)
+	}))
+	defer srv.Close()
+
+	// use_path_style tells the AWS SDK to put the bucket name in the path,
+	// e.g.
+	//    example.com/bucket-name/subdir
+	// Instead of,
+	//    bucket-name.example.com/subdir
+	storageURL := fmt.Sprintf("s3://mybucket/subdir?endpoint=%s&use_path_style=true&anonymous=true", srv.URL)
+
+	store, err := NewStorage(storageURL)
+	require.NoError(t, err)
+
+	_ = store.WriteAll(t.Context(), "test.txt", []byte("hello"))
+	assert.Equal(t, "/mybucket/subdir/test.txt", capturedPath)
 }
