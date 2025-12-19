@@ -13,7 +13,7 @@ jobs:
 
       - name: Mount bazel cache
         id: cache-bazel
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             /home/runner/.cache/bazel/disk-cache
