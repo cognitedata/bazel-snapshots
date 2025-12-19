@@ -3,7 +3,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -11,10 +13,11 @@ import (
 )
 
 type digestCmd struct {
-	inPaths []string
-	run     []string
-	tags    []string
-	outPath string
+	inPaths     []string
+	run         []string
+	tags        []string
+	outPath     string
+	inPathsFile string
 
 	cmd *cobra.Command
 }
@@ -36,6 +39,7 @@ files, plus metadata determined by other flags.`,
 	cmd.PersistentFlags().StringArrayVar(&dc.run, "run", nil, "Run")
 	cmd.PersistentFlags().StringArrayVar(&dc.tags, "tag", nil, "Tags")
 	cmd.PersistentFlags().StringVar(&dc.outPath, "out", "", "Output path")
+	cmd.PersistentFlags().StringVar(&dc.inPathsFile, "inputs-file", "", "File containing input paths to read, one per line")
 
 	cmd.RunE = dc.runDigest
 
@@ -44,6 +48,26 @@ files, plus metadata determined by other flags.`,
 
 func (dc *digestCmd) checkArgs(args []string) error {
 	dc.inPaths = args
+	if dc.inPathsFile != "" {
+		f, err := os.Open(dc.inPathsFile)
+		if err != nil {
+			return fmt.Errorf("open file: %w", err)
+		}
+		defer func() { _ = f.Close() }()
+
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if line != "" {
+				dc.inPaths = append(dc.inPaths, line)
+			}
+		}
+
+		if err := scanner.Err(); err != nil {
+			return fmt.Errorf("read file: %w", err)
+		}
+	}
+
 	if len(dc.inPaths) == 0 {
 		return fmt.Errorf("need at least one path to digest")
 	}

@@ -21,16 +21,28 @@ def create_tracker_file(ctx, inputs, run = [], tags = [], suffix = ".tracker.jso
     snaptool = ctx.toolchains["@com_cognitedata_bazel_snapshots//snapshots:snaptool_toolchain_type"]
     tracker_file = ctx.actions.declare_file("{name}{suffix}".format(name = ctx.label.name, suffix = suffix))
 
+    # We don't know how many files are in the inputs.
+    # If they're over a certain number,
+    # the command will fail with too many arguments.
+    #
+    # To avoid that, we turn the list into a list-of-files.
+    input_list = ctx.actions.args()
+    input_list.add_all(inputs)
+    input_list.set_param_file_format("multiline")
+
+    input_list_file = ctx.actions.declare_file(tracker_file.short_path + ".inputs")
+    ctx.actions.write(output = input_list_file, content = input_list)
+
     args = ctx.actions.args()
     args.add("digest")
     args.add(tracker_file, format = "--out=%s")
+    args.add(input_list_file, format = "--inputs-file=%s")
     args.add_all(run, format_each = "--run=%s")
     args.add_all(tags, format_each = "--tag=%s")
-    args.add_all(inputs)
 
     ctx.actions.run(
         outputs = [tracker_file],
-        inputs = inputs,
+        inputs = depset([input_list_file], transitive = [inputs]),
         executable = snaptool.snaptool_info.binary,
         arguments = [args],
         progress_message = "Creating tracker",

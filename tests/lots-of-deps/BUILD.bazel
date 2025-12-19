@@ -1,0 +1,39 @@
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("//snapshots:defs.bzl", "change_tracker")
+
+_FILE_COUNT = 15000
+
+[write_file(
+    name = "file_%d" % i,
+    out = "file_%d.txt" % i,
+    content = ["This is file number %d\n" % i],
+) for i in range(_FILE_COUNT)]
+
+filegroup(
+    name = "files",
+    srcs = ["file_%d.txt" % i for i in range(_FILE_COUNT)],
+)
+
+change_tracker(
+    name = "files_tracker",
+    run = [":deploy"],
+    deps = [":files"],
+)
+
+sh_binary(
+    name = "deploy",
+    srcs = ["deploy.sh"],
+)
+
+filegroup(
+    name = "files_digest",
+    srcs = [":files_tracker"],
+    output_group = "change_track_files",
+)
+
+diff_test(
+    name = "files_digest_diff_test",
+    file1 = ":files_digest",
+    file2 = "files_digest.json",
+)
