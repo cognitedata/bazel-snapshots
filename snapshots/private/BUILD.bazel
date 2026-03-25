@@ -17,6 +17,6 @@ stardoc(
     name = "snapshots_doc",
     out = "snapshots.md",
     input = "snapshots.bzl",
-    deps = [":snapshots"],
     visibility = ["//docs:__pkg__"],
+    deps = [":snapshots"],
 )

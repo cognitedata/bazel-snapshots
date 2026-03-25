@@ -35,14 +35,14 @@ stardoc(
     name = "defs_doc",
     out = "defs.md",
     input = "defs.bzl",
-    deps = [":defs"],
     visibility = ["//docs:__pkg__"],
+    deps = [":defs"],
 )
 
 stardoc(
     name = "toolchain_doc",
     out = "toolchain.md",
     input = "toolchain.bzl",
-    deps = [":toolchain"],
     visibility = ["//docs:__pkg__"],
+    deps = [":toolchain"],
 )
