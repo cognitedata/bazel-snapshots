@@ -1,4 +1,4 @@
-load("//tools:snaptool_toolchain.bzl", "snaptool_toolchain")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 toolchain_type(
     name = "toolchain_type",
