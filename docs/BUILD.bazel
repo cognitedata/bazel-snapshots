@@ -1,0 +1,10 @@
+load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
+
+write_source_files(
+    name = "update",
+    files = {
+        "defs.md": "//snapshots:defs_doc",
+        "toolchain.md": "//snapshots:toolchain_doc",
+        "snapshots.md": "//snapshots/private:snapshots_doc",
+    },
+)

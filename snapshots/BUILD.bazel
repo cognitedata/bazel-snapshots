@@ -1,4 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@stardoc//stardoc:stardoc.bzl", "stardoc")
 
 toolchain_type(
     name = "snaptool_toolchain_type",
@@ -28,4 +29,20 @@ bzl_library(
     name = "toolchain",
     srcs = ["toolchain.bzl"],
     visibility = ["//visibility:public"],
+)
+
+stardoc(
+    name = "defs_doc",
+    out = "defs.md",
+    input = "defs.bzl",
+    deps = [":defs"],
+    visibility = ["//docs:__pkg__"],
+)
+
+stardoc(
+    name = "toolchain_doc",
+    out = "toolchain.md",
+    input = "toolchain.bzl",
+    deps = [":toolchain"],
+    visibility = ["//docs:__pkg__"],
 )
