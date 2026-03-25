@@ -1,4 +1,5 @@
 load("@com_cognitedata_bazel_snapshots//snapshots:defs.bzl", "change_tracker", "snapshots")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 # Output based change detection.
 #
