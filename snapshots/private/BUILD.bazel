@@ -1,4 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@stardoc//stardoc:stardoc.bzl", "stardoc")
 
 exports_files(["runner.tmpl.sh"])
 
@@ -10,4 +11,12 @@ bzl_library(
         "@bazel_skylib//lib:shell",
         "@rules_shell//shell:rules_bzl",
     ],
+)
+
+stardoc(
+    name = "snapshots_doc",
+    out = "snapshots.md",
+    input = "snapshots.bzl",
+    visibility = ["//docs:__pkg__"],
+    deps = [":snapshots"],
 )
