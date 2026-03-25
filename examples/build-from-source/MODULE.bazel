@@ -1,6 +1,7 @@
 module(name = "test", version = "0.0.0")
 
 bazel_dep(name = "com_cognitedata_bazel_snapshots", version = "0.0.0")
+bazel_dep(name = "protobuf", version = "33.6")
 bazel_dep(name = "rules_shell", version = "0.7.1")
 local_path_override(
     module_name = "com_cognitedata_bazel_snapshots",

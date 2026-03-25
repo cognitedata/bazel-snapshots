@@ -2,4 +2,7 @@
 build --verbose_failures
 test --test_output=errors
 
+# Avoid building protoc from source
+common --@protobuf//bazel/toolchains:prefer_prebuilt_protoc
+
 try-import %workspace%/user.bazelrc
