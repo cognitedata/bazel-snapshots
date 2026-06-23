@@ -1,7 +1,8 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
-    'config:recommended',
+    'local>cognitedata/renovate-config-public',
+    'config:best-practices',
   ],
   packageRules: [
     {
