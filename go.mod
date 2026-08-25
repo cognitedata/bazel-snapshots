@@ -8,7 +8,7 @@ require (
 	github.com/bazelbuild/rules_go v0.63.0
 	github.com/olekukonko/tablewriter v1.1.4
 	github.com/spf13/cobra v1.10.2
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.0
 	gocloud.dev v0.46.0
 	google.golang.org/genproto/googleapis/bytestream v0.0.0-20260610212136-7ab31c22f7ad
 	google.golang.org/grpc v1.82.1
