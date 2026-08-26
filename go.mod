@@ -2,7 +2,7 @@ module github.com/cognitedata/bazel-snapshots
 
 go 1.25.0
 
-toolchain go1.26.6
+toolchain go1.27.0
 
 require (
 	github.com/bazelbuild/rules_go v0.63.0
