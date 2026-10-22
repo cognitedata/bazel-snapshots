@@ -250,4 +250,15 @@ A tracker will typically look something like this:
 }
 ```
 
+## Development
+
+`MODULE.bazel.lock` is committed to the repository to pin the resolved dependency graph and ensure reproducible builds.
+CI checks that it is up to date using `bazel mod deps --lockfile_mode=error`.
+
+If you change `MODULE.bazel` (or a transitive dependency's module definition changes), regenerate the lockfile and commit the result:
+
+```sh
+bazel mod deps --lockfile_mode=update
+```
+
 

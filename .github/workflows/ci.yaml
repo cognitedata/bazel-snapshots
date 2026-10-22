@@ -24,6 +24,10 @@ jobs:
         run: |
           cp .ci.bazelrc user.bazelrc
 
+      - name: Check MODULE.bazel.lock is up to date
+        run: |
+          bazel mod deps --lockfile_mode=error
+
       - name: Gazelle
         run: |
           bazel run //:gazelle_check
