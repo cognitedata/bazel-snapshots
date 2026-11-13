@@ -26,6 +26,7 @@ go_test(
     deps = [
         "//snapshots/go/pkg/bazel",
         "//snapshots/go/pkg/cache",
+        "//snapshots/go/pkg/models",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
         "@org_golang_google_genproto_googleapis_bytestream//:bytestream",

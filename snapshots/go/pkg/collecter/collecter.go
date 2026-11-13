@@ -69,11 +69,9 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 	// A tracker file may be evicted from the remote CAS between the build
 	// and our read of it. When that happens, rebuild (forcing the actions
 	// to re-execute and re-upload their outputs) and try again.
-	// Retrying is only possible when we run bazel ourselves.
+	// When the caller supplied the build events file, the rebuild rewrites
+	// that file, using the same expression and output group.
 	retries := args.CacheEvictionRetries
-	if args.BazelBuildEventsPath != "" {
-		retries = 0
-	}
 
 	var manifest *models.Snapshot
 	for attempt := 0; ; attempt++ {
@@ -130,6 +128,19 @@ func (c *collecter) collectOnce(ctx context.Context, args *CollectArgs, bcache c
 
 	var buildEvents iter.Seq2[bazel.BuildEventOutput, error]
 	if args.BazelBuildEventsPath != "" {
+		if len(extraArgs) > 0 {
+			// Retry: rebuild, rewriting the caller's build events file.
+			cmdArgs := []string{"build", "--build_event_json_file=" + args.BazelBuildEventsPath}
+			if args.BazelRcPath != "" {
+				cmdArgs = append([]string{"--bazelrc=" + args.BazelRcPath}, cmdArgs...)
+			}
+			cmdArgs = append(cmdArgs, bazelArgs...)
+			bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
+			if _, err := bazelc.Command(ctx, cmdArgs...); err != nil {
+				return nil, fmt.Errorf("failed to rebuild: %w", err)
+			}
+		}
+
 		f, err := os.Open(args.BazelBuildEventsPath)
 		if err != nil {
 			return nil, err
