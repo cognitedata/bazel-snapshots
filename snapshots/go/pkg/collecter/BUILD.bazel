@@ -18,10 +18,19 @@ go_library(
 
 go_test(
     name = "collecter_test",
-    srcs = ["collecter_test.go"],
+    srcs = [
+        "collecter_test.go",
+        "e2e_test.go",
+    ],
     embed = [":collecter"],
     deps = [
         "//snapshots/go/pkg/bazel",
+        "//snapshots/go/pkg/cache",
         "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@org_golang_google_genproto_googleapis_bytestream//:bytestream",
+        "@org_golang_google_grpc//:grpc",
+        "@org_golang_google_grpc//codes",
+        "@org_golang_google_grpc//status",
     ],
 )
