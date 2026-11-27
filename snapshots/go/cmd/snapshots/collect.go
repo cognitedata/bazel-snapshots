@@ -26,6 +26,7 @@ type collectCmd struct {
 	credentialHelper       string
 	outPath                string
 	noPrint                bool
+	cacheEvictionRetries   int
 	workspacePath          string
 
 	cmd *cobra.Command
@@ -61,6 +62,8 @@ func newCollectCmd() *collectCmd {
 	cmd.PersistentFlags().StringVar(&cc.credentialHelper, "credential_helper", "", "path to a credential helper, relative to workspace-path")
 	cmd.PersistentFlags().StringVar(&cc.outPath, "out-path", "", "output file path")
 	cmd.PersistentFlags().BoolVar(&cc.noPrint, "no-print", false, "don't print if not writing to file")
+
+	cmd.PersistentFlags().IntVar(&cc.cacheEvictionRetries, "cache-eviction-retries", 2, "times to rebuild and retry when a tracker file was evicted from the remote cache")
 
 	cmd.RunE = cc.runCollect
 
@@ -125,6 +128,7 @@ func (cc *collectCmd) runCollect(cmd *cobra.Command, args []string) error {
 		CredentialHelper:       cc.credentialHelper,
 		OutPath:                cc.outPath,
 		NoPrint:                cc.noPrint,
+		CacheEvictionRetries:   cc.cacheEvictionRetries,
 	}
 	if _, err := collecter.NewCollecter().Collect(&collectArgs); err != nil {
 		return fmt.Errorf("failed to collect: %w", err)

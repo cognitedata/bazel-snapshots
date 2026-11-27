@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"iter"
@@ -36,6 +37,9 @@ type CollectArgs struct {
 	CredentialHelper       string
 	OutPath                string
 	NoPrint                bool
+	// CacheEvictionRetries is how many times to rebuild and retry when a
+	// tracker file is missing from the remote cache.
+	CacheEvictionRetries int
 }
 
 // collect uses Bazel directly to build and collect all change tracker files to
@@ -62,12 +66,81 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 
 	bcache := cache.NewDefaultDelegatingCache(credential)
 
+	// A tracker file may be evicted from the remote CAS between the build
+	// and our read of it. When that happens, rebuild (forcing the actions
+	// to re-execute and re-upload their outputs) and try again.
+	// When the caller supplied the build events file, the rebuild rewrites
+	// that file, using the same expression and output group.
+	retries := args.CacheEvictionRetries
+
+	var manifest *models.Snapshot
+	for attempt := 0; ; attempt++ {
+		var extraArgs []string
+		if attempt > 0 {
+			extraArgs = []string{"--noremote_accept_cached"}
+		}
+
+		var err error
+		manifest, err = c.collectOnce(ctx, args, bcache, bstderr, extraArgs...)
+		if err == nil {
+			break
+		}
+		if !errors.Is(err, cache.ErrUnavailable) || attempt >= retries {
+			return nil, err
+		}
+		log.Printf("tracker evicted from remote cache (%v); rebuilding, retry %d/%d", err, attempt+1, retries)
+	}
+
+	// should support writing to outfile here, since it can be reused in other commands
+	snapshotJSON, err := json.MarshalIndent(manifest, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal manifest JSON: %w", err)
+	}
+
+	if args.OutPath != "" {
+		// write to outpath
+		outFile, err := os.Create(args.OutPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open out path: %w", err)
+		}
+
+		if _, err := io.Copy(outFile, bytes.NewReader(snapshotJSON)); err != nil {
+			return nil, err
+		}
+		log.Printf("wrote file to %s", outFile.Name())
+	}
+
+	if args.OutPath == "" && !args.NoPrint {
+		// write to stdout
+		if _, err := io.Copy(os.Stdout, bytes.NewBuffer(snapshotJSON)); err != nil {
+			return nil, err
+		}
+	}
+
+	return manifest, nil
+}
+
+// collectOnce runs one build and reads all tracker files from the cache.
+func (c *collecter) collectOnce(ctx context.Context, args *CollectArgs, bcache cache.BazelCache, bstderr io.Writer, extraArgs ...string) (*models.Snapshot, error) {
 	// build digests, get the build events
 	log.Printf("collecting digests from %s", args.BazelExpression)
-	bazelArgs := []string{args.BazelExpression, "--output_groups=change_track_files"}
+	bazelArgs := append([]string{args.BazelExpression, "--output_groups=change_track_files"}, extraArgs...)
 
 	var buildEvents iter.Seq2[bazel.BuildEventOutput, error]
 	if args.BazelBuildEventsPath != "" {
+		if len(extraArgs) > 0 {
+			// Retry: rebuild, rewriting the caller's build events file.
+			cmdArgs := []string{"build", "--build_event_json_file=" + args.BazelBuildEventsPath}
+			if args.BazelRcPath != "" {
+				cmdArgs = append([]string{"--bazelrc=" + args.BazelRcPath}, cmdArgs...)
+			}
+			cmdArgs = append(cmdArgs, bazelArgs...)
+			bazelc := bazel.NewClient(args.BazelPath, args.BazelWorkspacePath, bstderr)
+			if _, err := bazelc.Command(ctx, cmdArgs...); err != nil {
+				return nil, fmt.Errorf("failed to rebuild: %w", err)
+			}
+		}
+
 		f, err := os.Open(args.BazelBuildEventsPath)
 		if err != nil {
 			return nil, err
@@ -145,32 +218,6 @@ func (c *collecter) Collect(args *CollectArgs) (*models.Snapshot, error) {
 		}
 
 		manifest.Labels[label] = tracker
-	}
-
-	// should support writing to outfile here, since it can be reused in other commands
-	snapshotJSON, err := json.MarshalIndent(manifest, "", "  ")
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal manifest JSON: %w", err)
-	}
-
-	if args.OutPath != "" {
-		// write to outpath
-		outFile, err := os.Create(args.OutPath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to open out path: %w", err)
-		}
-
-		if _, err := io.Copy(outFile, bytes.NewReader(snapshotJSON)); err != nil {
-			return nil, err
-		}
-		log.Printf("wrote file to %s", outFile.Name())
-	}
-
-	if args.OutPath == "" && !args.NoPrint {
-		// write to stdout
-		if _, err := io.Copy(os.Stdout, bytes.NewBuffer(snapshotJSON)); err != nil {
-			return nil, err
-		}
 	}
 
 	return manifest, nil
