@@ -10,7 +10,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 	gocloud.dev v0.47.0
-	google.golang.org/genproto/googleapis/bytestream v0.0.0-20260921155816-b14227669459
+	google.golang.org/genproto/googleapis/bytestream v0.0.0-20261026165753-2ffab32bce7e
 	google.golang.org/grpc v1.84.0
 )
 
